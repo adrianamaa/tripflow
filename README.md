@@ -5,7 +5,7 @@ avisa antes de que el dinero se acabe.
 
 Reto técnico para Alegra — Adriana Forero, agosto de 2026.
 
-**En vivo:** https://tripflow-drab.vercel.app
+**En vivo:** https://usetripflow.vercel.app
 
 ## Estado
 
