@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Los tokens del sistema se definen acá cuando la dirección visual esté cerrada.
+   Por ahora solo lo mínimo para que la página no herede estilos de nadie. */
+
+body {
+  margin: 0;
+}
