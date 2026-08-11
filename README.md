@@ -31,6 +31,7 @@ aparezca el día de la entrega.
 | [`docs/01-research.md`](docs/01-research.md) | Investigación: el problema, las referencias, las personas y de dónde salió cada decisión |
 | [`docs/02-proceso-ia.md`](docs/02-proceso-ia.md) | Qué le pedí a la IA, qué me devolvió y qué corregí yo |
 | [`docs/03-alcance.md`](docs/03-alcance.md) | Qué entra, qué queda fuera y por qué |
+| [`docs/04-color.md`](docs/04-color.md) | El color de marca medido, y las reglas que salen de esas medidas |
 
 ## Cómo correrlo
 
