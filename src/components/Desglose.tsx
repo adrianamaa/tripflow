@@ -8,19 +8,26 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  *
  * ── Por qué barras y no una dona ───────────────────────────────────────────
  *
- * La pregunta que contesta esta pieza es «¿en qué gasté más?», y eso es
- * comparar magnitudes. Comparar longitudes es inmediato; comparar ángulos no.
- * Cleveland & McGill (1984) lo midieron: una dona para comparar valores
- * cercanos se reemplaza por una barra o por los números.
+ * La pregunta es «¿en qué gasté más?», y eso es comparar magnitudes. Comparar
+ * longitudes es inmediato; comparar ángulos no. Cleveland & McGill (1984) lo
+ * dice sin rodeos: una dona para comparar valores cercanos se reemplaza por
+ * una barra.
  *
- * ── Por qué un solo color y no seis ────────────────────────────────────────
+ * ── Por qué un solo tono y no seis ─────────────────────────────────────────
  *
- * Porque el color acá no carga identidad: la carga la palabra, que está al
- * lado. Seis matices saturados no agregarían información y sí volverían la
- * pantalla un semáforo.
+ * Porque acá el color no tiene trabajo. La identidad la carga la palabra, que
+ * está al lado; la magnitud la carga la longitud. Un color por categoría solo
+ * serviría para reconocer la misma categoría a través de varias pantallas, y
+ * no es el caso. Seis matices saturados no agregarían información y volverían
+ * la pantalla un semáforo — que es justo lo que hay que evitar.
  *
- * Las barras van ordenadas de mayor a menor, así que el orden ya es la
- * respuesta antes de leer una sola cifra.
+ * Lo que sí resuelve la sensación de plano es una ESCALERA: cada barra un paso
+ * más clara que la anterior. Refuerza el orden en vez de competir con él.
+ *
+ * ── Por qué no hay porcentaje ──────────────────────────────────────────────
+ *
+ * Porque la barra ya es el porcentaje. Monto, longitud y porcentaje son la
+ * misma información tres veces, y el resultado es que ninguna se lee.
  */
 export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
   if (gastos.length === 0) return null;
@@ -32,35 +39,30 @@ export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
 
   const filas = [...porCategoria.entries()].sort((a, b) => b[1] - a[1]);
   const mayor = filas[0][1];
-  const total = filas.reduce((s, [, v]) => s + v, 0);
 
   return (
-    <section className="flex flex-col gap-2.5">
+    <section className="flex flex-col gap-3">
       <h2 className="rotulo m-0">En qué se va</h2>
 
-      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+      <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {filas.map(([categoria, monto], i) => (
-          <li key={categoria} className="flex flex-col gap-1">
-            <div className="flex items-baseline justify-between gap-3 text-[13px]">
-              <span className="ancho-ui capitalize">{categoria}</span>
-              <span className="text-(--color-tinta-2)">
-                <span className="cifra text-(--color-tinta)">
-                  {formatearMoneda(monto, viaje.moneda)}
-                </span>{" "}
-                <span className="cifra">{Math.round((monto / total) * 100)}%</span>
-              </span>
+          <li key={categoria} className="flex flex-col gap-1.5">
+            {/* Dos anclas, una en cada extremo: qué fue y cuánto. Nada compite
+                en el medio. */}
+            <div className="flex items-baseline justify-between gap-4">
+              <span className="ancho-ui text-sm capitalize">{categoria}</span>
+              <span className="cifra text-sm">{formatearMoneda(monto, viaje.moneda)}</span>
             </div>
-            {/* La escala es contra la categoría más grande, no contra el total:
-                así la barra más larga llena el ancho y las demás se comparan
-                contra ella, que es la comparación que importa. */}
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--color-reposo)">
+
+            <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-reposo)">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full bg-(--color-tinta)"
                 style={{
                   width: `${(monto / mayor) * 100}%`,
-                  background: "var(--color-tinta)",
-                  // La primera es la respuesta; las demás son contexto.
-                  opacity: i === 0 ? 1 : 0.45,
+                  // Escalera: la primera a plena tinta y cada siguiente un paso
+                  // más clara. Nunca por debajo de 0.3, que es donde una barra
+                  // deja de leerse contra su pista.
+                  opacity: Math.max(0.3, 1 - i * 0.16),
                 }}
               />
             </div>
