@@ -6,6 +6,7 @@ import { leerMonto } from "@/lib/moneda.ts";
 import { hoy } from "@/lib/fechas.ts";
 import { agregarGasto, editarGasto } from "@/lib/almacen.ts";
 import { Calendario } from "./Calendario.tsx";
+import { IconoVistoCasilla } from "./iconos.tsx";
 
 /**
  * Registrar un gasto.
@@ -105,6 +106,25 @@ export function RegistrarGasto({
     setMonto("");
     setDescripcion("");
     setMasCampos(false);
+
+    /**
+     * Se reinicia lo que quedó ESCONDIDO, no lo que quedó a la vista.
+     *
+     * `setMasCampos(false)` cierra el panel, pero la fecha y la marca de pago
+     * único seguían vivas adentro. Quien registraba un almuerzo con fecha del 5
+     * y después anotaba otro gasto, se lo guardaba también el 5 —sin nada en
+     * pantalla que lo dijera— y eso corría los días cerrados y el ritmo real.
+     * Un dato equivocado que el usuario no puede ver es peor que un error.
+     *
+     * La categoría NO se reinicia, y esa asimetría es a propósito: está visible
+     * en la pantalla, así que si se queda en «comida» se ve que se quedó, y de
+     * paso ahorra un toque cuando se anotan tres comidas seguidas.
+     */
+    if (!editando) {
+      setFecha(hoy());
+      setFueraDelRitmo(categoria === "alojamiento");
+    }
+
     campoMonto.current?.focus({ preventScroll: true });
     onListo?.();
   }
@@ -133,7 +153,7 @@ export function RegistrarGasto({
           autoComplete="off"
           placeholder="45.000"
           aria-describedby={error ? "monto-error" : undefined}
-          className="cifra ancho-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl outline-none focus:border-(--color-tinta)"
+          className="cifra-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl outline-none focus:border-(--color-tinta)"
         />
         {error && (
           <p id="monto-error" role="alert" className="m-0 text-sm text-(--color-excedido)">
@@ -219,14 +239,36 @@ export function RegistrarGasto({
             />
           </div>
           <Calendario id="fecha" etiqueta="Cuándo" valor={fecha} onCambio={setFecha} />
-          <label className="flex items-center gap-2 text-sm">
+          {/**
+            * La casilla dibujada.
+            *
+            * La nativa se queda —oculta, no borrada— porque es la que trae el
+            * teclado, el rol, el estado para lectores de pantalla y el clic en
+            * la etiqueta. Encima va el cuadro del sistema, y como es hermana
+            * previa, `peer-checked` y `peer-focus-visible` lo pintan sin una
+            * línea de JavaScript.
+            *
+            * Antes era la casilla gris del navegador: el único control de la
+            * app dibujado por el sistema operativo y no por nosotras, en medio
+            * de un panel que sí estaba diseñado.
+            */}
+          <label className="flex cursor-pointer items-start gap-2.5 text-sm">
             <input
               type="checkbox"
               checked={fueraDelRitmo}
               onChange={(e) => setFueraDelRitmo(e.target.checked)}
+              className="peer sr-only"
             />
-            No cuenta para el ritmo diario
-            <span className="text-(--color-tinta-2)">— hotel, vuelos, pagos únicos</span>
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-(--radius-chip) border-2 border-(--color-filete) text-(--color-sobre-marca) transition-colors peer-checked:border-(--color-marca) peer-checked:bg-(--color-marca) peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--color-marca)"
+            >
+              {fueraDelRitmo && <IconoVistoCasilla />}
+            </span>
+            <span className="leading-snug">
+              No cuenta para el ritmo diario{" "}
+              <span className="text-(--color-tinta-2)">— hotel, vuelos, pagos únicos</span>
+            </span>
           </label>
         </div>
       )}

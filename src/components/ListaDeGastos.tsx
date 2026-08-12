@@ -59,25 +59,78 @@ export function ListaDeGastos({
   // Sin el ref, borrar dos gastos seguidos dejaba el temporizador del primero
   // vivo, y ese apagaba el aviso del segundo antes de tiempo.
   const reloj = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const botonDeshacer = useRef<HTMLButtonElement>(null);
+  // Se pide el foco después de borrar, no siempre: mover el foco solo porque
+  // apareció un aviso interrumpiría a quien está escribiendo.
+  const irADeshacer = useRef(false);
 
   useEffect(() => () => { if (reloj.current) clearTimeout(reloj.current); }, []);
+
+  /**
+   * Después de borrar, el foco se va con la fila.
+   *
+   * El botón «Borrar» vive dentro del `<li>` que desaparece en el mismo pintado,
+   * así que quien navega con teclado terminaba en `<body>` y la única forma de
+   * llegar al deshacer era tabular desde el principio del documento — con diez
+   * segundos de plazo. Se lleva el foco al único sitio que importa en ese
+   * momento.
+   */
+  useEffect(() => {
+    if (!irADeshacer.current) return;
+    irADeshacer.current = false;
+    botonDeshacer.current?.focus();
+  }, [deshacer]);
 
   function borrar(g: Gasto) {
     const fn = borrarGastoConDeshacer(g.id);
     if (!fn) return;
     if (reloj.current) clearTimeout(reloj.current);
+    irADeshacer.current = true;
     setDeshacer({ fn, que: g.descripcion });
     reloj.current = setTimeout(() => setDeshacer(null), 10000);
   }
 
+  /**
+   * El aviso de deshacer se arma antes de decidir qué pintar.
+   *
+   * Estaba escrito solo dentro del camino «hay gastos», así que borrar el ÚNICO
+   * gasto de un viaje entraba al estado vacío y el botón de deshacer no llegaba
+   * a existir: la acción destructiva se quedaba sin vuelta atrás justo en el
+   * caso donde más falta hace, y el `role="status"` tampoco anunciaba nada.
+   */
+  const avisoDeshacer = deshacer && (
+    <div
+      role="status"
+      className="flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-4 py-2.5 text-sm text-(--color-tarjeta)"
+    >
+      <span className="min-w-0 truncate">
+        Borraste <span className="ancho-medio">{deshacer.que}</span>
+      </span>
+      <button
+        type="button"
+        ref={botonDeshacer}
+        onClick={() => {
+          deshacer.fn();
+          setDeshacer(null);
+        }}
+        className="ancho-medio ml-auto shrink-0 rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1 hover:bg-(--color-tarjeta) hover:text-(--color-tinta)"
+      >
+        Deshacer
+      </button>
+    </div>
+  );
+
   if (gastos.length === 0) {
     return (
-      <div className="tarjeta flex flex-col items-start gap-1 sm:p-7">
-        <p className="ancho-medio m-0">Todavía no has registrado nada</p>
-        <p className="m-0 max-w-[42ch] text-sm leading-relaxed text-(--color-tinta-2)">
-          El primer gasto que anotes empieza a construir tu ritmo diario. Hasta entonces la app no
-          puede decirte si vas bien.
-        </p>
+      <div className="flex flex-col gap-3">
+        {avisoDeshacer}
+        <div className="tarjeta flex flex-col items-start gap-1 sm:p-7">
+          <p className="ancho-medio m-0">Todavía no has registrado nada</p>
+          <p className="m-0 max-w-[42ch] text-sm leading-relaxed text-(--color-tinta-2)">
+            El primer gasto que anotes empieza a construir tu ritmo diario. Hasta entonces la app no
+            puede decirte si vas bien.
+          </p>
+        </div>
       </div>
     );
   }
@@ -90,26 +143,7 @@ export function ListaDeGastos({
 
   return (
     <div className="flex flex-col gap-3">
-      {deshacer && (
-        <div
-          role="status"
-          className="flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-4 py-2.5 text-sm text-(--color-tarjeta)"
-        >
-          <span className="min-w-0 truncate">
-            Borraste <span className="ancho-medio">{deshacer.que}</span>
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              deshacer.fn();
-              setDeshacer(null);
-            }}
-            className="ancho-medio ml-auto shrink-0 rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1 hover:bg-(--color-tarjeta) hover:text-(--color-tinta)"
-          >
-            Deshacer
-          </button>
-        </div>
-      )}
+      {avisoDeshacer}
 
       {[...porDia.entries()].map(([fecha, delDia]) => {
         const total = delDia.reduce((s, g) => s + g.monto, 0);
@@ -125,9 +159,19 @@ export function ListaDeGastos({
             </div>
 
             <ul className="m-0 flex list-none flex-col p-0">
+              {/* En móvil son dos columnas y las acciones bajan a su propia
+                  línea; en escritorio son tres y todo va en una.
+
+                  Con las tres columnas siempre en línea, en un teléfono de
+                  320px la descripción se quedaba con 42px —«Tour a Islas del
+                  Rosario» se leía «Tour…»— porque las acciones reservan 104px
+                  fijos y en pantalla táctil están siempre visibles. */}
               {delDia.map((g) => (
-                <li key={g.id} className="fila -mx-2.5 flex items-center gap-3 px-2.5 py-2">
-                  <div className="min-w-0 flex-1">
+                <li
+                  key={g.id}
+                  className="fila -mx-2.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2.5 py-2 sm:grid-cols-[minmax(0,1fr)_auto_104px]"
+                >
+                  <div className="min-w-0">
                     <p className="ancho-ui m-0 truncate text-[15px]">{g.descripcion}</p>
                     <p className="m-0 truncate text-[13px] text-(--color-tinta-2) capitalize">
                       {g.categoria}
@@ -137,14 +181,14 @@ export function ListaDeGastos({
 
                   {/* A la derecha, como en cualquier hoja de cálculo: permite
                       comparar magnitudes por dónde empieza el número. */}
-                  <span className="cifra shrink-0 text-right text-[15px]">
+                  <span className="cifra text-right text-[15px]">
                     {formatearMoneda(g.monto, viaje.moneda)}
                   </span>
 
-                  {/* Ancho fijo: si aparecieran y desaparecieran ocupando
-                      espacio, el monto se correría cada vez que el puntero pasa
-                      por encima y la columna de cifras temblaría. */}
-                  <div className="acciones-fila flex w-[104px] shrink-0 justify-end gap-1">
+                  {/* Ancho fijo en escritorio: si aparecieran y desaparecieran
+                      ocupando espacio, el monto se correría cada vez que el
+                      puntero pasa por encima y la columna de cifras temblaría. */}
+                  <div className="acciones-fila col-span-2 flex justify-end gap-1 sm:col-span-1">
                     <button
                       type="button"
                       onClick={() => onEditar(g)}

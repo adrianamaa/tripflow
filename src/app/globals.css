@@ -31,6 +31,11 @@
    */
   --color-tinta: #0c0a08;
   --color-tinta-2: #6d6c6b;
+  /* Tinta terciaria: SOLO para lo deshabilitado. 2.60:1 sobre blanco — no pasa
+     como texto y no debe: WCAG exime los controles inactivos justamente porque
+     tienen que verse inactivos. Reemplaza a `--color-filete`, que a 1.34:1
+     hacía desaparecer los días bloqueados del calendario. */
+  --color-tinta-3: #a3a09d;
 
   /* ── La marca ───────────────────────────────────────────────────────────
    * Petróleo. Es el único color de la app que puede ser TEXTO: 7.50:1 sobre
@@ -44,16 +49,31 @@
    * se mete en los números, el color deja de significar «esto es Tripflow» y
    * empieza a significar nada.
    */
-  --color-marca: #0b5f5a;
-  --color-marca-suave: #e8f1f0; /* petróleo encima: 6.53:1 */
-  --color-sobre-marca: #ffffff; /* 7.50:1 */
+  --color-marca: #374706; /* tono 74.8° · sobre blanco 10.16:1 */
+  --color-marca-suave: #eff3e2; /* tono 74.1° · marca encima 9.00:1 */
+  --color-sobre-marca: #ffffff; /* 10.16:1 */
 
   /* ── El acento ──────────────────────────────────────────────────────────
    * Uno solo, y solo donde se mueve el dinero: la acción de registrar. En
    * ningún otro lado. Su fuerza viene de ser escaso.
-   * Texto tinta encima: 15.08:1. Sobre la marca: 5.72:1.
+   *
+   * ⚠️ ES EL MISMO TONO QUE LA MARCA: 76.4° contra 74.8°. No es un color
+   * aparte, es la versión clara del mismo color.
+   *
+   * Antes la app tenía TRES verdes sin relación: esta lima en 76°, el estado
+   * bueno en 140°, y la marca en un petróleo de 176°.
+   * Cien grados de tono entre el primero y el último. Eso no es una paleta: son
+   * tres colores que por casualidad se llaman verdes, y en pantalla se notaba —
+   * el visto se veía como «otro verde» y el calendario como «el otro verde».
+   *
+   * Se resolvió anclando la familia en la lima y recalculando el oscuro a su
+   * mismo tono, en vez de al revés. Un tono, dos claridades: eso es lo que hace
+   * que una interfaz se lea como un sistema y no como una colección.
+   *
+   * Texto tinta encima: 15.08:1. Sobre blanco da 1.31:1, así que es relleno de
+   * área grande y NUNCA texto, borde ni icono.
    */
-  --color-acento: #c8f04a;
+  --color-acento: #c8f04a; /* tono 76.4° */
   --color-sobre-acento: #0c0a08;
 
   /* ── Estados ────────────────────────────────────────────────────────────
@@ -65,10 +85,19 @@
    * ⚠️ Medidos sobre BLANCO: 5.02 · 7.94 · 11.48. Sobre el papel cálido la
    * escalera se aplana hasta volverse indistinguible, así que los estados
    * viven siempre dentro de una tarjeta blanca. Nunca sobre el papel.
+   *
+   * Los fondos son el par pálido de cada tono, medidos con su texto
+   * encima: 7.24:1 y 10.33:1. Estaban escritos a mano dentro de un componente,
+   * que es justo lo que esta hoja prohíbe.
    */
-  --color-bien: #198038;
-  --color-cuidado: #8a3800;
+  /* No hay `--color-bien`: el estado bueno usa la marca.
+     Tenerlo aparte significaba un tercer verde, en 140°, que en pantalla se
+     leía como un color ajeno al de la app. El verde ES la marca y ES el estado
+     normal; los colores de estado aparecen solo cuando algo va mal. */
   --color-excedido: #750e13;
+  --color-excedido-fondo: #fdf0ef; /* excedido encima: 10.33:1 */
+  --color-cuidado: #8a3800;
+  --color-cuidado-fondo: #fdf3e7; /* cuidado encima: 7.24:1 */
 
   /* ── Radios. Distintos según el peso: uniforme en todo es el delator más
        silencioso de una plantilla. ───────────────────────────────────────── */
@@ -79,165 +108,216 @@
   --font-sans: var(--fuente), ui-sans-serif, system-ui, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--color-papel);
-  color: var(--color-tinta);
-  font-family: var(--font-sans);
-  font-variation-settings: "wdth" 100, "wght" 400;
-  -webkit-font-smoothing: antialiased;
-}
-
 /**
- * Los anchos. La jerarquía la carga el eje de ancho, no el peso: así se pueden
- * tener cinco niveles sin subir de peso 400 en el texto.
- */
-.ancho-dato {
-  font-variation-settings: "wdth" 116, "wght" 560;
-  letter-spacing: -0.02em;
-}
-.ancho-ui {
-  font-variation-settings: "wdth" 100, "wght" 400;
-}
-.ancho-medio {
-  font-variation-settings: "wdth" 100, "wght" 500;
-}
-.ancho-densa {
-  font-variation-settings: "wdth" 80, "wght" 500;
-}
-
-/**
- * Cifras.
+ * ══ POR QUÉ TODO LO DE ABAJO VA DENTRO DE UNA CAPA ═════════════════════════
  *
- * `tnum` va SOLO acá y nunca en un contenedor: arriba se filtra al texto y
- * separa la coma de «alojamiento, comida y transporte». Y en ningún otro punto
- * del proyecto se usa `font-feature-settings`: por especificación pisa a
- * `font-variant` sin importar el orden.
- */
-.cifra {
-  font-variant-numeric: tabular-nums lining-nums;
-  font-variation-settings: "wdth" 100, "wght" 500;
-}
-
-/* La cifra grande va proporcional: a 56px los dígitos de ancho igual se ven
-   desarmados, porque el 1 ocupa lo mismo que el 8. */
-.cifra-hero {
-  font-variant-numeric: lining-nums;
-  font-variation-settings: "wdth" 112, "wght" 560;
-  letter-spacing: -0.03em;
-}
-
-@media (max-width: 400px) {
-  .cifra {
-    font-variation-settings: "wdth" 80, "wght" 520;
-  }
-}
-
-.rotulo {
-  font-variation-settings: "wdth" 100, "wght" 500;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-tinta-2);
-}
-
-/**
- * Tarjeta: blanca sobre papel. Sin borde y sin sombra — el cambio de superficie
- * ya separa los planos.
- */
-.tarjeta {
-  background: var(--color-tarjeta);
-  border-radius: var(--radius-caja);
-  padding: 1.25rem;
-}
-
-/**
- * Estados de interacción.
+ * Esto no es orden por gusto: sin capa, esta hoja rompía Tailwind en silencio.
  *
- * En un sistema plano, sin sombras, los estados son justo donde el lenguaje se
- * cae — y lo primero que hace cualquiera es hacer clic en cosas. Todo lo que
- * responde al puntero lo dice.
+ * Tailwind v4 emite sus utilidades dentro de `@layer utilities`. Por cascada,
+ * cualquier declaración SIN capa le gana a cualquier declaración CON capa, sin
+ * importar la especificidad ni el orden en que uno escriba las clases. O sea
+ * que `.tarjeta { padding: 1.25rem }` suelto se comía cualquier `p-*` que se le
+ * pusiera al lado, y ninguna herramienta avisaba.
+ *
+ * Se midió en el CSS compilado: la capa `utilities` cerraba en el byte 17085 y
+ * `.tarjeta` aparecía en el 17983 — fuera. En pantalla eso era `sm:p-7` sin
+ * efecto en ningún ancho, `py-4` sin efecto, y el `border-radius` de la regla
+ * de foco convirtiendo TODAS las píldoras en rectángulos al tabular.
+ *
+ * `components` va antes que `utilities` en el orden de Tailwind, que es
+ * exactamente lo que se quiere: la clase propia pone el valor por defecto y la
+ * utilidad puntual puede corregirlo.
  */
-button,
-select,
-[role="button"] {
-  transition:
-    background-color 120ms ease,
-    color 120ms ease,
-    border-color 120ms ease,
-    opacity 120ms ease;
-}
-
-button:not(:disabled),
-select {
-  cursor: pointer;
-}
-
-:focus-visible {
-  outline: 2px solid var(--color-marca);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
-
-/**
- * Los campos son una excepción, y no por gusto.
- *
- * Un campo acá no es una caja: es una línea inferior. Dibujarle un rectángulo
- * de foco alrededor le pone un borde que el campo no tiene el resto del tiempo,
- * y en pantalla se ve como si algo se hubiera roto.
- *
- * El foco se marca donde vive el campo: la línea de abajo pasa a la marca y
- * dobla su grosor. Cambian dos cosas a la vez —color Y grosor— así que no
- * depende de distinguir colores.
- */
-input:focus-visible,
-textarea:focus-visible {
-  outline: none;
-  border-bottom-color: var(--color-marca);
-  box-shadow: 0 1px 0 0 var(--color-marca);
-}
-
-/**
- * Acciones de fila (editar, borrar).
- *
- * Trece filas con dos enlaces cada una son veintiséis enlaces compitiendo con
- * los montos, que es lo que la gente vino a leer. Pero esconderlas hasta pasar
- * el puntero deja la función sin existir en un teléfono.
- *
- * La consulta `hover` resuelve las dos cosas: donde hay puntero se revelan al
- * acercarse —o al llegar con el teclado, por eso `focus-within`—; donde se toca
- * con el dedo están siempre puestas.
- */
-.fila {
-  border-radius: var(--radius-chip);
-  transition: background-color 120ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .acciones-fila {
-    opacity: 0;
-    transition: opacity 120ms ease;
-  }
-  .fila:hover .acciones-fila,
-  .fila:focus-within .acciones-fila {
-    opacity: 1;
-  }
-  /* Sin esto, esconder las acciones deja la fila sin nada que invite a
-     acercarse: la función existe y nadie la encuentra. El realce es la
-     promesa de que ahí hay algo. */
-  .fila:hover,
-  .fila:focus-within {
-    background: var(--color-papel);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
+@layer base {
   * {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    font-variation-settings: "wdth" 100, "wght" 400;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /**
+   * Estados de interacción.
+   *
+   * En un sistema plano, sin sombras, los estados son justo donde el lenguaje
+   * se cae — y lo primero que hace cualquiera es hacer clic en cosas. Todo lo
+   * que responde al puntero lo dice.
+   */
+  button,
+  select,
+  [role="button"] {
+    transition:
+      background-color 120ms ease,
+      color 120ms ease,
+      border-color 120ms ease,
+      opacity 120ms ease;
+  }
+
+  button:not(:disabled),
+  select {
+    cursor: pointer;
+  }
+
+  /* Sin `border-radius`: el contorno ya sigue la forma del elemento, y fijarlo
+     acá aplastaba las píldoras de 999px a 2px mientras tenían el foco. Quien
+     navega con teclado veía la interfaz deformarse. */
+  :focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+  }
+
+  /**
+   * Los campos son una excepción, y no por gusto.
+   *
+   * Un campo acá no es una caja: es una línea inferior. Dibujarle un rectángulo
+   * de foco alrededor le pone un borde que el campo no tiene el resto del
+   * tiempo, y en pantalla se ve como si algo se hubiera roto.
+   *
+   * El foco se marca donde vive el campo: la línea de abajo pasa a la marca y
+   * dobla su grosor. Cambian dos cosas a la vez —color Y grosor— así que no
+   * depende de distinguir colores.
+   */
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-bottom-color: var(--color-marca);
+    box-shadow: 0 1px 0 0 var(--color-marca);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /**
+   * Los anchos. La jerarquía la carga el eje de ancho, no el peso: así se
+   * pueden tener cinco niveles sin subir de peso 400 en el texto.
+   */
+  .ancho-dato {
+    font-variation-settings: "wdth" 116, "wght" 560;
+    letter-spacing: -0.02em;
+  }
+  .ancho-ui {
+    font-variation-settings: "wdth" 100, "wght" 400;
+  }
+  .ancho-medio {
+    font-variation-settings: "wdth" 100, "wght" 500;
+  }
+  .ancho-densa {
+    font-variation-settings: "wdth" 80, "wght" 500;
+  }
+
+  /**
+   * Cifras.
+   *
+   * `tnum` va SOLO acá y nunca en un contenedor: arriba se filtra al texto y
+   * separa la coma de «alojamiento, comida y transporte». Y en ningún otro
+   * punto del proyecto se usa `font-feature-settings`: por especificación pisa
+   * a `font-variant` sin importar el orden.
+   *
+   * ⚠️ `.cifra` y `.ancho-*` NO se combinan. Las dos declaran
+   * `font-variation-settings`, así que la que gana es la que esté escrita
+   * después en esta hoja, no la que uno ponga de último en el `className`.
+   * Escribir `cifra ancho-dato` daba 100/500 en vez de 116/560 —los dos campos
+   * de dinero más grandes de la app se estaban dibujando en el ancho de texto
+   * corrido— y no fallaba nada. Para eso está `.cifra-dato`.
+   */
+  .cifra {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-variation-settings: "wdth" 100, "wght" 500;
+  }
+
+  /* Cifra de entrada: la que se escribe. Ancha y tabular a la vez, en una sola
+     clase, para que no haya que combinar dos que se pisan. */
+  .cifra-dato {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-variation-settings: "wdth" 116, "wght" 560;
+    letter-spacing: -0.02em;
+  }
+
+  /* La cifra grande va proporcional: a 56px los dígitos de ancho igual se ven
+     desarmados, porque el 1 ocupa lo mismo que el 8. */
+  .cifra-hero {
+    font-variant-numeric: lining-nums;
+    font-variation-settings: "wdth" 112, "wght" 560;
+    letter-spacing: -0.03em;
+  }
+
+  @media (max-width: 400px) {
+    .cifra {
+      font-variation-settings: "wdth" 80, "wght" 520;
+    }
+    .cifra-dato {
+      font-variation-settings: "wdth" 100, "wght" 560;
+    }
+  }
+
+  .rotulo {
+    font-variation-settings: "wdth" 100, "wght" 500;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-tinta-2);
+  }
+
+  /**
+   * Tarjeta: blanca sobre papel. Sin borde y sin sombra — el cambio de
+   * superficie ya separa los planos.
+   */
+  .tarjeta {
+    background: var(--color-tarjeta);
+    border-radius: var(--radius-caja);
+    padding: 1.25rem;
+  }
+
+  /**
+   * Acciones de fila (editar, borrar).
+   *
+   * Trece filas con dos enlaces cada una son veintiséis enlaces compitiendo con
+   * los montos, que es lo que la gente vino a leer. Pero esconderlas hasta
+   * pasar el puntero deja la función sin existir en un teléfono.
+   *
+   * La consulta `hover` resuelve las dos cosas: donde hay puntero se revelan al
+   * acercarse —o al llegar con el teclado, por eso `focus-within`—; donde se
+   * toca con el dedo están siempre puestas.
+   */
+  .fila {
+    border-radius: var(--radius-chip);
+    transition: background-color 120ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .acciones-fila {
+      opacity: 0;
+      transition: opacity 120ms ease;
+      /* Invisible tiene que significar intocable. Sin esto, en un portátil
+         híbrido —donde la consulta sí coincide porque el puntero primario es el
+         mouse— el dedo tocaba «Borrar» sin verlo. */
+      pointer-events: none;
+    }
+    .fila:hover .acciones-fila,
+    .fila:focus-within .acciones-fila {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Sin esto, esconder las acciones deja la fila sin nada que invite a
+       acercarse: la función existe y nadie la encuentra. El realce es la
+       promesa de que ahí hay algo. */
+    .fila:hover,
+    .fila:focus-within {
+      background: var(--color-papel);
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { FechaISO } from "@/lib/types.ts";
 import { hoy } from "@/lib/fechas.ts";
+import { IconoCalendario, IconoDerecha, IconoIzquierda } from "./iconos.tsx";
 
 /**
  * El selector de fecha.
@@ -95,6 +96,8 @@ export function Calendario({
   const disparador = useRef<HTMLButtonElement>(null);
   const rejilla = useRef<HTMLDivElement>(null);
   const etiquetaId = useId();
+  // El foco persigue al cursor solo cuando el cursor lo movió el teclado.
+  const seguirConFoco = useRef(false);
 
   // El cursor arranca en la fecha que ya está puesta. Se pone al abrir y no
   // con un efecto que vigile `valor`: sincronizar estado dentro de un efecto
@@ -106,13 +109,24 @@ export function Calendario({
       return;
     }
     setEnfocado(valor);
+    seguirConFoco.current = true;
     setAbierto(true);
   }
 
-  // Mover el foco del navegador al día marcado, para que las flechas y el
-  // lector de pantalla sigan al cursor.
+  /**
+   * Mover el foco del navegador al día marcado, para que las flechas y el
+   * lector de pantalla sigan al cursor.
+   *
+   * ⚠️ Solo cuando el movimiento vino del TECLADO. Antes se disparaba con
+   * cualquier cambio de `enfocado`, incluidos los de las flechas de mes: se
+   * pulsaba Enter sobre «Mes siguiente», el mes avanzaba y el foco se saltaba a
+   * la rejilla, así que el segundo Enter —esperando avanzar otro mes— caía
+   * sobre un día, lo elegía y cerraba el panel. Era imposible avanzar dos meses
+   * seguidos sin mouse.
+   */
   useEffect(() => {
-    if (!abierto) return;
+    if (!abierto || !seguirConFoco.current) return;
+    seguirConFoco.current = false;
     rejilla.current?.querySelector<HTMLButtonElement>('[data-enfocado="si"]')?.focus();
   }, [abierto, enfocado]);
 
@@ -141,11 +155,13 @@ export function Calendario({
     };
     if (e.key in saltos) {
       e.preventDefault();
+      seguirConFoco.current = true;
       setEnfocado((f) => correr(f, saltos[e.key]));
       return;
     }
     if (e.key === "PageUp" || e.key === "PageDown") {
       e.preventDefault();
+      seguirConFoco.current = true;
       setEnfocado((f) => correrMes(f, e.key === "PageUp" ? -1 : 1));
       return;
     }
@@ -237,18 +253,39 @@ export function Calendario({
                 <button
                   key={f}
                   type="button"
-                  disabled={bloqueado}
+                  /**
+                   * `aria-disabled` y NO `disabled`.
+                   *
+                   * Un botón deshabilitado de verdad no acepta el foco. Como los
+                   * días se desmontan al cambiar de mes, bastaba pulsar Re Pág
+                   * hacia un mes entero anterior a la fecha mínima para que el
+                   * foco cayera al `<body>` — fuera del `onKeyDown` del diálogo—
+                   * y a partir de ahí las flechas, Re/Av Pág y Esc dejaban de
+                   * responder. El panel solo se podía cerrar con el mouse.
+                   *
+                   * Así el día sigue siendo alcanzable y anunciable, el teclado
+                   * nunca se queda sin dónde pararse, y el clic simplemente no
+                   * hace nada.
+                   */
+                  aria-disabled={bloqueado || undefined}
                   data-enfocado={f === enfocado ? "si" : undefined}
                   // Un solo día alcanzable con Tab: dentro de la rejilla se
                   // navega con flechas, no tabulando 31 veces.
                   tabIndex={f === enfocado ? 0 : -1}
                   aria-current={esHoy ? "date" : undefined}
-                  aria-pressed={elegido}
-                  onClick={() => elegir(f)}
+                  /* El número suelto se oía «12», «13», «14», sin mes ni año.
+                     Y `aria-pressed` convertía los 31 días en conmutadores que
+                     no se pueden des-conmutar; la selección va en el nombre. */
+                  aria-label={`${dia} de ${MESES[mes]} de ${anio}${
+                    elegido ? ", seleccionado" : ""
+                  }${bloqueado ? ", no disponible" : ""}`}
+                  onClick={() => {
+                    if (!bloqueado) elegir(f);
+                  }}
                   className={[
                     "cifra flex h-8 items-center justify-center rounded-(--radius-chip) text-[13px]",
                     bloqueado
-                      ? "cursor-not-allowed text-(--color-filete)"
+                      ? "cursor-not-allowed text-(--color-tinta-3)"
                       : elegido
                         ? "bg-(--color-marca) text-(--color-sobre-marca)"
                         : "hover:bg-(--color-reposo)",
@@ -286,15 +323,6 @@ export function Calendario({
   );
 }
 
-function IconoCalendario() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
-      <rect x="1.75" y="3.25" width="12.5" height="11" rx="2" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M1.75 6.5h12.5M5.25 1.75v2.5M10.75 1.75v2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function FlechaMes({
   hacia,
   onClick,
@@ -304,6 +332,7 @@ function FlechaMes({
   onClick: () => void;
   titulo: string;
 }) {
+  const Flecha = hacia === -1 ? IconoIzquierda : IconoDerecha;
   return (
     <button
       type="button"
@@ -311,15 +340,7 @@ function FlechaMes({
       aria-label={titulo}
       className="flex h-7 w-7 items-center justify-center rounded-(--radius-chip) text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
     >
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d={hacia === -1 ? "M10 3.5 5.5 8l4.5 4.5" : "M6 3.5 10.5 8 6 12.5"}
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <Flecha tamano={15} />
     </button>
   );
 }

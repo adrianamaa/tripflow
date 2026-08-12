@@ -4,6 +4,7 @@ import type { Balance, Gasto, Viaje } from "@/lib/types.ts";
 import { categoriaCulpable, diaEnQueSeAcaba } from "@/lib/presupuesto.ts";
 import { formatearMoneda } from "@/lib/moneda.ts";
 import { diaCorto } from "@/lib/fechas.ts";
+import { IconoCuidado, IconoExcedido, IconoVisto } from "./iconos.tsx";
 
 /**
  * La alerta.
@@ -32,21 +33,13 @@ import { diaCorto } from "@/lib/fechas.ts";
  * cuadrito vacío. Una app que se entrega por un link no puede apostar el estado
  * más grave a la fuente de respaldo de la máquina ajena.
  */
-const ICONO: Record<Balance["estado"], React.ReactNode> = {
-  bien: (
-    <path
-      d="M2.6 6.3 4.9 8.6 9.4 3.6"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  ),
-  cuidado: <path d="M6 1.9 11 10.4H1z" fill="currentColor" />,
-  excedido: (
-    <path d="M4.3 1.5h3.4l2.8 2.8v3.4l-2.8 2.8H4.3L1.5 7.7V4.3z" fill="currentColor" />
-  ),
+const ICONO: Record<
+  Balance["estado"],
+  (p: { tamano?: number; className?: string }) => React.ReactNode
+> = {
+  bien: IconoVisto,
+  cuidado: IconoCuidado,
+  excedido: IconoExcedido,
 };
 
 const PALABRA: Record<Balance["estado"], string> = {
@@ -55,8 +48,20 @@ const PALABRA: Record<Balance["estado"], string> = {
   excedido: "Te pasaste",
 };
 
+/**
+ * «Vas bien» usa el color de la MARCA, no un verde propio.
+ *
+ * Antes tenía un verde propio en 140° mientras la marca vive en 176°, así
+ * que la app mostraba dos verdes distintos sin ninguna relación y el visto se
+ * leía como «otro verde».
+ *
+ * El principio que lo ordena: el verde ES la marca y ES el estado normal. Los
+ * colores de estado aparecen solo cuando algo va mal. Así no hay que distinguir
+ * «verde de marca» de «verde de éxito» — son lo mismo, y quedan tres señales en
+ * total: la marca, el ámbar y el rojo.
+ */
 const COLOR: Record<Balance["estado"], string> = {
-  bien: "var(--color-bien)",
+  bien: "var(--color-marca)",
   cuidado: "var(--color-cuidado)",
   excedido: "var(--color-excedido)",
 };
@@ -69,8 +74,8 @@ const COLOR: Record<Balance["estado"], string> = {
  */
 const FONDO: Record<Balance["estado"], string> = {
   bien: "transparent",
-  cuidado: "#FDF3E7",
-  excedido: "#FDF0EF",
+  cuidado: "var(--color-cuidado-fondo)",
+  excedido: "var(--color-excedido-fondo)",
 };
 
 /**
@@ -115,6 +120,7 @@ export function Alerta({
   onAjustar: () => void;
 }) {
   const color = COLOR[balance.estado];
+  const Icono = ICONO[balance.estado];
   const seAcaba = diaEnQueSeAcaba(viaje, balance);
   const culpable = categoriaCulpable(gastos, viaje.id);
 
@@ -193,14 +199,12 @@ export function Alerta({
       role={balance.estado === "bien" ? undefined : "status"}
     >
       <div className="flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--estado) text-(--color-tarjeta)"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-            {ICONO[balance.estado]}
-          </svg>
-        </span>
+        {/* Sin círculo relleno detrás: el set es de contorno, y meter un icono
+            de trazo dentro de una mancha de color obliga a calarlo en blanco
+            —dos pesos ópticos en una pieza de 20px— que es justo lo que hacía
+            que los estados se vieran de sitios distintos. El icono lleva el
+            color del estado, igual que la palabra que va al lado. */}
+        <Icono tamano={17} className="shrink-0 text-(--estado)" />
         <span className="ancho-medio text-sm text-(--estado)">
           {PALABRA[balance.estado]}
         </span>
