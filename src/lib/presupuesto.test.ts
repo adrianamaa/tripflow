@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { calcularBalance, diaEnQueSeAcaba } from "./presupuesto.ts";
-import type { Gasto, Viaje } from "./types.ts";
+import { calcularBalance, diaEnQueSeAcaba } from "./presupuesto";
+import type { Gasto, Viaje } from "./types";
 
 /**
  * El viaje de referencia: Cartagena, 7 días, tres millones.
