@@ -127,13 +127,27 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
           />
         </div>
 
+        {/**
+          * La señal va en la familia de la marca, y no es decoración: es lo
+          * único que la hace visible en los dos fondos que tiene que cruzar.
+          *
+          * En tinta sobre una barra de tinta era casi imperceptible. Y ningún
+          * color sirve solo: la lima da 15.08:1 contra el relleno negro pero
+          * 1.07:1 contra la pista clara, donde desaparece; el verde oscuro da
+          * 8.33:1 contra la pista pero se pierde en el negro.
+          *
+          * Puestos uno dentro del otro se cubren: sobre el relleno se ve por el
+          * halo lima, sobre la pista se ve por el núcleo oscuro. Siempre hay una
+          * de las dos leyéndose, sin blanco de por medio y sin salirse del
+          * sistema de color.
+          */}
         {hayMarca && (
           <div
             aria-hidden="true"
-            className="absolute inset-y-0 w-[7px] rounded-full bg-(--color-tarjeta)"
+            className="absolute inset-y-0 w-[7px] rounded-full bg-(--color-acento)"
             style={{ left: `calc(${marca}% - 3.5px)` }}
           >
-            <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-tinta)" />
+            <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-marca)" />
           </div>
         )}
       </div>
@@ -156,9 +170,9 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
                 sirve de leyenda. */}
             <span
               aria-hidden="true"
-              className="relative inline-block h-3.5 w-[7px] shrink-0 rounded-full bg-(--color-tarjeta)"
+              className="relative inline-block h-3.5 w-[7px] shrink-0 rounded-full bg-(--color-acento)"
             >
-              <span className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-tinta)" />
+              <span className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-marca)" />
             </span>
             deberías ir por acá hoy
           </span>
