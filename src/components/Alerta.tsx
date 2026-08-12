@@ -13,13 +13,29 @@ import { IconoCuidado, IconoExcedido, IconoVisto } from "./iconos.tsx";
  * avisar. La diferencia es que una alerta que solo informa deja al usuario sin
  * nada que hacer más que cerrar la app.
  *
- * Por eso esta dice tres cosas y ofrece una: qué pasa, cuándo se acaba la plata,
- * y a qué ritmo tendría que ir para llegar. La acción reusa el mismo formulario
- * de siempre.
- *
  * Nada se comunica solo con color: cada estado lleva icono y palabra además del
  * tono. Alrededor del 8% de los hombres no distingue el par verde-rojo, y un
  * estado que solo existe como color para ellos no existe.
+ *
+ * ══ POR QUÉ AHORA ES UN PANEL, Y NO TEXTO SUELTO ══════════════════════════
+ *
+ * Ocupa la mitad derecha de la banda de resumen, que es la franja más valiosa
+ * de la pantalla. Con la alerta como texto suelto, ese espacio sostenía dos
+ * líneas y el resto era aire — se leía como algo que falta, no como respiro.
+ *
+ * Y hay una razón de contenido, no solo de relleno: LOS DOS RITMOS SALIERON DE
+ * DENTRO DE LA FRASE. Decían «vas gastando $205.000 por día y te alcanza:
+ * puedes gastar $238.000 diarios», o sea las dos cifras que hay que comparar
+ * enterradas en prosa, separadas por doce palabras. Puestas una al lado de la
+ * otra con su etiqueta, la comparación se hace de un vistazo y la frase queda
+ * libre para decir lo único que un número no puede: qué hacer.
+ *
+ * ⚠️ CAMBIO DE OPINIÓN, y vale la pena dejarlo escrito: antes el estado bueno
+ * no llevaba caja, con el argumento de que «la ausencia de alarma es el
+ * mensaje». El argumento sigue siendo bueno para no ALARMAR, y por eso el fondo
+ * del estado bueno es el tinte de la marca y no un color de estado. Pero servía
+ * mal al layout: dejaba la mitad de la banda sin forma. Un panel no es una
+ * alarma, es un contenedor.
  */
 
 /**
@@ -28,10 +44,10 @@ import { IconoCuidado, IconoExcedido, IconoVisto } from "./iconos.tsx";
  * color no llegue.
  *
  * ⚠️ Van dibujados, no escritos. Antes eran los caracteres ✓ ▲ ⬣, y el tercero
- * —hexágono, U+2B23— no está en Archivo ni en la mayoría de fuentes: se resolvía
- * con lo que tuviera el sistema operativo, y donde no hubiera nada sale el
- * cuadrito vacío. Una app que se entrega por un link no puede apostar el estado
- * más grave a la fuente de respaldo de la máquina ajena.
+ * —hexágono, U+2B23— no está en Archivo ni en la mayoría de fuentes: se
+ * resolvía con lo que tuviera el sistema operativo, y donde no hubiera nada
+ * sale el cuadrito vacío. Una app que se entrega por un link no puede apostar
+ * el estado más grave a la fuente de respaldo de la máquina ajena.
  */
 const ICONO: Record<
   Balance["estado"],
@@ -51,14 +67,11 @@ const PALABRA: Record<Balance["estado"], string> = {
 /**
  * «Vas bien» usa el color de la MARCA, no un verde propio.
  *
- * Antes tenía un verde propio en 140° mientras la marca vive en 176°, así
- * que la app mostraba dos verdes distintos sin ninguna relación y el visto se
- * leía como «otro verde».
+ * Antes tenía un verde propio en 140° mientras la marca vive en 75°, así que
+ * la app mostraba dos verdes sin relación y el visto se leía como «otro verde».
  *
  * El principio que lo ordena: el verde ES la marca y ES el estado normal. Los
- * colores de estado aparecen solo cuando algo va mal. Así no hay que distinguir
- * «verde de marca» de «verde de éxito» — son lo mismo, y quedan tres señales en
- * total: la marca, el ámbar y el rojo.
+ * colores de estado aparecen solo cuando algo va mal.
  */
 const COLOR: Record<Balance["estado"], string> = {
   bien: "var(--color-marca)",
@@ -66,45 +79,80 @@ const COLOR: Record<Balance["estado"], string> = {
   excedido: "var(--color-excedido)",
 };
 
-/** El estado bueno no necesita fondo: la ausencia de alarma es el mensaje. */
-/**
- * El estado bueno no lleva caja: la ausencia de alarma es el mensaje, y
- * dibujarle un marco sería ruido. Los otros dos sí, porque tienen que
- * interrumpir.
- */
 const FONDO: Record<Balance["estado"], string> = {
-  bien: "transparent",
+  bien: "var(--color-marca-suave)",
   cuidado: "var(--color-cuidado-fondo)",
   excedido: "var(--color-excedido-fondo)",
 };
 
 /**
- * El estado neutro, que faltaba y era un error de verdad.
+ * El panel es siempre el mismo nodo, pase lo que pase.
  *
- * Con cero gastos registrados la alerta mostraba un check verde y «Vas bien»,
- * mientras el párrafo de al lado decía que todavía no se podía calcular el
- * ritmo. La insignia afirmaba lo que el texto desmentía.
- *
- * No es un detalle de estilo: es la app declarando que un viaje va bien sin
- * tener un solo dato para sostenerlo. Alguien crea un viaje y esa es la
- * primera pantalla que ve.
- *
- * «Sin datos» no es una gravedad menor que «bien»: es otra cosa. Por eso no
- * lleva color de estado —el color acá significa gravedad— sino el gris del
- * texto secundario y un contorno hueco en vez de una marca llena.
+ * No es capricho de estructura: `role="status"` solo anuncia cuando cambia el
+ * contenido de una región que YA existía. Antes cada estado devolvía un árbol
+ * distinto, así que React desmontaba uno y montaba otro y el lector de pantalla
+ * no decía nada — justo en el momento más importante, cuando alguien registra
+ * un gasto y la app pasa de «vas bien» a «te pasaste».
  */
-function Neutro({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Panel({
+  fondo,
+  color,
+  icono,
+  titulo,
+  children,
+}: {
+  fondo: string;
+  color: string;
+  icono: React.ReactNode;
+  titulo: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex flex-col gap-2">
+    <div
+      role="status"
+      className="flex flex-col gap-2.5 rounded-(--radius-caja) p-4 sm:p-5"
+      style={{ background: fondo, "--estado": color } as React.CSSProperties}
+    >
       <div className="flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="h-5 w-5 shrink-0 rounded-full border-2 border-(--color-filete)"
-        />
-        <span className="ancho-medio text-sm text-(--color-tinta-2)">{titulo}</span>
+        {icono}
+        <span className="ancho-medio text-[15px] text-(--estado)">{titulo}</span>
       </div>
-      <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">{children}</p>
+      {children}
     </div>
+  );
+}
+
+/** El icono del estado neutro: contorno hueco, sin color de estado. */
+function PuntoNeutro() {
+  return (
+    <span
+      aria-hidden="true"
+      className="h-[17px] w-[17px] shrink-0 rounded-full border-2 border-(--color-filete)"
+    />
+  );
+}
+
+/**
+ * Los dos ritmos, uno al lado del otro.
+ *
+ * Es la comparación que responde «¿voy bien?» sin leer una frase: lo que estás
+ * gastando contra lo que te alcanza. Estaban los dos dentro del párrafo,
+ * separados por doce palabras, y nadie compara dos números que no están
+ * alineados.
+ */
+function Ritmos({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
+  const m = (n: number) => formatearMoneda(n, viaje.moneda);
+  const excedido = balance.estado === "excedido";
+  return (
+    <dl className="m-0 mt-1 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-(--color-filete) pt-3">
+      <dt className="rotulo m-0">Vas gastando</dt>
+      <dt className="rotulo m-0">{excedido ? "Te quedaban" : "Te alcanzan"}</dt>
+      <dd className="cifra m-0 text-[17px]">{m(balance.ritmoReal ?? 0)}<span className="ancho-ui text-xs text-(--color-tinta-2)"> /día</span></dd>
+      <dd className="cifra m-0 text-[17px]">
+        {m(Math.max(0, balance.diarioDisponible))}
+        <span className="ancho-ui text-xs text-(--color-tinta-2)"> /día</span>
+      </dd>
+    </dl>
   );
 }
 
@@ -123,55 +171,52 @@ export function Alerta({
   const Icono = ICONO[balance.estado];
   const seAcaba = diaEnQueSeAcaba(viaje, balance);
   const culpable = categoriaCulpable(gastos, viaje.id);
-
   const m = (n: number) => formatearMoneda(n, viaje.moneda);
+
+  const neutro = { fondo: "var(--color-papel)", color: "var(--color-tinta-2)" };
 
   /**
    * Un viaje terminado va primero que todo lo demás.
    *
    * Sin esto, un viaje cerrado hace tres semanas mostraba «con un día más de
    * gastos ya puedo decirte si vas a llegar». No hay un día más: el viaje se
-   * acabó. Una alerta es una advertencia sobre algo que todavía se puede
-   * cambiar, y acá ya no queda nada que corregir — por eso tampoco aparece el
-   * botón de ajustar el tope.
-   *
-   * Lo que sí sirve es el cierre: en cuánto terminó y qué fue lo que pesó. Eso
-   * es lo único que se puede llevar al siguiente viaje.
+   * acabó. Una alerta advierte sobre algo que todavía se puede cambiar, y ahí
+   * no queda nada que corregir — por eso tampoco ofrece ajustar el tope.
    */
   if (balance.terminado) {
     return (
-      <Neutro titulo="Viaje cerrado">
-        {balance.sobrante >= 0 ? (
-          <>
-            Terminaste con {m(balance.sobrante)} sin gastar de un tope de {m(viaje.presupuesto)}.
-          </>
-        ) : (
-          <>
-            Terminaste {m(Math.abs(balance.sobrante))} por encima del tope de{" "}
-            {m(viaje.presupuesto)}.
-          </>
-        )}
-        {/* «Del día a día» no es relleno: `categoriaCulpable` deja fuera los
-            pagos únicos a propósito, porque su pregunta es qué se come el ritmo
-            diario y no cuál fue el gasto más grande. Sin esa precisión, la
-            frase decía que lo que más pesó fue comida mientras el hotel, más
-            del doble, estaba a la vista dos columnas más allá. */}
-        {culpable && (
-          <>
-            {" "}
-            Del día a día, lo que más pesó fue {culpable.categoria}, con {m(culpable.monto)}.
-          </>
-        )}
-      </Neutro>
+      <Panel {...neutro} icono={<PuntoNeutro />} titulo="Viaje cerrado">
+        <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">
+          {balance.sobrante >= 0 ? (
+            <>
+              Terminaste con {m(balance.sobrante)} sin gastar de un tope de{" "}
+              {m(viaje.presupuesto)}.
+            </>
+          ) : (
+            <>
+              Terminaste {m(Math.abs(balance.sobrante))} por encima del tope de{" "}
+              {m(viaje.presupuesto)}.
+            </>
+          )}
+          {/* «Del día a día» no es relleno: `categoriaCulpable` deja fuera los
+              pagos únicos a propósito, porque su pregunta es qué se come el
+              ritmo diario y no cuál fue el gasto más grande. */}
+          {culpable && (
+            <> Del día a día, lo que más pesó fue {culpable.categoria}, con {m(culpable.monto)}.</>
+          )}
+        </p>
+      </Panel>
     );
   }
 
   if (gastos.length === 0) {
     return (
-      <Neutro titulo="Sin gastos todavía">
-        Cuando anotes el primero, acá te digo si tu ritmo te alcanza para llegar al{" "}
-        {diaCorto(viaje.fin)} o si toca apretar.
-      </Neutro>
+      <Panel {...neutro} icono={<PuntoNeutro />} titulo="Sin gastos todavía">
+        <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">
+          Cuando anotes el primero, acá te digo si tu ritmo te alcanza para llegar al{" "}
+          {diaCorto(viaje.fin)} o si toca apretar.
+        </p>
+      </Panel>
     );
   }
 
@@ -179,54 +224,49 @@ export function Alerta({
   // Prometer un veredicto acá sería inventarlo.
   if (balance.estado === "bien" && !balance.hayRitmoConfiable) {
     return (
-      <Neutro titulo="Calculando tu ritmo">
-        Llevas {m(balance.gastadoTotal)} de {m(viaje.presupuesto)}. Con un día más de gastos ya
-        puedo decirte si vas a llegar.
-      </Neutro>
+      <Panel {...neutro} icono={<PuntoNeutro />} titulo="Calculando tu ritmo">
+        <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">
+          Llevas {m(balance.gastadoTotal)} de {m(viaje.presupuesto)}. Con un día más de gastos ya
+          puedo decirte si vas a llegar.
+        </p>
+      </Panel>
     );
   }
 
   return (
-    <div
-      className="flex flex-col gap-2 rounded-(--radius-caja)"
-      style={
-        {
-          background: FONDO[balance.estado],
-          padding: balance.estado === "bien" ? "0" : "0.875rem 1rem",
-          "--estado": color,
-        } as React.CSSProperties
-      }
-      role={balance.estado === "bien" ? undefined : "status"}
+    <Panel
+      fondo={FONDO[balance.estado]}
+      color={color}
+      icono={<Icono tamano={17} className="shrink-0 text-(--estado)" />}
+      titulo={PALABRA[balance.estado]}
     >
-      <div className="flex items-center gap-2">
-        {/* Sin círculo relleno detrás: el set es de contorno, y meter un icono
-            de trazo dentro de una mancha de color obliga a calarlo en blanco
-            —dos pesos ópticos en una pieza de 20px— que es justo lo que hacía
-            que los estados se vieran de sitios distintos. El icono lleva el
-            color del estado, igual que la palabra que va al lado. */}
-        <Icono tamano={17} className="shrink-0 text-(--estado)" />
-        <span className="ancho-medio text-sm text-(--estado)">
-          {PALABRA[balance.estado]}
-        </span>
-      </div>
-
       <p className="m-0 text-sm leading-relaxed">{explicar(viaje, balance, seAcaba, culpable)}</p>
 
+      {balance.hayRitmoConfiable && <Ritmos viaje={viaje} balance={balance} />}
+
       {balance.estado !== "bien" && (
-        // Sin `style` en línea: le gana a la clase de :hover y el estado no
-        // se ve. El color del estado entra por variable CSS.
+        // Sin `style` en línea: le gana a la clase de :hover y el estado no se
+        // ve. El color del estado entra por variable CSS.
         <button
           type="button"
+          id="boton-ajustar"
           onClick={onAjustar}
-          className="ancho-medio mt-0.5 self-start rounded-(--radius-accion) border border-(--estado) px-3.5 py-1.5 text-[13px] text-(--estado) hover:bg-(--estado) hover:text-(--color-tarjeta)"
+          className="ancho-medio mt-1 self-start rounded-(--radius-accion) border border-(--estado) px-3.5 py-1.5 text-[13px] text-(--estado) hover:bg-(--estado) hover:text-(--color-tarjeta)"
         >
           Ajustar el tope del viaje
         </button>
       )}
-    </div>
+    </Panel>
   );
 }
 
+/**
+ * La frase.
+ *
+ * Ya no repite las cifras de ritmo: esas viven en su propio bloque, alineadas
+ * para poder compararlas. Acá queda lo que un número no puede decir — cuándo se
+ * acaba la plata y qué la está consumiendo.
+ */
 function explicar(
   viaje: Viaje,
   balance: Balance,
@@ -255,8 +295,7 @@ function explicar(
       return (
         <>
           Llevas gastado el {Math.round(balance.consumido * 100)}% del presupuesto y todavía te
-          quedan {balance.diasRestantes} {balance.diasRestantes === 1 ? "día" : "días"}. Para llegar
-          al final, {m(balance.diarioDisponible)} por día.
+          quedan {balance.diasRestantes} {balance.diasRestantes === 1 ? "día" : "días"}.
           {culpable && <> Del día a día, lo que más pesa es {culpable.categoria}.</>}
         </>
       );
@@ -265,12 +304,13 @@ function explicar(
     return (
       <>
         {seAcaba ? (
-          <>A este ritmo te quedas sin presupuesto el {diaCorto(seAcaba)}, y el viaje termina el{" "}
-            {diaCorto(viaje.fin)}.</>
+          <>
+            A este ritmo te quedas sin presupuesto el {diaCorto(seAcaba)}, y el viaje termina el{" "}
+            {diaCorto(viaje.fin)}.
+          </>
         ) : (
           <>Vas por encima del ritmo que te alcanza para todo el viaje.</>
-        )}{" "}
-        Para llegar al final, {m(balance.diarioDisponible)} por día.
+        )}
         {culpable && <> Del día a día, lo que más pesa es {culpable.categoria}.</>}
       </>
     );
@@ -278,13 +318,5 @@ function explicar(
 
   // El estado bueno también habla: el silencio no confirma nada, y una app que
   // solo aparece cuando algo va mal se siente como un regaño esperando turno.
-  //
-  // El caso «todavía no hay ritmo» ya no llega hasta acá: lo atiende el estado
-  // neutro antes de entrar, porque no es una gravedad sino una ausencia de dato.
-  return (
-    <>
-      Vas gastando {m(balance.ritmoReal ?? 0)} por día y te alcanza:{" "}
-      puedes gastar {m(balance.diarioDisponible)} diarios hasta el {diaCorto(viaje.fin)}.
-    </>
-  );
+  return <>Tu ritmo te alcanza para llegar al {diaCorto(viaje.fin)} sin quedarte corta.</>;
 }

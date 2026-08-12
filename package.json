@@ -1,5 +1,5 @@
 {
-  "name": "tfscaffold",
+  "name": "tripflow",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -23,5 +23,6 @@
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "Controla el presupuesto de un viaje: define un tope, registra lo que gastas y entérate antes de que se acabe."
 }

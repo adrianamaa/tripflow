@@ -107,11 +107,35 @@
   /* No hay `--color-bien`: el estado bueno usa la marca.
      Tenerlo aparte significaba un tercer verde, en 140°, que en pantalla se
      leía como un color ajeno al de la app. El verde ES la marca y ES el estado
-     normal; los colores de estado aparecen solo cuando algo va mal. */
-  --color-excedido: #750e13;
-  --color-excedido-fondo: #fdf0ef; /* excedido encima: 10.33:1 */
-  --color-cuidado: #8a3800;
-  --color-cuidado-fondo: #fdf3e7; /* cuidado encima: 7.24:1 */
+     normal; los colores de estado aparecen solo cuando algo va mal.
+
+     ── De dónde salen estos dos ─────────────────────────────────────────────
+
+     El tono sale de la convención de seguridad: ámbar advierte, rojo marca el
+     límite pasado. El valor sale de tres restricciones verificables —contraste
+     sobre su propio fondo, croma suficiente para que siga señalando, y
+     separación de claridad entre los dos.
+
+     La razón de que la claridad sea la vía y no el tono: la deuteranopía anula
+     la discriminación rojo-verde SIN oscurecer nada, o sea que el canal de
+     luminancia queda intacto. Quien no separa esos dos tonos sí separa sus
+     claridades.
+
+     Lo que se descartó por el camino:
+     · un ámbar que tiraba a marrón y un rojo que tiraba a vino; leídos junto
+       al oliva no se sentían de la misma familia.
+     · una escalera que SUBÍA con la gravedad en vez de bajar, con el ámbar más
+       oscuro que el rojo.
+     · dejar los dos estados casi a la misma claridad, que es como terminan
+       pareciéndose entre sí.
+
+     ⚠️ Lo que se pierde al cambiar: separación de escalera. Era un refuerzo,
+     no el requisito. Lo obligatorio —que ningún estado se comunique solo con
+     color— lo cumplen el icono y la palabra, no el tono. */
+  --color-excedido: #ae2e24;
+  --color-excedido-fondo: #ffeceb; /* excedido encima: 5.74:1 · L* 39.7 */
+  --color-cuidado: #9e4c00;
+  --color-cuidado-fondo: #fff5db; /* cuidado encima: 5.54:1 · L* 41.9 */
 
   /* ── Radios. Distintos según el peso: uniforme en todo es el delator más
        silencioso de una plantilla. ───────────────────────────────────────── */

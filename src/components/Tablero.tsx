@@ -6,6 +6,7 @@ import { useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
 import { diaLargo } from "@/lib/fechas.ts";
 import { Marca } from "./Marca.tsx";
+import { IconoIzquierda } from "./iconos.tsx";
 import { CifraDeControl } from "./CifraDeControl.tsx";
 import { Medidor } from "./Medidor.tsx";
 import { Desglose } from "./Desglose.tsx";
@@ -160,15 +161,21 @@ export function Tablero() {
   if (creando || !viaje) {
     return (
       <main className="mx-auto w-full max-w-lg px-5 pt-8 pb-16 sm:px-8 sm:pt-12">
+        {/* Volver a la izquierda y la marca a la derecha.
+            Estaban al revés, y era una contradicción: una flecha que apunta a
+            la izquierda puesta en el borde derecho. En una pantalla de segundo
+            nivel el sitio de salida manda, así que se lleva la esquina que el
+            ojo lee primero; la marca cede porque acá no es la protagonista. */}
         <div className="mb-7 flex items-center justify-between gap-4">
-          <Marca tamano={24} />
           <button
             type="button"
             onClick={() => setCreando(false)}
-            className="ancho-ui rounded-(--radius-accion) px-3 py-1.5 text-sm text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
+            className="ancho-medio -ml-2 flex items-center gap-1.5 rounded-(--radius-accion) px-2.5 py-1.5 text-sm text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
           >
-            ← Volver
+            <IconoIzquierda tamano={15} />
+            Volver
           </button>
+          <Marca tamano={22} />
         </div>
         <h1 className="ancho-dato m-0 mb-6 text-[26px]">Nuevo viaje</h1>
         <div className="tarjeta">
@@ -220,7 +227,15 @@ export function Tablero() {
               <AjustarPresupuesto
                 viaje={viaje}
                 balance={balance}
-                onCerrar={() => setAjustando(false)}
+                // El foco vuelve al botón que abrió el panel. Sin esto se
+                // quedaba en `body` al cerrar, y quien navega con teclado tenía
+                // que tabular desde el principio del documento.
+                onCerrar={() => {
+                  setAjustando(false);
+                  requestAnimationFrame(() =>
+                    document.getElementById("boton-ajustar")?.focus(),
+                  );
+                }}
               />
             )}
           </div>
