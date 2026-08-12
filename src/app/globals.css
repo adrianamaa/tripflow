@@ -95,6 +95,19 @@ body {
   font-variation-settings: "wdth" 100, "wght" 500;
 }
 
+/**
+ * La cifra héroe usa figuras PROPORCIONALES, no tabulares.
+ *
+ * Los dígitos de ancho igual sirven para alinear columnas, pero a 56px una
+ * cifra tabular se ve suelta y desarmada: el 1 arrastra el mismo ancho que el
+ * 8. Tabular donde hay columna, proporcional donde hay una sola cifra grande.
+ */
+.cifra-hero {
+  font-variant-numeric: lining-nums;
+  font-variation-settings: "wdth" 118, "wght" 620;
+  letter-spacing: -0.025em;
+}
+
 @media (max-width: 400px) {
   /* En pantallas angostas las columnas de montos se aprietan: el eje de ancho
      las mete sin bajar el tamaño, que es lo que no se puede hacer con dinero. */

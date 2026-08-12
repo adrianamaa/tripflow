@@ -7,6 +7,8 @@ import { calcularBalance } from "@/lib/presupuesto.ts";
 import { formatearMoneda } from "@/lib/moneda.ts";
 import { diaLargo } from "@/lib/fechas.ts";
 import { CifraDeControl } from "./CifraDeControl.tsx";
+import { Medidor } from "./Medidor.tsx";
+import { Desglose } from "./Desglose.tsx";
 import { Alerta } from "./Alerta.tsx";
 import { RegistrarGasto } from "./RegistrarGasto.tsx";
 import { ListaDeGastos } from "./ListaDeGastos.tsx";
@@ -114,6 +116,8 @@ export function Tablero() {
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <section className="flex flex-col gap-6">
           <CifraDeControl viaje={viaje} balance={balance} />
+          <Medidor viaje={viaje} balance={balance} />
+          <Desglose viaje={viaje} gastos={delViaje} />
           <Alerta
             viaje={viaje}
             balance={balance}
@@ -131,15 +135,7 @@ export function Tablero() {
         </section>
 
         <section className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between">
-            <h2 className="rotulo m-0">
-              Gastos
-            </h2>
-            <span className="cifra text-sm text-(--color-tinta-2)">
-              {formatearMoneda(balance.gastadoTotal, viaje.moneda)} de{" "}
-              {formatearMoneda(viaje.presupuesto, viaje.moneda)}
-            </span>
-          </div>
+          <h2 className="rotulo m-0">Gastos</h2>
           <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
         </section>
       </div>
