@@ -86,7 +86,9 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
           de <span className="cifra">{formatearMoneda(tope, viaje.moneda)}</span>
           <span className="cifra"> · {consumido}%</span>
         </span>
-        {hayMarca && (
+        {/* La leyenda solo aparece cuando hay algo que comparar. Sin un solo
+            gasto, explicar la muesca es explicar una referencia de nada. */}
+        {hayMarca && balance.gastadoTotal > 0 && (
           <span className="ancho-densa whitespace-nowrap">la muesca es el ritmo parejo</span>
         )}
       </div>

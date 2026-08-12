@@ -25,11 +25,28 @@ import { diaCorto } from "@/lib/fechas.ts";
  * Cada estado tiene una silueta distinta, no solo un color: trazo abierto,
  * contorno angular, y mancha sólida. A 16px reales eso se distingue aunque el
  * color no llegue.
+ *
+ * ⚠️ Van dibujados, no escritos. Antes eran los caracteres ✓ ▲ ⬣, y el tercero
+ * —hexágono, U+2B23— no está en Archivo ni en la mayoría de fuentes: se resolvía
+ * con lo que tuviera el sistema operativo, y donde no hubiera nada sale el
+ * cuadrito vacío. Una app que se entrega por un link no puede apostar el estado
+ * más grave a la fuente de respaldo de la máquina ajena.
  */
-const ICONO: Record<Balance["estado"], string> = {
-  bien: "✓",
-  cuidado: "▲",
-  excedido: "⬣",
+const ICONO: Record<Balance["estado"], React.ReactNode> = {
+  bien: (
+    <path
+      d="M2.6 6.3 4.9 8.6 9.4 3.6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  cuidado: <path d="M6 1.9 11 10.4H1z" fill="currentColor" />,
+  excedido: (
+    <path d="M4.3 1.5h3.4l2.8 2.8v3.4l-2.8 2.8H4.3L1.5 7.7V4.3z" fill="currentColor" />
+  ),
 };
 
 const PALABRA: Record<Balance["estado"], string> = {
@@ -56,6 +73,36 @@ const FONDO: Record<Balance["estado"], string> = {
   excedido: "#FDF0EF",
 };
 
+/**
+ * El estado neutro, que faltaba y era un error de verdad.
+ *
+ * Con cero gastos registrados la alerta mostraba un check verde y «Vas bien»,
+ * mientras el párrafo de al lado decía que todavía no se podía calcular el
+ * ritmo. La insignia afirmaba lo que el texto desmentía.
+ *
+ * No es un detalle de estilo: es la app declarando que un viaje va bien sin
+ * tener un solo dato para sostenerlo. Alguien crea un viaje y esa es la
+ * primera pantalla que ve.
+ *
+ * «Sin datos» no es una gravedad menor que «bien»: es otra cosa. Por eso no
+ * lleva color de estado —el color acá significa gravedad— sino el gris del
+ * texto secundario y un contorno hueco en vez de una marca llena.
+ */
+function Neutro({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 rounded-full border-2 border-(--color-filete)"
+        />
+        <span className="ancho-medio text-sm text-(--color-tinta-2)">{titulo}</span>
+      </div>
+      <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">{children}</p>
+    </div>
+  );
+}
+
 export function Alerta({
   viaje,
   balance,
@@ -70,6 +117,68 @@ export function Alerta({
   const color = COLOR[balance.estado];
   const seAcaba = diaEnQueSeAcaba(viaje, balance);
   const culpable = categoriaCulpable(gastos, viaje.id);
+
+  const m = (n: number) => formatearMoneda(n, viaje.moneda);
+
+  /**
+   * Un viaje terminado va primero que todo lo demás.
+   *
+   * Sin esto, un viaje cerrado hace tres semanas mostraba «con un día más de
+   * gastos ya puedo decirte si vas a llegar». No hay un día más: el viaje se
+   * acabó. Una alerta es una advertencia sobre algo que todavía se puede
+   * cambiar, y acá ya no queda nada que corregir — por eso tampoco aparece el
+   * botón de ajustar el tope.
+   *
+   * Lo que sí sirve es el cierre: en cuánto terminó y qué fue lo que pesó. Eso
+   * es lo único que se puede llevar al siguiente viaje.
+   */
+  if (balance.terminado) {
+    return (
+      <Neutro titulo="Viaje cerrado">
+        {balance.sobrante >= 0 ? (
+          <>
+            Terminaste con {m(balance.sobrante)} sin gastar de un tope de {m(viaje.presupuesto)}.
+          </>
+        ) : (
+          <>
+            Terminaste {m(Math.abs(balance.sobrante))} por encima del tope de{" "}
+            {m(viaje.presupuesto)}.
+          </>
+        )}
+        {/* «Del día a día» no es relleno: `categoriaCulpable` deja fuera los
+            pagos únicos a propósito, porque su pregunta es qué se come el ritmo
+            diario y no cuál fue el gasto más grande. Sin esa precisión, la
+            frase decía que lo que más pesó fue comida mientras el hotel, más
+            del doble, estaba a la vista dos columnas más allá. */}
+        {culpable && (
+          <>
+            {" "}
+            Del día a día, lo que más pesó fue {culpable.categoria}, con {m(culpable.monto)}.
+          </>
+        )}
+      </Neutro>
+    );
+  }
+
+  if (gastos.length === 0) {
+    return (
+      <Neutro titulo="Sin gastos todavía">
+        Cuando anotes el primero, acá te digo si tu ritmo te alcanza para llegar al{" "}
+        {diaCorto(viaje.fin)} o si toca apretar.
+      </Neutro>
+    );
+  }
+
+  // Hay gastos pero todavía no hay días cerrados suficientes para proyectar.
+  // Prometer un veredicto acá sería inventarlo.
+  if (balance.estado === "bien" && !balance.hayRitmoConfiable) {
+    return (
+      <Neutro titulo="Calculando tu ritmo">
+        Llevas {m(balance.gastadoTotal)} de {m(viaje.presupuesto)}. Con un día más de gastos ya
+        puedo decirte si vas a llegar.
+      </Neutro>
+    );
+  }
 
   return (
     <div
@@ -86,9 +195,11 @@ export function Alerta({
       <div className="flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--estado) text-[13px] font-bold text-(--color-tarjeta)"
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--estado) text-(--color-tarjeta)"
         >
-          {ICONO[balance.estado]}
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            {ICONO[balance.estado]}
+          </svg>
         </span>
         <span className="ancho-medio text-sm text-(--estado)">
           {PALABRA[balance.estado]}
@@ -124,7 +235,9 @@ function explicar(
     return (
       <>
         Llevas {m(balance.gastadoTotal)} de un tope de {m(viaje.presupuesto)}.
-        {culpable && <> Lo que más pesa es {culpable.categoria}, con {m(culpable.monto)}.</>}
+        {culpable && (
+          <> Del día a día, lo que más pesa es {culpable.categoria}, con {m(culpable.monto)}.</>
+        )}
       </>
     );
   }
@@ -140,7 +253,7 @@ function explicar(
           Llevas gastado el {Math.round(balance.consumido * 100)}% del presupuesto y todavía te
           quedan {balance.diasRestantes} {balance.diasRestantes === 1 ? "día" : "días"}. Para llegar
           al final, {m(balance.diarioDisponible)} por día.
-          {culpable && <> Lo que más pesa hasta ahora es {culpable.categoria}.</>}
+          {culpable && <> Del día a día, lo que más pesa es {culpable.categoria}.</>}
         </>
       );
     }
@@ -154,16 +267,16 @@ function explicar(
           <>Vas por encima del ritmo que te alcanza para todo el viaje.</>
         )}{" "}
         Para llegar al final, {m(balance.diarioDisponible)} por día.
-        {culpable && <> Lo que más pesa hasta ahora es {culpable.categoria}.</>}
+        {culpable && <> Del día a día, lo que más pesa es {culpable.categoria}.</>}
       </>
     );
   }
 
   // El estado bueno también habla: el silencio no confirma nada, y una app que
   // solo aparece cuando algo va mal se siente como un regaño esperando turno.
-  if (!balance.hayRitmoConfiable) {
-    return <>Todavía no hay suficientes días para calcular tu ritmo. Registra un par de gastos más.</>;
-  }
+  //
+  // El caso «todavía no hay ritmo» ya no llega hasta acá: lo atiende el estado
+  // neutro antes de entrar, porque no es una gravedad sino una ausencia de dato.
   return (
     <>
       Vas gastando {m(balance.ritmoReal ?? 0)} por día y te alcanza:{" "}
