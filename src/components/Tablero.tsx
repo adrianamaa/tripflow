@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Gasto } from "@/lib/types.ts";
-import { useEstado } from "@/lib/almacen.ts";
+import { useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
 import { diaLargo } from "@/lib/fechas.ts";
 import { Marca } from "./Marca.tsx";
@@ -59,15 +59,85 @@ import { AjustarPresupuesto } from "./AjustarPresupuesto.tsx";
  * tableros que se revisaron: la métrica principal se despega del resto por
  * distancia, y las reglas se guardan para dentro de un bloque.
  */
+/**
+ * El estado de carga.
+ *
+ * Existe por una razón concreta: los datos viven en `localStorage`, que en el
+ * servidor no existe, así que el primer pintado siempre llega vacío. Sin esto,
+ * el tablero interpretaba «vacío» como «no tiene viajes» y dibujaba la
+ * bienvenida — de modo que quien abría el link público veía «Crear mi primer
+ * viaje» durante un instante, aunque tuviera viajes guardados.
+ *
+ * Repite la forma exacta de lo que viene después, para que al llegar los datos
+ * nada se mueva de sitio. Sin animación: un parpadeo de menos de un cuadro
+ * llama más la atención que el silencio.
+ */
+function Esqueleto() {
+  const bloque = "rounded-(--radius-chip) bg-(--color-reposo)";
+  return (
+    <main
+      aria-busy="true"
+      aria-label="Cargando tus viajes"
+      className="mx-auto w-full max-w-6xl px-5 pt-6 pb-16 sm:px-8 sm:pt-8"
+    >
+      <div className="mb-6 flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-4">
+          <Marca tamano={24} />
+          <div className={`${bloque} h-9 w-44`} />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className={`${bloque} h-7 w-56`} />
+          <div className={`${bloque} h-4 w-72`} />
+        </div>
+      </div>
+
+      <section className="tarjeta mb-6 sm:p-7">
+        <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
+          <div className="flex flex-col gap-4">
+            <div className={`${bloque} h-3 w-40`} />
+            <div className={`${bloque} h-14 w-64`} />
+            <div className={`${bloque} h-3 w-full`} />
+          </div>
+          <div className="flex flex-col gap-3">
+            <div className={`${bloque} h-4 w-28`} />
+            <div className={`${bloque} h-4 w-full`} />
+            <div className={`${bloque} h-4 w-4/5`} />
+          </div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className={`tarjeta flex flex-col gap-4`}>
+          <div className={`${bloque} h-3 w-32`} />
+          <div className={`${bloque} h-10 w-full`} />
+          <div className={`${bloque} h-8 w-3/4`} />
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className={`${bloque} h-3 w-20`} />
+          <div className="tarjeta flex flex-col gap-3">
+            <div className={`${bloque} h-4 w-full`} />
+            <div className={`${bloque} h-4 w-11/12`} />
+            <div className={`${bloque} h-4 w-4/5`} />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export function Tablero() {
   const { viajes, gastos, viajeActivoId } = useEstado();
+  const hidratado = useHidratado();
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [ajustando, setAjustando] = useState(false);
 
   const viaje = viajes.find((v) => v.id === viajeActivoId) ?? viajes[0] ?? null;
 
-  // Primer pintado en el servidor: todavía no hay datos.
+  // Antes de hidratar no se sabe si hay viajes: el almacén vive en el
+  // navegador. Pintar la bienvenida acá sería afirmar que no hay nada.
+  if (!hidratado) return <Esqueleto />;
+
   if (!viaje && viajes.length === 0 && !creando) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-5 px-5 sm:px-8">

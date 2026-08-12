@@ -206,7 +206,11 @@ export function Calendario({
           /* Un panel flotante es el único sitio donde el cambio de superficie no
              alcanza: queda encima de otra superficie del mismo blanco. Por eso
              acá sí hay filete y sombra, y en ninguna tarjeta del sistema. */
-          className={`absolute top-full z-20 mt-2 w-[276px] rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-3 shadow-[0_8px_24px_-8px_rgba(12,10,8,0.18)] ${
+          /* El ancho se encoge en pantallas angostas. A 276px fijos, el
+             calendario de «Cuándo» —que vive dentro del panel de más campos,
+             con tres niveles de relleno encima— se salía por la derecha a 320px
+             y aparecía barra de desplazamiento horizontal. */
+          className={`absolute top-full z-20 mt-2 w-[min(276px,80vw)] rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-3 shadow-[0_8px_24px_-8px_rgba(12,10,8,0.18)] ${
             alinear === "derecha" ? "right-0" : "left-0"
           }`}
         >

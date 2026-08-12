@@ -153,6 +153,34 @@ export function useEstado(): Estado {
   return useSyncExternalStore(suscribir, leer, leerEnServidor);
 }
 
+/** Nada a lo que suscribirse: el valor solo cambia una vez, al hidratar. */
+const sinSuscripcion = () => () => {};
+
+/**
+ * ¿Ya está el navegador al mando?
+ *
+ * Los datos viven en `localStorage`, que en el servidor no existe, así que el
+ * primer pintado SIEMPRE llega con cero viajes. Y con cero viajes el tablero
+ * dibujaba la pantalla de bienvenida: quien abría el link público —con la
+ * semilla precargada o con sus propios viajes— veía «Crear mi primer viaje»
+ * hasta que hidrataba. Medido contra el build de producción: el HTML del
+ * servidor no contiene la palabra «Cartagena» ni una vez.
+ *
+ * Eso es un estado vacío haciendo de estado de carga, que son cosas distintas:
+ * uno dice «no hay nada» y el otro «todavía no sé». Decir «no hay nada» sin
+ * saberlo es lo que hace que una app parezca que perdió los datos.
+ *
+ * Devuelve `false` en el servidor y `true` en cuanto React toma el control, sin
+ * efectos ni estado que sincronizar.
+ */
+export function useHidratado(): boolean {
+  return useSyncExternalStore(
+    sinSuscripcion,
+    () => true,
+    () => false,
+  );
+}
+
 // ── Operaciones ────────────────────────────────────────────────────────────
 
 const nuevoId = (p: string) =>

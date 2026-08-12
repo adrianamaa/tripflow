@@ -21,8 +21,19 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  * no es el caso. Seis matices saturados no agregarían información y volverían
  * la pantalla un semáforo — que es justo lo que hay que evitar.
  *
- * Lo que sí resuelve la sensación de plano es una ESCALERA: cada barra un paso
- * más clara que la anterior. Refuerza el orden en vez de competir con él.
+ * ⚠️ Hubo una ESCALERA de grises —cada barra un paso más clara que la anterior—
+ * y se quitó. Codificaba el mismo dato dos veces: la longitud ya dice cuál es
+ * mayor, así que el tono no aportaba nada y el ojo lo leía como si significara
+ * otra cosa. Cinco grises seguidos se sienten confusos justamente porque
+ * parecen una categoría más.
+ *
+ * Lo que se hace en su lugar es lo que recomienda Datawrapper para bajar la
+ * cuenta de colores: UN color para la categoría que más pesa y gris para todas
+ * las demás. Así el color sí dice algo —«esta es la que se está comiendo tu
+ * viaje»— en vez de repetir lo que la barra ya dijo.
+ *
+ * Medido sobre la pista: la marca da 8.33:1 y el gris 4.29:1, los dos por
+ * encima del 3:1 que pide un elemento gráfico.
  *
  * ── Por qué no hay porcentaje ──────────────────────────────────────────────
  *
@@ -56,14 +67,10 @@ export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
 
             <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-reposo)">
               <div
-                className="h-full rounded-full bg-(--color-tinta)"
-                style={{
-                  width: `${(monto / mayor) * 100}%`,
-                  // Escalera: la primera a plena tinta y cada siguiente un paso
-                  // más clara. Nunca por debajo de 0.3, que es donde una barra
-                  // deja de leerse contra su pista.
-                  opacity: Math.max(0.3, 1 - i * 0.16),
-                }}
+                className={`h-full rounded-full ${
+                  i === 0 ? "bg-(--color-marca)" : "bg-(--color-tinta-2)"
+                }`}
+                style={{ width: `${(monto / mayor) * 100}%` }}
               />
             </div>
           </li>

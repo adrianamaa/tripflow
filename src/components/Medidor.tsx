@@ -84,19 +84,22 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
 
   return (
     <div className="flex flex-col gap-2">
-      {/* El espacio de arriba es donde se apoya la señal de ritmo. Con aire
-          entre la señal y la pista: pegada, cuando el gasto va cerca del ritmo
-          —que es casi siempre— parecía una banderita clavada en la punta del
-          relleno en vez de una referencia independiente. */}
-      <div className="relative pt-3.5">
-        {hayMarca && (
-          <div
-            aria-hidden="true"
-            className="absolute top-0 h-2 w-[3px] rounded-full bg-(--color-tinta)"
-            style={{ left: `calc(${marca}% - 1.5px)` }}
-          />
-        )}
-
+      {/**
+        * La señal de ritmo CRUZA la barra, y sobresale por arriba y por abajo.
+        *
+        * Ha estado en los dos extremos y los dos estaban mal. Dentro de la
+        * pista, dibujada como un hueco claro, se leía como que la barra estaba
+        * partida. Fuera de la pista, apoyada encima, dejaba de pertenecerle a la
+        * barra —una marquita suelta— y además quedaba en tinta sobre una barra
+        * de tinta, o sea casi invisible.
+        *
+        * Lo que resuelve las dos cosas es el halo: un trazo claro un poco más
+        * ancho con el trazo oscuro adentro. Sobre el relleno negro se ve por el
+        * halo; sobre la pista clara se ve por el núcleo. Y como sobresale doce
+        * píxeles más que la pista, se lee como una referencia que la atraviesa y
+        * no como un corte en ella.
+        */}
+      <div className="relative py-1.5">
         <div
           role="progressbar"
           aria-label={`Gastado del presupuesto de ${viaje.nombre}`}
@@ -123,6 +126,16 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
             style={{ left: `${anchoFijo}%`, width: `${anchoVariable}%`, background: color }}
           />
         </div>
+
+        {hayMarca && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-y-0 w-[7px] rounded-full bg-(--color-tarjeta)"
+            style={{ left: `calc(${marca}% - 3.5px)` }}
+          >
+            <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-tinta)" />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs text-(--color-tinta-2)">
@@ -138,7 +151,15 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
             le dice nada a quien no sabe qué es una muesca. */}
         {hayMarca && (
           <span className="ancho-densa flex items-center gap-1.5 whitespace-nowrap">
-            <span aria-hidden="true" className="inline-block h-2.5 w-[3px] rounded-full bg-(--color-tinta)" />
+            {/* La muestra repite la señal completa —halo y núcleo— y no solo el
+                núcleo: si la leyenda no se parece a lo que hay en la barra, no
+                sirve de leyenda. */}
+            <span
+              aria-hidden="true"
+              className="relative inline-block h-3.5 w-[7px] shrink-0 rounded-full bg-(--color-tarjeta)"
+            >
+              <span className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 rounded-full bg-(--color-tinta)" />
+            </span>
             deberías ir por acá hoy
           </span>
         )}
