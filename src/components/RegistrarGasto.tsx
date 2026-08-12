@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CATEGORIAS, type Categoria, type Gasto, type Viaje } from "@/lib/types.ts";
-import { leerMonto } from "@/lib/moneda.ts";
+import { formatearNumero, leerMonto } from "@/lib/moneda.ts";
 import { hoy } from "@/lib/fechas.ts";
 import { agregarGasto, editarGasto } from "@/lib/almacen.ts";
 import { Calendario } from "./Calendario.tsx";
@@ -51,7 +51,12 @@ export function RegistrarGasto({
   // El estado arranca de lo que se está editando, sin sincronizarlo después con
   // un efecto. Cuando cambia el gasto en edición, el padre reinicia este
   // componente con `key` — que es más simple y no dispara renders en cascada.
-  const [monto, setMonto] = useState(editando ? String(editando.monto) : "");
+  // Al abrir para editar, el monto entra ya formateado: `String(21000)` ponía
+  // «21000» en un campo donde toda la app escribe «21.000». Es seguro porque al
+  // leerlo de vuelta los separadores se descartan.
+  const [monto, setMonto] = useState(
+    editando ? formatearNumero(editando.monto, viaje.moneda) : "",
+  );
   const [categoria, setCategoria] = useState<Categoria>(editando?.categoria ?? "comida");
   const [descripcion, setDescripcion] = useState(editando?.descripcion ?? "");
   const [fecha, setFecha] = useState(editando?.fecha ?? hoy());
@@ -131,22 +136,23 @@ export function RegistrarGasto({
 
   return (
     <form onSubmit={guardar} className="flex flex-col gap-3">
-      {editando && (
-        <div className="-m-1 mb-1 flex items-center gap-2 rounded-(--radius-chip) bg-(--color-tinta) px-3 py-1.5 text-xs text-(--color-tarjeta)">
-          <span className="ancho-medio">Editando</span>
-          <span className="truncate opacity-80">{editando.descripcion}</span>
-        </div>
-      )}
+      {/* Ya no hay letrero de «Editando».
+          Existía porque el formulario cambiaba de trabajo sin moverse de sitio,
+          y hacía falta un cartel que explicara qué estaba pasando. Ahora editar
+          ocurre en su propio diálogo, cuyo encabezado ya lo dice: un letrero
+          que repite el título es ruido. */}
       <div className="flex flex-col gap-1">
-        <label
-          htmlFor="monto"
-          className="rotulo"
-        >
-          {editando ? "Editar gasto" : "Cuánto gastaste"}
+        <label htmlFor="monto" className="rotulo">
+          Cuánto gastaste
         </label>
         <input
           id="monto"
           ref={campoMonto}
+          // Dentro de un diálogo, `showModal()` manda el foco al primer elemento
+          // enfocable —que sería el botón de cerrar— y pisaría cualquier foco
+          // pedido desde un efecto. El atributo se lo dice al navegador antes,
+          // así que abrir para editar deja el cursor en el monto.
+          autoFocus={Boolean(editando)}
           value={monto}
           onChange={(e) => setMonto(e.target.value)}
           inputMode="decimal"

@@ -16,6 +16,7 @@ import { RegistrarGasto } from "./RegistrarGasto.tsx";
 import { ListaDeGastos } from "./ListaDeGastos.tsx";
 import { CrearViaje } from "./CrearViaje.tsx";
 import { AjustarPresupuesto } from "./AjustarPresupuesto.tsx";
+import { Dialogo } from "./Dialogo.tsx";
 
 /**
  * El tablero.
@@ -252,13 +253,11 @@ export function Tablero() {
             cuando uno se acuerda de lo que no anotó. El hueco deja de ser un
             sobrante y pasa a ser el sitio donde vive la acción principal. */}
         <div className="flex flex-col gap-4 lg:sticky lg:top-6">
-          <div id="formulario-gasto" className="tarjeta">
-            <RegistrarGasto
-              key={editando?.id ?? `nuevo-${viaje.id}`}
-              viaje={viaje}
-              editando={editando}
-              onListo={() => setEditando(null)}
-            />
+          {/* Este formulario registra, nunca edita: quiere el tablero a la
+              vista para que se vea moverse la cifra al guardar. Editar es otro
+              momento y vive en su propio diálogo. */}
+          <div className="tarjeta">
+            <RegistrarGasto key={`nuevo-${viaje.id}`} viaje={viaje} />
           </div>
 
           {/* Sin gastos el desglose no devuelve nada, y su tarjeta quedaría
@@ -272,22 +271,27 @@ export function Tablero() {
 
         <div className="flex flex-col gap-3">
           <h2 className="rotulo m-0">Gastos</h2>
-          <ListaDeGastos
-            viaje={viaje}
-            gastos={delViaje}
-            onEditar={(g) => {
-              setEditando(g);
-              // Sin esto, tocar «Editar» cambia un formulario que en móvil está
-              // fuera de pantalla: parece que el botón no hizo nada.
-              requestAnimationFrame(() =>
-                document
-                  .getElementById("formulario-gasto")
-                  ?.scrollIntoView({ behavior: "smooth", block: "center" }),
-              );
-            }}
-          />
+          <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
         </div>
       </div>
+
+      {/* El diálogo se monta con el gasto dentro y `key` lo reinicia al cambiar
+          de gasto, así que abrir dos gastos distintos no arrastra el estado del
+          anterior. */}
+      <Dialogo
+        titulo="Editar gasto"
+        abierto={editando !== null}
+        onCerrar={() => setEditando(null)}
+      >
+        {editando && (
+          <RegistrarGasto
+            key={editando.id}
+            viaje={viaje}
+            editando={editando}
+            onListo={() => setEditando(null)}
+          />
+        )}
+      </Dialogo>
     </main>
   );
 }
