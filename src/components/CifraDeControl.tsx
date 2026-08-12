@@ -18,10 +18,10 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
   if (balance.terminado) {
     return (
       <div>
-        <p className="m-0 text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+        <p className="rotulo m-0">
           El viaje terminó
         </p>
-        <p className="m-0 mt-1 text-5xl font-semibold tracking-tight tabular-nums">
+        <p className="cifra ancho-dato m-0 mt-1 text-5xl">
           {formatearMoneda(balance.sobrante, viaje.moneda)}
         </p>
         <p className="m-0 mt-1 text-sm text-(--color-tinta-2)">
@@ -37,11 +37,11 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
 
   return (
     <div>
-      <p className="m-0 text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+      <p className="rotulo m-0">
         {excedido ? "Te pasaste del presupuesto" : "Puedes gastar por día"}
       </p>
       <p
-        className="m-0 mt-1 text-5xl leading-none font-semibold tracking-tight tabular-nums sm:text-6xl"
+        className="cifra ancho-dato m-0 mt-1 text-5xl leading-none sm:text-6xl"
         style={{ color: excedido ? "var(--color-excedido)" : undefined }}
       >
         {excedido

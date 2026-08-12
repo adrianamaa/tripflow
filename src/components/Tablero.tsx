@@ -40,7 +40,7 @@ export function Tablero() {
   if (!viaje && viajes.length === 0 && !creando) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 p-(--spacing-borde)">
-        <h1 className="m-0 text-3xl font-semibold tracking-tight">Tripflow</h1>
+        <h1 className="ancho-dato m-0 text-3xl">Tripflow</h1>
         <p className="m-0 text-(--color-tinta-2)">
           Define cuánto puedes gastar en un viaje y registra lo que gastes. La app te avisa antes de
           que se acabe, no después.
@@ -66,7 +66,7 @@ export function Tablero() {
         >
           ← Volver
         </button>
-        <h1 className="m-0 mb-5 text-2xl font-semibold tracking-tight">Nuevo viaje</h1>
+        <h1 className="ancho-dato m-0 mb-5 text-2xl">Nuevo viaje</h1>
         <CrearViaje onListo={() => setCreando(false)} />
       </main>
     );
@@ -80,7 +80,7 @@ export function Tablero() {
       {/* ── Cabecera: selector de viaje ─────────────────────────────────── */}
       <header className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-(--color-filete) pb-4">
         <div className="flex items-baseline gap-2">
-          <h1 className="m-0 text-2xl font-semibold tracking-tight">{viaje.nombre}</h1>
+          <h1 className="ancho-dato m-0 text-2xl">{viaje.nombre}</h1>
           {viajes.length > 1 && (
             <>
               <label htmlFor="viaje" className="sr-only">Cambiar de viaje</label>
@@ -132,10 +132,10 @@ export function Tablero() {
 
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
-            <h2 className="m-0 text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+            <h2 className="rotulo m-0">
               Gastos
             </h2>
-            <span className="text-sm text-(--color-tinta-2) tabular-nums">
+            <span className="cifra text-sm text-(--color-tinta-2)">
               {formatearMoneda(balance.gastadoTotal, viaje.moneda)} de{" "}
               {formatearMoneda(viaje.presupuesto, viaje.moneda)}
             </span>

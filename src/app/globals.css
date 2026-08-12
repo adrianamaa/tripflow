@@ -3,63 +3,116 @@
 /**
  * Tokens del sistema.
  *
- * Los nombres son definitivos; varios valores todavía no. La dirección visual
- * está en decisión, así que acá hay una paleta provisional deliberadamente sosa:
- * cuando la dirección cierre, cambian los valores de este bloque y nada más.
- * Ningún componente escribe un color a mano.
- *
- * Regla que viene de haber medido: ningún texto de dato financiero baja de
- * 4.5:1 contra su fondo. Se mide, no se estima.
+ * Regla que gobierna todo esto: ningún componente escribe un color, un tamaño
+ * ni un peso a mano. Si un valor no está acá, no se usa.
  */
 @theme {
-  /* ── Superficies ── */
+  /* ── Superficies ──────────────────────────────────────────────────────── */
   --color-lienzo: #ffffff;
   --color-reposo: #f4f6f6;
   --color-filete: #e2e8e8;
 
-  /* ── Tinta ── */
+  /* ── Tinta ────────────────────────────────────────────────────────────── */
   --color-tinta: #0c1f21;
   --color-tinta-2: #4f6669;
 
-  /* ── Marca. Provisional: la dirección está en decisión. ── */
+  /* ── Marca. Provisional mientras se cierra la dirección visual. ───────── */
   --color-marca: #0b5f5a;
   --color-sobre-marca: #ffffff;
 
-  /* ── Estados. Los tres canales son color, icono y palabra: el color solo
-       nunca alcanza. Estos hex ya están medidos contra blanco. ── */
-  --color-bien: #0f7a3d;
-  --color-cuidado: #8f5300;
-  --color-excedido: #b02318;
+  /* ── Estados ──────────────────────────────────────────────────────────────
+   *
+   * Lo que los ordena no es el matiz sino la LUMINOSIDAD, y va bajando con la
+   * gravedad: L* 46.9 → 34.5 → 24.1. Eso importa porque el par que de verdad se
+   * confunde no es verde-rojo sino ÁMBAR-ROJO —los dos casi no tienen azul— y
+   * quien no distingue colores los separa por claridad, no por tono.
+   *
+   * Contraste sobre blanco, medido: 5.02:1 · 7.94:1 · 11.48:1.
+   * Y ninguno se usa solo: cada estado lleva además icono y palabra.
+   */
+  --color-bien: #198038;
+  --color-cuidado: #8a3800;
+  --color-cuidado-fondo: #fff2e8;
+  --color-excedido: #750e13;
+  --color-excedido-fondo: #fff1f1;
 
-  /* ── Espaciado ── */
+  /* ── Espaciado ────────────────────────────────────────────────────────── */
   --spacing-borde: 1.25rem;
 
   /* ── Radios. Distintos según el peso de la acción: un radio uniforme en
-       todo es el delator más silencioso de una plantilla. ── */
+       todo es el delator más silencioso de una plantilla. ────────────────── */
   --radius-caja: 4px;
   --radius-accion: 999px;
+
+  --font-sans: var(--fuente), ui-sans-serif, system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html {
-  /* Las cifras de dinero se alinean en columna y cambian en vivo. Sin cifras
-     tabulares, cada actualización mueve los números de lado. */
-  font-variant-numeric: tabular-nums;
-}
-
 body {
   margin: 0;
   background: var(--color-lienzo);
   color: var(--color-tinta);
-  font-family: ui-sans-serif, system-ui, sans-serif; /* provisional */
+  font-family: var(--font-sans);
+  font-variation-settings: "wdth" 100, "wght" 400;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Que se vea dónde está el foco. Quien navega con teclado no debería tener
-   que adivinar. */
+/**
+ * Los tres anchos. Esta es la firma del sistema.
+ *
+ * `font-variation-settings` pisa a `font-weight`, así que el peso va declarado
+ * dentro del mismo bloque o se ignora.
+ */
+.ancho-dato {
+  font-variation-settings: "wdth" 118, "wght" 620;
+  letter-spacing: -0.02em;
+}
+.ancho-ui {
+  font-variation-settings: "wdth" 100, "wght" 400;
+}
+.ancho-medio {
+  font-variation-settings: "wdth" 100, "wght" 500;
+}
+.ancho-densa {
+  font-variation-settings: "wdth" 78, "wght" 520;
+}
+
+/**
+ * Las cifras.
+ *
+ * `tnum` va SOLO acá y nunca en un contenedor: puesto arriba se filtra al texto
+ * corrido y separa la coma de «alojamiento, comida y transporte».
+ *
+ * Y en ningún otro punto del proyecto se usa `font-feature-settings`: por
+ * especificación pisa a `font-variant` sin importar el orden ni la
+ * especificidad, así que una sola aparición suelta rompe esto en silencio.
+ */
+.cifra {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-variation-settings: "wdth" 100, "wght" 500;
+}
+
+@media (max-width: 400px) {
+  /* En pantallas angostas las columnas de montos se aprietan: el eje de ancho
+     las mete sin bajar el tamaño, que es lo que no se puede hacer con dinero. */
+  .cifra {
+    font-variation-settings: "wdth" 78, "wght" 520;
+  }
+}
+
+/* Las etiquetas en mayúscula necesitan aire entre letras o se leen como bloque. */
+.rotulo {
+  font-variation-settings: "wdth" 100, "wght" 500;
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-tinta-2);
+}
+
+/* Que se vea dónde está el foco. Quien navega con teclado no debería adivinar. */
 :focus-visible {
   outline: 2px solid var(--color-tinta);
   outline-offset: 2px;

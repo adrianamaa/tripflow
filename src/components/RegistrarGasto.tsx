@@ -106,7 +106,7 @@ export function RegistrarGasto({
       <div className="flex flex-col gap-1">
         <label
           htmlFor="monto"
-          className="text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)"
+          className="rotulo"
         >
           {editando ? "Editar gasto" : "Cuánto gastaste"}
         </label>
@@ -119,7 +119,7 @@ export function RegistrarGasto({
           autoComplete="off"
           placeholder="45.000"
           aria-describedby={error ? "monto-error" : undefined}
-          className="w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl font-semibold tabular-nums outline-none focus:border-(--color-tinta)"
+          className="cifra ancho-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl outline-none focus:border-(--color-tinta)"
         />
         {error && (
           <p id="monto-error" role="alert" className="m-0 text-sm text-(--color-excedido)">
@@ -129,7 +129,7 @@ export function RegistrarGasto({
       </div>
 
       <fieldset className="m-0 flex flex-col gap-1.5 border-0 p-0">
-        <legend className="p-0 text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+        <legend className="rotulo p-0">
           En qué
         </legend>
         <div className="flex flex-wrap gap-1.5">
@@ -183,7 +183,7 @@ export function RegistrarGasto({
       {masCampos && (
         <div className="flex flex-col gap-3 border-t border-(--color-filete) pt-3">
           <div className="flex flex-col gap-1">
-            <label htmlFor="desc" className="text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+            <label htmlFor="desc" className="rotulo">
               Descripción
             </label>
             <input
@@ -195,7 +195,7 @@ export function RegistrarGasto({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="fecha" className="text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)">
+            <label htmlFor="fecha" className="rotulo">
               Cuándo
             </label>
             <input

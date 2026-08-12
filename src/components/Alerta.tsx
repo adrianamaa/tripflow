@@ -21,10 +21,15 @@ import { diaCorto } from "@/lib/fechas.ts";
  * estado que solo existe como color para ellos no existe.
  */
 
+/**
+ * Cada estado tiene una silueta distinta, no solo un color: trazo abierto,
+ * contorno angular, y mancha sólida. A 16px reales eso se distingue aunque el
+ * color no llegue.
+ */
 const ICONO: Record<Balance["estado"], string> = {
   bien: "✓",
-  cuidado: "!",
-  excedido: "×",
+  cuidado: "▲",
+  excedido: "⬣",
 };
 
 const PALABRA: Record<Balance["estado"], string> = {
@@ -37,6 +42,13 @@ const COLOR: Record<Balance["estado"], string> = {
   bien: "var(--color-bien)",
   cuidado: "var(--color-cuidado)",
   excedido: "var(--color-excedido)",
+};
+
+/** El estado bueno no necesita fondo: la ausencia de alarma es el mensaje. */
+const FONDO: Record<Balance["estado"], string> = {
+  bien: "transparent",
+  cuidado: "var(--color-cuidado-fondo)",
+  excedido: "var(--color-excedido-fondo)",
 };
 
 export function Alerta({
@@ -56,8 +68,8 @@ export function Alerta({
 
   return (
     <div
-      className="flex flex-col gap-3 rounded-(--radius-caja) border p-4"
-      style={{ borderColor: color }}
+      className="flex flex-col gap-2.5 rounded-(--radius-caja) border p-4"
+      style={{ borderColor: color, background: FONDO[balance.estado] }}
       role={balance.estado === "bien" ? undefined : "status"}
     >
       <div className="flex items-center gap-2">
@@ -68,7 +80,7 @@ export function Alerta({
         >
           {ICONO[balance.estado]}
         </span>
-        <span className="text-sm font-semibold" style={{ color }}>
+        <span className="ancho-medio text-sm" style={{ color }}>
           {PALABRA[balance.estado]}
         </span>
       </div>

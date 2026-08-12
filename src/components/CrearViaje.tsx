@@ -46,14 +46,14 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
 
   const campo =
     "w-full border-b border-(--color-filete) bg-transparent pb-1 outline-none focus:border-(--color-tinta)";
-  const etiqueta = "text-[11px] uppercase tracking-[0.13em] text-(--color-tinta-2)";
+  const etiqueta = "rotulo";
 
   return (
     <form onSubmit={guardar} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label htmlFor="nombre" className={etiqueta}>A dónde vas</label>
         <input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)}
-          placeholder="Cartagena" className={`${campo} text-2xl font-semibold`} autoFocus />
+          placeholder="Cartagena" className={`${campo} ancho-medio text-2xl`} autoFocus />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -76,13 +76,13 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       <div className="flex flex-col gap-1">
         <label htmlFor="tope" className={etiqueta}>Cuánto puedes gastar en total</label>
         <input id="tope" value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)}
-          inputMode="decimal" placeholder="3.000.000" className={`${campo} text-2xl font-semibold tabular-nums`} />
+          inputMode="decimal" placeholder="3.000.000" className={`${campo} cifra ancho-dato text-2xl`} />
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="adelantado" className={etiqueta}>Ya pagaste algo (opcional)</label>
         <input id="adelantado" value={adelantado} onChange={(e) => setAdelantado(e.target.value)}
-          inputMode="decimal" placeholder="Hotel, vuelos" className={`${campo} tabular-nums`} />
+          inputMode="decimal" placeholder="Hotel, vuelos" className={`${campo} cifra`} />
         <p className="m-0 text-xs text-(--color-tinta-2)">
           Se descuenta del tope pero no cuenta para tu ritmo diario, porque no se repite.
         </p>
