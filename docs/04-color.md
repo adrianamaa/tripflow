@@ -1,5 +1,9 @@
 # Color
 
+> **Estado: medición, no decisión.** Este documento mide el color que venía en el archivo de marca
+> del reto. La dirección visual propia todavía no está cerrada, y cuando lo esté se documenta acá
+> mismo, con sus propias mediciones y con el motivo de haberse ido —o no— del color original.
+
 ## De dónde sale
 
 El archivo de marca que venía con el reto trae un icono: un círculo rosa con dos triángulos blancos

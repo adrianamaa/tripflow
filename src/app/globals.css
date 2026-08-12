@@ -1,8 +1,66 @@
 @import "tailwindcss";
 
-/* Los tokens del sistema se definen acá cuando la dirección visual esté cerrada.
-   Por ahora solo lo mínimo para que la página no herede estilos de nadie. */
+/**
+ * Tokens del sistema.
+ *
+ * Los nombres son definitivos; varios valores todavía no. La dirección visual
+ * está en decisión, así que acá hay una paleta provisional deliberadamente sosa:
+ * cuando la dirección cierre, cambian los valores de este bloque y nada más.
+ * Ningún componente escribe un color a mano.
+ *
+ * Regla que viene de haber medido: ningún texto de dato financiero baja de
+ * 4.5:1 contra su fondo. Se mide, no se estima.
+ */
+@theme {
+  /* ── Superficies ── */
+  --color-lienzo: #ffffff;
+  --color-reposo: #f4f6f6;
+  --color-filete: #e2e8e8;
+
+  /* ── Tinta ── */
+  --color-tinta: #0c1f21;
+  --color-tinta-2: #4f6669;
+
+  /* ── Marca. Provisional: la dirección está en decisión. ── */
+  --color-marca: #0b5f5a;
+  --color-sobre-marca: #ffffff;
+
+  /* ── Estados. Los tres canales son color, icono y palabra: el color solo
+       nunca alcanza. Estos hex ya están medidos contra blanco. ── */
+  --color-bien: #0f7a3d;
+  --color-cuidado: #8f5300;
+  --color-excedido: #b02318;
+
+  /* ── Espaciado ── */
+  --spacing-borde: 1.25rem;
+
+  /* ── Radios. Distintos según el peso de la acción: un radio uniforme en
+       todo es el delator más silencioso de una plantilla. ── */
+  --radius-caja: 4px;
+  --radius-accion: 999px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Las cifras de dinero se alinean en columna y cambian en vivo. Sin cifras
+     tabulares, cada actualización mueve los números de lado. */
+  font-variant-numeric: tabular-nums;
+}
 
 body {
   margin: 0;
+  background: var(--color-lienzo);
+  color: var(--color-tinta);
+  font-family: ui-sans-serif, system-ui, sans-serif; /* provisional */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Que se vea dónde está el foco. Quien navega con teclado no debería tener
+   que adivinar. */
+:focus-visible {
+  outline: 2px solid var(--color-tinta);
+  outline-offset: 2px;
 }

@@ -1,8 +1,5 @@
+import { Tablero } from "@/components/Tablero.tsx";
+
 export default function Home() {
-  return (
-    <main>
-      <h1>Tripflow</h1>
-      <p>En construcción.</p>
-    </main>
-  );
+  return <Tablero />;
 }
