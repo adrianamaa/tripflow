@@ -32,10 +32,26 @@
   --color-tinta: #0c0a08;
   --color-tinta-2: #6d6c6b;
 
+  /* ── La marca ───────────────────────────────────────────────────────────
+   * Petróleo. Es el único color de la app que puede ser TEXTO: 7.50:1 sobre
+   * blanco, medido, no estimado. Por eso carga la identidad —logo, cabecera,
+   * iconos— sin pedir una excepción de contraste en ningún lado.
+   *
+   * Se eligió azulado a propósito. El verde amarillento oscuro es el territorio
+   * de la categoría, y el azul índigo es el de todo lo demás que cobra plata.
+   *
+   * Dónde NO va: en los datos. Una cifra de dinero se lee en tinta. Si la marca
+   * se mete en los números, el color deja de significar «esto es Tripflow» y
+   * empieza a significar nada.
+   */
+  --color-marca: #0b5f5a;
+  --color-marca-suave: #e8f1f0; /* petróleo encima: 6.53:1 */
+  --color-sobre-marca: #ffffff; /* 7.50:1 */
+
   /* ── El acento ──────────────────────────────────────────────────────────
    * Uno solo, y solo donde se mueve el dinero: la acción de registrar. En
    * ningún otro lado. Su fuerza viene de ser escaso.
-   * Texto tinta encima: 15.08:1.
+   * Texto tinta encima: 15.08:1. Sobre la marca: 5.72:1.
    */
   --color-acento: #c8f04a;
   --color-sobre-acento: #0c0a08;
@@ -162,8 +178,61 @@ select {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-tinta);
+  outline: 2px solid var(--color-marca);
   outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/**
+ * Los campos son una excepción, y no por gusto.
+ *
+ * Un campo acá no es una caja: es una línea inferior. Dibujarle un rectángulo
+ * de foco alrededor le pone un borde que el campo no tiene el resto del tiempo,
+ * y en pantalla se ve como si algo se hubiera roto.
+ *
+ * El foco se marca donde vive el campo: la línea de abajo pasa a la marca y
+ * dobla su grosor. Cambian dos cosas a la vez —color Y grosor— así que no
+ * depende de distinguir colores.
+ */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-bottom-color: var(--color-marca);
+  box-shadow: 0 1px 0 0 var(--color-marca);
+}
+
+/**
+ * Acciones de fila (editar, borrar).
+ *
+ * Trece filas con dos enlaces cada una son veintiséis enlaces compitiendo con
+ * los montos, que es lo que la gente vino a leer. Pero esconderlas hasta pasar
+ * el puntero deja la función sin existir en un teléfono.
+ *
+ * La consulta `hover` resuelve las dos cosas: donde hay puntero se revelan al
+ * acercarse —o al llegar con el teclado, por eso `focus-within`—; donde se toca
+ * con el dedo están siempre puestas.
+ */
+.fila {
+  border-radius: var(--radius-chip);
+  transition: background-color 120ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .acciones-fila {
+    opacity: 0;
+    transition: opacity 120ms ease;
+  }
+  .fila:hover .acciones-fila,
+  .fila:focus-within .acciones-fila {
+    opacity: 1;
+  }
+  /* Sin esto, esconder las acciones deja la fila sin nada que invite a
+     acercarse: la función existe y nadie la encuentra. El realce es la
+     promesa de que ahí hay algo. */
+  .fila:hover,
+  .fila:focus-within {
+    background: var(--color-papel);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

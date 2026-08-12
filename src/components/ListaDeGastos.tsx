@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Gasto, Viaje } from "@/lib/types.ts";
 import { formatearMoneda } from "@/lib/moneda.ts";
 import { diaCorto } from "@/lib/fechas.ts";
@@ -9,21 +9,42 @@ import { borrarGastoConDeshacer } from "@/lib/almacen.ts";
 /**
  * La lista de gastos.
  *
- * ── Lo que se arregló acá, y por qué ───────────────────────────────────────
+ * ── Por qué cada día es su propia tarjeta ──────────────────────────────────
  *
- * La primera versión tenía once filas idénticas: descripción, una línea gris
- * diminuta con la categoría y la fecha, y el monto. Todo con el mismo peso. El
- * ojo no tenía dónde caer y la categoría no se distinguía de la fecha.
+ * Antes era UNA tarjeta blanca con trece filas dentro. Dos problemas, y el
+ * segundo no es de estilo:
  *
- * Tres cambios, y ninguno agrega color:
+ * 1. Una losa de 800px al lado de una columna de 550px deja un desnivel que se
+ *    lee como un hueco en la página.
+ * 2. Los encabezados de día quedaban dibujados DENTRO de la misma superficie
+ *    que las filas, así que pesaban lo mismo. El agrupamiento existía en el
+ *    código y no en la pantalla.
  *
- * 1. Los gastos se agrupan por día, con la fecha como encabezado y su total.
- *    Once filas sueltas son una pila; agrupadas son tres días de un viaje, que
- *    es como la gente recuerda lo que gastó.
- * 2. La categoría se separa de la fecha usando el eje de ancho: va estrecha y
- *    en mayúscula, así que se lee como etiqueta y no como más texto gris.
- * 3. Editar y borrar están SIEMPRE visibles. Aparecer al pasar el mouse no
- *    existe en un teléfono y es difícil de descubrir hasta en escritorio.
+ * Separando por tarjeta, el grupo lo hace la superficie —no una línea— y el
+ * borde inferior de la columna deja de ser un corte y pasa a ser un final.
+ *
+ * NN/g mostró con seguimiento ocular que una lista sin encabezados fuerza el
+ * patrón F, el peor para escanear, y que agrupar produce el patrón «pastel de
+ * capas», el más efectivo. Eso solo funciona si el encabezado se ve como
+ * encabezado.
+ *
+ * ── Por qué editar y borrar ya no viven en la fila ─────────────────────────
+ *
+ * Trece filas por dos enlaces son veintiséis controles compitiendo con los
+ * montos, que es lo que la gente vino a leer. Ningún tablero financiero serio
+ * pone las acciones dentro de la fila.
+ *
+ * Pero esconderlas hasta pasar el puntero deja la función inexistente en un
+ * teléfono. La regla de CSS lo resuelve mirando el dispositivo y no el ancho:
+ * donde hay puntero fino se revelan al acercarse o al llegar con el teclado;
+ * donde se toca con el dedo están siempre puestas.
+ *
+ * ── Por qué la categoría dejó de ir en mayúscula ───────────────────────────
+ *
+ * Iba estrecha y en versalita para distinguirla de la fecha, que compartía
+ * línea con ella. Al agrupar por día, la fecha salió de la fila y esa
+ * distinción se quedó sin trabajo. Una etiqueta diminuta en mayúscula que ya no
+ * separa nada solo cuesta legibilidad.
  */
 export function ListaDeGastos({
   viaje,
@@ -35,20 +56,27 @@ export function ListaDeGastos({
   onEditar: (g: Gasto) => void;
 }) {
   const [deshacer, setDeshacer] = useState<{ fn: () => void; que: string } | null>(null);
+  // Sin el ref, borrar dos gastos seguidos dejaba el temporizador del primero
+  // vivo, y ese apagaba el aviso del segundo antes de tiempo.
+  const reloj = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => { if (reloj.current) clearTimeout(reloj.current); }, []);
 
   function borrar(g: Gasto) {
     const fn = borrarGastoConDeshacer(g.id);
     if (!fn) return;
+    if (reloj.current) clearTimeout(reloj.current);
     setDeshacer({ fn, que: g.descripcion });
-    setTimeout(() => setDeshacer(null), 8000);
+    reloj.current = setTimeout(() => setDeshacer(null), 10000);
   }
 
   if (gastos.length === 0) {
     return (
-      <div className="rounded-(--radius-chip) bg-(--color-papel) p-6 text-center">
+      <div className="tarjeta flex flex-col items-start gap-1 sm:p-7">
         <p className="ancho-medio m-0">Todavía no has registrado nada</p>
-        <p className="m-0 mt-1 text-sm text-(--color-tinta-2)">
-          El primer gasto que anotes empieza a construir tu ritmo diario.
+        <p className="m-0 max-w-[42ch] text-sm leading-relaxed text-(--color-tinta-2)">
+          El primer gasto que anotes empieza a construir tu ritmo diario. Hasta entonces la app no
+          puede decirte si vas bien.
         </p>
       </div>
     );
@@ -61,13 +89,13 @@ export function ListaDeGastos({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-3">
       {deshacer && (
         <div
           role="status"
-          className="mb-3 flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-3 py-2 text-sm text-(--color-tarjeta)"
+          className="flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-4 py-2.5 text-sm text-(--color-tarjeta)"
         >
-          <span>
+          <span className="min-w-0 truncate">
             Borraste <span className="ancho-medio">{deshacer.que}</span>
           </span>
           <button
@@ -76,7 +104,7 @@ export function ListaDeGastos({
               deshacer.fn();
               setDeshacer(null);
             }}
-            className="ancho-medio ml-auto rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1"
+            className="ancho-medio ml-auto shrink-0 rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1 hover:bg-(--color-tarjeta) hover:text-(--color-tinta)"
           >
             Deshacer
           </button>
@@ -86,23 +114,22 @@ export function ListaDeGastos({
       {[...porDia.entries()].map(([fecha, delDia]) => {
         const total = delDia.reduce((s, g) => s + g.monto, 0);
         return (
-          <section key={fecha} className="mb-5">
-            <div className="mb-1.5 flex items-baseline justify-between border-b border-(--color-filete) pb-1.5">
-              <h3 className="ancho-medio m-0 text-sm">{diaCorto(fecha)}</h3>
-              <span className="cifra text-sm text-(--color-tinta-2)">
+          <section key={fecha} className="tarjeta py-4">
+            <div className="mb-1 flex items-baseline justify-between gap-4 border-b border-(--color-filete) pb-2.5">
+              <h3 className="ancho-medio m-0 text-[15px] first-letter:uppercase">
+                {diaCorto(fecha)}
+              </h3>
+              <span className="cifra text-[13px] text-(--color-tinta-2)">
                 {formatearMoneda(total, viaje.moneda)}
               </span>
             </div>
 
             <ul className="m-0 flex list-none flex-col p-0">
               {delDia.map((g) => (
-                <li
-                  key={g.id}
-                  className="flex items-baseline gap-3 py-[7px]"
-                >
+                <li key={g.id} className="fila -mx-2.5 flex items-center gap-3 px-2.5 py-2">
                   <div className="min-w-0 flex-1">
                     <p className="ancho-ui m-0 truncate text-[15px]">{g.descripcion}</p>
-                    <p className="ancho-densa m-0 text-[10.5px] tracking-[0.09em] text-(--color-tinta-2) uppercase">
+                    <p className="m-0 truncate text-[13px] text-(--color-tinta-2) capitalize">
                       {g.categoria}
                       {g.fueraDelRitmo && " · pago único"}
                     </p>
@@ -110,16 +137,19 @@ export function ListaDeGastos({
 
                   {/* A la derecha, como en cualquier hoja de cálculo: permite
                       comparar magnitudes por dónde empieza el número. */}
-                  <span className="cifra shrink-0 text-right text-[15px] tabular-nums">
+                  <span className="cifra shrink-0 text-right text-[15px]">
                     {formatearMoneda(g.monto, viaje.moneda)}
                   </span>
 
-                  <div className="flex shrink-0 gap-2 text-(--color-tinta-2)">
+                  {/* Ancho fijo: si aparecieran y desaparecieran ocupando
+                      espacio, el monto se correría cada vez que el puntero pasa
+                      por encima y la columna de cifras temblaría. */}
+                  <div className="acciones-fila flex w-[104px] shrink-0 justify-end gap-1">
                     <button
                       type="button"
                       onClick={() => onEditar(g)}
                       aria-label={`Editar ${g.descripcion}`}
-                      className="text-xs underline underline-offset-2 hover:text-(--color-tinta)"
+                      className="ancho-ui rounded-(--radius-accion) px-2.5 py-1 text-xs text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
                     >
                       Editar
                     </button>
@@ -127,7 +157,7 @@ export function ListaDeGastos({
                       type="button"
                       onClick={() => borrar(g)}
                       aria-label={`Borrar ${g.descripcion}`}
-                      className="text-xs underline underline-offset-2 hover:text-(--color-excedido)"
+                      className="ancho-ui rounded-(--radius-accion) px-2.5 py-1 text-xs text-(--color-tinta-2) hover:bg-(--color-excedido) hover:text-(--color-tarjeta)"
                     >
                       Borrar
                     </button>

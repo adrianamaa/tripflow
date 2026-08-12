@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Versión de pestaña: fondo macizo y la forma calada en
+       blanco: a 16px una forma sobre transparente se pierde contra pestañas
+       claras y oscuras por igual, y un cuadrado lleno siempre se ve. -->
+  <rect width="32" height="32" rx="7" fill="#0B5F5A"/>
+  <rect x="5" y="7" width="22" height="6" rx="3" fill="#FFFFFF"/>
+  <rect x="5" y="7" width="11" height="6" rx="3" fill="#C8F04A"/>
+  <path d="M13 7H19V22A3 3 0 0 1 13 22Z" fill="#FFFFFF"/>
+</svg>
