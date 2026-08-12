@@ -53,6 +53,20 @@
   --color-marca-suave: #eff3e2; /* tono 74.1° · marca encima 9.00:1 */
   --color-sobre-marca: #ffffff; /* 10.16:1 */
 
+  /**
+   * El escalón de en medio de la familia, y existe por una necesidad concreta:
+   * la marca de ritmo del medidor tiene que verse sobre DOS fondos opuestos —el
+   * relleno casi negro y la pista clara— y ni la marca ni la lima pueden solas.
+   *
+   * Se despejó en vez de tantearse. Para pasar 3:1 contra los dos hace falta una
+   * luminancia entre 0.109 y 0.237; este es el punto de ese rango en el tono de
+   * la familia. Medido: 4.80:1 sobre el relleno, 3.38:1 sobre la pista.
+   *
+   * Tono 76.4°: el mismo de la lima, exacto.
+   * ⚠️ Es señal gráfica, no texto: 4.12:1 sobre blanco no alcanza para texto.
+   */
+  --color-marca-media: #6a871d;
+
   /* ── El acento ──────────────────────────────────────────────────────────
    * Uno solo, y solo donde se mueve el dinero: la acción de registrar. En
    * ningún otro lado. Su fuerza viene de ser escaso.
