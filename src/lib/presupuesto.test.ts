@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { calcularBalance, diaEnQueSeAcaba } from "./presupuesto";
-import type { Gasto, Viaje } from "./types";
+import { calcularBalance, diaEnQueSeAcaba } from "./presupuesto.ts";
+import type { Gasto, Viaje } from "./types.ts";
 
 /**
  * El viaje de referencia: Cartagena, 7 días, tres millones.
@@ -111,4 +111,43 @@ test("el disponible diario se recalcula al pasarse un día", () => {
   const flojo = calcularBalance(VIAJE, [gasto({ monto: 100_000, fecha: "2026-08-10" })], "2026-08-11");
   const duro = calcularBalance(VIAJE, [gasto({ monto: 900_000, fecha: "2026-08-10" })], "2026-08-11");
   assert.ok(duro.diarioDisponible < flojo.diarioDisponible, "gastar de más aprieta los días siguientes");
+});
+
+// ── Casos límite del cálculo ───────────────────────────────────────────────
+
+test("un viaje que todavía no empieza reparte el presupuesto entre SUS días", () => {
+  const futuro: Viaje = { ...VIAJE, inicio: "2026-09-01", fin: "2026-09-05", presupuesto: 1_000_000 };
+  const b = calcularBalance(futuro, [], "2026-08-12");
+
+  // El error era contar los veinte días que faltan para salir como si fueran
+  // días de viaje: repartía el millón entre 25 y mostraba $40.000 por día.
+  assert.equal(b.diasRestantes, 5, "solo cuentan los días del viaje");
+  assert.equal(b.diarioDisponible, 200_000, "y no los 40.000 que salían antes");
+  assert.equal(b.diasCerrados, 0, "un viaje que no ha empezado no tiene días cerrados");
+});
+
+test("un viaje terminado no envejece: el ritmo se congela", () => {
+  const corto: Viaje = { ...VIAJE, inicio: "2026-08-10", fin: "2026-08-14", presupuesto: 1_000_000 };
+  const gastos = [
+    gasto({ monto: 100_000, fecha: "2026-08-10" }),
+    gasto({ monto: 100_000, fecha: "2026-08-11" }),
+    gasto({ monto: 100_000, fecha: "2026-08-12" }),
+    gasto({ monto: 100_000, fecha: "2026-08-13" }),
+  ];
+  const alTerminar = calcularBalance(corto, gastos, "2026-08-15");
+  const enNoviembre = calcularBalance(corto, gastos, "2026-11-15");
+
+  // Sin el tope, los días cerrados seguían creciendo con el calendario y el
+  // ritmo se diluía: 100.000/día al terminar, 4.348/día tres meses después.
+  assert.equal(alTerminar.diasCerrados, 5, "no puede haber más días cerrados que días de viaje");
+  assert.equal(enNoviembre.diasCerrados, 5, "tres meses después sigue siendo el mismo viaje");
+  assert.equal(alTerminar.ritmoReal, enNoviembre.ritmoReal, "el ritmo de un viaje terminado no cambia");
+});
+
+test("un viaje terminado no dice «por día», dice cuánto sobró", () => {
+  const b = calcularBalance(VIAJE, [gasto({ monto: 1_810_000, fecha: "2026-08-10" })], "2026-08-20");
+
+  assert.equal(b.terminado, true);
+  assert.equal(b.diarioDisponible, 0, "«$1.190.000 por día» en un viaje que ya pasó no significa nada");
+  assert.equal(b.sobrante, 1_190_000, "lo que importa al final es cuánto sobró");
 });

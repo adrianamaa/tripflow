@@ -1,5 +1,5 @@
-import type { Gasto, Viaje } from "./types";
-import { hoy, sumarDias } from "./fechas";
+import type { Gasto, Viaje } from "./types.ts";
+import { hoy, sumarDias } from "./fechas.ts";
 
 /**
  * Datos de ejemplo.

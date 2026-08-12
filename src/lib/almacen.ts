@@ -1,8 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { Gasto, Viaje } from "./types";
-import { crearSemilla } from "./semilla";
+import type { Gasto, Viaje } from "./types.ts";
+import { crearSemilla } from "./semilla.ts";
 
 /**
  * El almacén de datos.
@@ -42,12 +42,48 @@ let actual: Estado = VACIO;
 let iniciado = false;
 const oyentes = new Set<() => void>();
 
+const ES_FECHA = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Un registro guardado por una versión anterior, o con una fecha vacía, llega
+ * hasta el cálculo y sale por pantalla convertido en `NaN`. No hay forma de que
+ * el usuario entienda ni arregle eso, así que se descarta acá.
+ */
+function viajeValido(v: unknown): v is Viaje {
+  const x = v as Viaje;
+  return (
+    !!x && typeof x.id === "string" &&
+    ES_FECHA.test(x.inicio) && ES_FECHA.test(x.fin) &&
+    Number.isFinite(x.presupuesto)
+  );
+}
+
+function gastoValido(g: unknown): g is Gasto {
+  const x = g as Gasto;
+  return (
+    !!x && typeof x.id === "string" && typeof x.viajeId === "string" &&
+    ES_FECHA.test(x.fecha) && Number.isFinite(x.monto)
+  );
+}
+
 function leerDelDisco(): Estado {
   try {
     const crudo = localStorage.getItem(CLAVE);
     if (crudo) {
       const datos = JSON.parse(crudo) as Estado;
-      if (Array.isArray(datos.viajes) && Array.isArray(datos.gastos)) return datos;
+      if (Array.isArray(datos.viajes) && Array.isArray(datos.gastos)) {
+        const viajes = datos.viajes.filter(viajeValido);
+        const idsVivos = new Set(viajes.map((v) => v.id));
+        return {
+          viajes,
+          // Un gasto cuyo viaje ya no existe es un huérfano: nunca se ve y
+          // desordena los totales si alguien lo suma sin filtrar.
+          gastos: datos.gastos.filter((g) => gastoValido(g) && idsVivos.has(g.viajeId)),
+          viajeActivoId: idsVivos.has(datos.viajeActivoId ?? "")
+            ? datos.viajeActivoId
+            : (viajes[0]?.id ?? null),
+        };
+      }
     }
   } catch {
     // Datos corruptos o almacenamiento bloqueado (modo incógnito estricto).
@@ -71,17 +107,39 @@ function avisar() {
   for (const o of oyentes) o();
 }
 
+/**
+ * Carga los datos del disco una sola vez.
+ *
+ * Antes esto vivía dentro de `suscribir`, y ahí había un hueco: cualquier
+ * cosa que modificara los datos antes de que React montara un suscriptor
+ * —un formulario o un diálogo que solo importe `agregarGasto`— corría sobre el
+ * estado vacío y lo guardaba encima de los viajes del usuario. Ahora toda
+ * operación pasa por acá primero.
+ */
+function asegurarIniciado() {
+  if (iniciado || typeof window === "undefined") return;
+  iniciado = true;
+  actual = leerDelDisco();
+
+  // Con la app abierta en dos pestañas, cada una tenía su copia y la última en
+  // escribir borraba lo que la otra hubiera registrado. localStorage es toda la
+  // persistencia que hay acá, así que esa pérdida sería real.
+  window.addEventListener("storage", (e) => {
+    if (e.key !== CLAVE) return;
+    actual = leerDelDisco();
+    avisar();
+  });
+}
+
 function cambiar(fn: (e: Estado) => Estado) {
+  asegurarIniciado();
   actual = fn(actual);
   guardarEnDisco(actual);
   avisar();
 }
 
 function suscribir(oyente: () => void) {
-  if (!iniciado && typeof window !== "undefined") {
-    iniciado = true;
-    actual = leerDelDisco();
-  }
+  asegurarIniciado();
   oyentes.add(oyente);
   return () => {
     oyentes.delete(oyente);
@@ -161,6 +219,7 @@ export function borrarGasto(id: string) {
 
 /** Devuelve el gasto borrado para poder deshacer. */
 export function borrarGastoConDeshacer(id: string): (() => void) | null {
+  asegurarIniciado();
   const gasto = actual.gastos.find((g) => g.id === id);
   if (!gasto) return null;
   borrarGasto(id);

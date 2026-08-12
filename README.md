@@ -37,7 +37,8 @@ aparezca el día de la entrega.
 
 ```bash
 npm install
-npm run dev
+npm run dev     # http://localhost:3000
+npm test        # las pruebas del cálculo de presupuesto
 ```
 
 Abre http://localhost:3000. No hace falta configurar nada: la app guarda los datos en el navegador.

@@ -47,17 +47,43 @@ export function formatearNumero(monto: number, moneda = "COP"): string {
   }).format(monto);
 }
 
+/** El separador decimal que usa el locale de esa moneda: `,` en es-CO, `.` en en-US. */
+function separadorDecimal(moneda: string): string {
+  return (
+    new Intl.NumberFormat(LOCALES[moneda] ?? "es-CO")
+      .formatToParts(1.1)
+      .find((p) => p.type === "decimal")?.value ?? ","
+  );
+}
+
 /**
  * Lo que el usuario escribe, convertido a número.
  *
- * Alguien escribiendo rápido teclea `45.000`, `45000` o `45,000` sin pensarlo.
- * Los tres significan lo mismo y los tres tienen que funcionar: el formulario
- * de gastos existe para ser rápido, y rechazar un monto por su puntuación es
- * exactamente la fricción que hace que la gente diga «después lo anoto».
+ * En pesos, alguien escribiendo rápido teclea `45.000`, `45000` o `45,000` sin
+ * pensarlo: los tres significan lo mismo y los tres tienen que funcionar. El
+ * formulario de gastos existe para ser rápido, y rechazar un monto por su
+ * puntuación es justo la fricción que hace que la gente diga «después lo anoto».
+ *
+ * Pero eso solo vale en monedas sin centavos. La primera versión de esta función
+ * borraba todo lo que no fuera dígito, y en un viaje en dólares `12.50` se leía
+ * como `1250`: un error de cien veces, en el campo donde menos se puede permitir.
+ * Ahora el separador decimal depende de la moneda del viaje.
  */
-export function leerMonto(texto: string): number | null {
-  const limpio = texto.replace(/[^\d]/g, "");
-  if (limpio === "") return null;
+export function leerMonto(texto: string, moneda = "COP"): number | null {
+  if (SIN_DECIMALES.has(moneda)) {
+    const soloDigitos = texto.replace(/[^\d]/g, "");
+    if (soloDigitos === "") return null;
+    const n = Number(soloDigitos);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+
+  const decimal = separadorDecimal(moneda);
+  // Se quita todo menos dígitos y el separador decimal de esa moneda; los
+  // separadores de miles caen solos porque no son ninguno de los dos.
+  const limpio = texto
+    .replace(new RegExp(`[^\\d${decimal === "." ? "\\." : decimal}]`, "g"), "")
+    .replace(decimal, ".");
+  if (limpio === "" || limpio === ".") return null;
   const n = Number(limpio);
   return Number.isFinite(n) && n >= 0 ? n : null;
 }

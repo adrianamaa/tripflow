@@ -1,5 +1,5 @@
-import type { Balance, Estado, Gasto, Viaje } from "./types";
-import { diasCerrados, diasRestantes, duracion, hoy, sumarDias, terminado } from "./fechas";
+import type { Balance, Estado, Gasto, Viaje } from "./types.ts";
+import { diasCerrados, diasRestantes, duracion, hoy, sumarDias, terminado } from "./fechas.ts";
 
 /**
  * El cálculo del presupuesto. Es el corazón de la app y donde estaba el error
@@ -55,18 +55,20 @@ export function calcularBalance(
 
   const gastadoTotal = gastadoFijo + gastadoVariable;
 
-  const cerrados = diasCerrados(viaje.inicio, desde);
-  const restantes = diasRestantes(viaje.fin, desde);
+  const cerrados = diasCerrados(viaje.inicio, viaje.fin, desde);
+  const restantes = diasRestantes(viaje.inicio, viaje.fin, desde);
   const totales = duracion(viaje.inicio, viaje.fin);
   const yaTermino = terminado(viaje.fin, desde);
 
-  const disponible = viaje.presupuesto - gastadoTotal;
+  const sobrante = viaje.presupuesto - gastadoTotal;
 
   // La cifra protagonista. Responde «¿puedo pedir este plato?», que es la
   // pregunta que alguien se hace de verdad, y no «¿en qué se me fue la plata?».
-  const diarioDisponible = yaTermino
-    ? disponible
-    : Math.floor(disponible / restantes);
+  //
+  // En un viaje terminado vale cero, y el sobrante se lee de `sobrante`. Antes
+  // este campo guardaba el sobrante entero cuando el viaje acababa, y la pantalla
+  // principal —que dice «por día»— habría mostrado «$1.190.000 por día».
+  const diarioDisponible = yaTermino ? 0 : Math.floor(sobrante / restantes);
 
   const gastosVariables = delViaje.filter((g) => !g.fueraDelRitmo).length;
   const hayRitmoConfiable =
@@ -96,6 +98,7 @@ export function calcularBalance(
 
   return {
     presupuesto: viaje.presupuesto,
+    sobrante,
     gastadoTotal,
     gastadoFijo,
     gastadoVariable,

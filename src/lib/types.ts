@@ -61,6 +61,8 @@ export type Estado = "bien" | "cuidado" | "excedido";
 export interface Balance {
   /** Tope del viaje. */
   presupuesto: number;
+  /** Lo que queda del tope. En un viaje terminado, lo que sobró. */
+  sobrante: number;
   /** Todo lo gastado, sin distinguir. */
   gastadoTotal: number;
   /** Lo que no cuenta para el ritmo: hotel, vuelos, pagos únicos. */
@@ -75,7 +77,10 @@ export interface Balance {
   /** Total de días del viaje. */
   diasTotales: number;
 
-  /** La cifra protagonista: cuánto se puede gastar por día de aquí en adelante. */
+  /**
+   * La cifra protagonista: cuánto se puede gastar por día de aquí en adelante.
+   * En un viaje terminado vale cero — ahí lo que importa es `sobrante`.
+   */
   diarioDisponible: number;
   /** A qué ritmo se ha gastado por día cerrado. `null` si no hay días cerrados. */
   ritmoReal: number | null;

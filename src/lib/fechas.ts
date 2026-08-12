@@ -1,4 +1,4 @@
-import type { FechaISO } from "./types";
+import type { FechaISO } from "./types.ts";
 
 /**
  * Todo el manejo de fechas de la app vive acá, y en ningún otro lado.
@@ -42,12 +42,24 @@ export function sumarDias(fecha: FechaISO, dias: number): FechaISO {
 }
 
 /**
- * Cuántos días faltan del viaje, contando hoy.
+ * Cuántos días DEL VIAJE faltan por vivir, contando hoy.
  *
- * Nunca devuelve menos de 1, porque esta cifra es un divisor: si llegara a cero
- * la app mostraría "Infinity" en la pantalla principal.
+ * Recibe el inicio, y no solo el fin, por un error que costó encontrar: si un
+ * viaje empieza en veinte días, los días entre hoy y la salida no son días de
+ * viaje. Contándolos, un viaje de 5 días con un millón de pesos mostraba
+ * "$40.000 por día" en vez de "$200.000", porque repartía el presupuesto entre
+ * los veinticinco días que faltaban para volver.
+ *
+ * Nunca devuelve menos de 1: esta cifra es un divisor, y en cero la pantalla
+ * principal mostraría "Infinity".
  */
-export function diasRestantes(fin: FechaISO, desde: FechaISO = hoy()): number {
+export function diasRestantes(
+  inicio: FechaISO,
+  fin: FechaISO,
+  desde: FechaISO = hoy(),
+): number {
+  // Todavía no sale: le quedan por vivir todos los días del viaje.
+  if (diasEntre(desde, inicio) > 0) return duracion(inicio, fin);
   return Math.max(1, diasEntre(desde, fin) + 1);
 }
 
@@ -57,9 +69,17 @@ export function diasRestantes(fin: FechaISO, desde: FechaISO = hoy()): number {
  * El día en curso no cuenta. Un día a medias siempre parece barato —a las diez
  * de la mañana apenas se ha gastado el desayuno— y si entrara en el promedio,
  * la app diría "vas muy bien" todas las mañanas y "vas mal" todas las noches.
+ *
+ * Y no puede pasarse de la duración del viaje: sin ese tope, un viaje de cinco
+ * días consultado en noviembre reportaba "92 días cerrados" y su ritmo diario
+ * se diluía hasta volverse mentira.
  */
-export function diasCerrados(inicio: FechaISO, desde: FechaISO = hoy()): number {
-  return Math.max(0, diasEntre(inicio, desde));
+export function diasCerrados(
+  inicio: FechaISO,
+  fin: FechaISO,
+  desde: FechaISO = hoy(),
+): number {
+  return Math.min(duracion(inicio, fin), Math.max(0, diasEntre(inicio, desde)));
 }
 
 /** Días totales del viaje, contando el primero y el último. */
