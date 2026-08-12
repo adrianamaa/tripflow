@@ -43,7 +43,7 @@ export function Tablero() {
   // para que la cifra no salte cuando lleguen.
   if (!viaje && viajes.length === 0 && !creando) {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 p-(--spacing-borde)">
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 px-5 sm:px-8">
         <h1 className="ancho-dato m-0 text-3xl">Tripflow</h1>
         <p className="m-0 text-(--color-tinta-2)">
           Define cuánto puedes gastar en un viaje y registra lo que gastes. La app te avisa antes de
@@ -62,7 +62,7 @@ export function Tablero() {
 
   if (creando || !viaje) {
     return (
-      <main className="mx-auto w-full max-w-lg p-(--spacing-borde)">
+      <main className="mx-auto w-full max-w-lg px-5 pt-10 pb-16 sm:px-8 sm:pt-14">
         <button
           type="button"
           onClick={() => setCreando(false)}
@@ -80,7 +80,7 @@ export function Tablero() {
   const balance = calcularBalance(viaje, delViaje);
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-(--spacing-borde)">
+    <main className="mx-auto w-full max-w-6xl px-5 pt-10 pb-16 sm:px-8 sm:pt-14">
       <header className="mb-7 flex flex-col gap-3">
         <SelectorDeViajes
           viajes={viajes}
