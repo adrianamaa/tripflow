@@ -4,6 +4,7 @@ import { useState } from "react";
 import { crearViaje } from "@/lib/almacen.ts";
 import { leerMonto } from "@/lib/moneda.ts";
 import { hoy, sumarDias } from "@/lib/fechas.ts";
+import { Calendario } from "./Calendario.tsx";
 
 /**
  * Crear un viaje.
@@ -63,14 +64,29 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="inicio" className={etiqueta}>Salida</label>
-          <input id="inicio" type="date" value={inicio} onChange={(e) => setInicio(e.target.value)} className={campo} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="fin" className={etiqueta}>Regreso</label>
-          <input id="fin" type="date" value={fin} onChange={(e) => setFin(e.target.value)} className={campo} />
-        </div>
+        <Calendario
+          id="inicio"
+          etiqueta="Salida"
+          valor={inicio}
+          onCambio={(f) => {
+            setInicio(f);
+            // Mover la salida más allá del regreso dejaba el formulario en un
+            // estado imposible esperando a que el usuario notara el error.
+            // Arrastrar el regreso es lo que la persona iba a hacer de todos
+            // modos, y de paso desaparece un mensaje de error.
+            if (f > fin) setFin(f);
+          }}
+        />
+        <Calendario
+          id="fin"
+          etiqueta="Regreso"
+          valor={fin}
+          onCambio={setFin}
+          minimo={inicio}
+          // Pegado al borde derecho: abriéndose hacia la derecha, en un
+          // teléfono el panel se saldría de la pantalla.
+          alinear="derecha"
+        />
       </div>
 
       <div className="flex flex-col gap-1">

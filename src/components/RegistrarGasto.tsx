@@ -5,6 +5,7 @@ import { CATEGORIAS, type Categoria, type Gasto, type Viaje } from "@/lib/types.
 import { leerMonto } from "@/lib/moneda.ts";
 import { hoy } from "@/lib/fechas.ts";
 import { agregarGasto, editarGasto } from "@/lib/almacen.ts";
+import { Calendario } from "./Calendario.tsx";
 
 /**
  * Registrar un gasto.
@@ -217,18 +218,7 @@ export function RegistrarGasto({
               className="border-b border-(--color-filete) bg-transparent pb-1 outline-none focus:border-(--color-tinta)"
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="fecha" className="rotulo">
-              Cuándo
-            </label>
-            <input
-              id="fecha"
-              type="date"
-              value={fecha}
-              onChange={(e) => setFecha(e.target.value)}
-              className="border-b border-(--color-filete) bg-transparent pb-1 outline-none focus:border-(--color-tinta)"
-            />
-          </div>
+          <Calendario id="fecha" etiqueta="Cuándo" valor={fecha} onCambio={setFecha} />
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
