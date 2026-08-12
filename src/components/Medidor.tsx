@@ -47,6 +47,20 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  * Y la leyenda nombra los dos tonos. Antes solo explicaba el claro, así que el
  * oscuro se quedaba sin decir qué era.
  */
+/**
+ * Cuánto se aclara el tramo ya pagado respecto al del día a día.
+ *
+ * Estaba en 0.28 y ese era el error de lectura más grande del componente: sobre
+ * la pista clara daba un gris tan parecido al fondo que el ojo lo contaba como
+ * VACÍO. De reojo la barra parecía llena hasta donde empezaba el negro —un 13%—
+ * cuando iba en 60%.
+ *
+ * A 0.5 los dos tramos se leen como relleno y la diferencia entre ellos sigue
+ * siendo obvia: sobre la pista dan un gris medio y un casi negro, con la pista
+ * vacía mucho más clara que los dos.
+ */
+const CLARIDAD_ADELANTADO = 0.5;
+
 export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
   const tope = viaje.presupuesto;
   const pct = (n: number) => Math.min(100, Math.max(0, (n / tope) * 100));
@@ -70,12 +84,15 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
 
   return (
     <div className="flex flex-col gap-2">
-      {/* El espacio de arriba es donde se apoya la señal de ritmo. */}
-      <div className="relative pt-2.5">
+      {/* El espacio de arriba es donde se apoya la señal de ritmo. Con aire
+          entre la señal y la pista: pegada, cuando el gasto va cerca del ritmo
+          —que es casi siempre— parecía una banderita clavada en la punta del
+          relleno en vez de una referencia independiente. */}
+      <div className="relative pt-3.5">
         {hayMarca && (
           <div
             aria-hidden="true"
-            className="absolute top-0 h-2 w-[3px] rounded-t-full bg-(--color-tinta)"
+            className="absolute top-0 h-2 w-[3px] rounded-full bg-(--color-tinta)"
             style={{ left: `calc(${marca}% - 1.5px)` }}
           />
         )}
@@ -96,11 +113,13 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
               una raya blanca ahí competía con la señal de ritmo. */}
           <div
             className="absolute inset-y-0 left-0"
-            style={{ width: `${anchoFijo}%`, background: color, opacity: 0.28 }}
+            style={{ width: `${anchoFijo}%`, background: color, opacity: CLARIDAD_ADELANTADO }}
           />
-          {/* Gasto del día a día. */}
+          {/* Gasto del día a día. La punta va redonda para que el conjunto se
+              lea como UN relleno: con el tramo claro redondeado por la pista y
+              este cortado en recto, eran dos formas pegadas en vez de una. */}
           <div
-            className="absolute inset-y-0"
+            className="absolute inset-y-0 rounded-r-full"
             style={{ left: `${anchoFijo}%`, width: `${anchoVariable}%`, background: color }}
           />
         </div>
@@ -133,7 +152,7 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
             <span
               aria-hidden="true"
               className="inline-block h-2 w-2 shrink-0 rounded-full"
-              style={{ background: color, opacity: 0.28 }}
+              style={{ background: color, opacity: CLARIDAD_ADELANTADO }}
             />
             <span className="cifra">{formatearMoneda(balance.gastadoFijo, viaje.moneda)}</span>{" "}
             pagados antes de salir
