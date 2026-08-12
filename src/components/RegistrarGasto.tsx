@@ -58,10 +58,17 @@ export function RegistrarGasto({
   const [error, setError] = useState<string | null>(null);
   const campoMonto = useRef<HTMLInputElement>(null);
 
-  // Lo único que sí es un efecto: poner el foco al montar. Registrar un gasto
-  // debe empezar escribiendo el monto, sin un toque previo.
+  // El foco al montar sirve para que registrar un gasto empiece escribiendo el
+  // monto, sin un toque previo. Pero `focus()` a secas hace que el navegador
+  // desplace la página hasta el campo: al abrir la app aparecías a media
+  // pantalla. `preventScroll` da el foco sin mover la vista.
+  //
+  // Y solo se pide en escritorio: en un teléfono el foco automático levanta el
+  // teclado y tapa la mitad de la pantalla antes de que puedas mirar nada.
   useEffect(() => {
-    campoMonto.current?.focus();
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      campoMonto.current?.focus({ preventScroll: true });
+    }
   }, []);
 
   // Alojamiento y vuelos se pagan una vez y no se repiten. Si contaran para el
@@ -77,7 +84,7 @@ export function RegistrarGasto({
     const valor = leerMonto(monto, viaje.moneda);
     if (valor === null || valor <= 0) {
       setError("Escribe cuánto gastaste");
-      campoMonto.current?.focus();
+      campoMonto.current?.focus({ preventScroll: true });
       return;
     }
     setError(null);
@@ -97,7 +104,7 @@ export function RegistrarGasto({
     setMonto("");
     setDescripcion("");
     setMasCampos(false);
-    campoMonto.current?.focus();
+    campoMonto.current?.focus({ preventScroll: true });
     onListo?.();
   }
 
