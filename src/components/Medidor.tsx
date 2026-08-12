@@ -35,7 +35,9 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
   const marcaRitmo = Math.min(100, proporcionTranscurrida * 100);
   const hayMarca = !balance.terminado && balance.diasCerrados > 0 && marcaRitmo < 99;
 
-  const color = excedido ? "var(--color-excedido)" : "var(--color-marca)";
+  // La barra va en tinta, no en el acento: el acento está reservado para la
+  // acción de registrar. Si se gasta acá, deja de significar «esto se toca».
+  const color = excedido ? "var(--color-excedido)" : "var(--color-tinta)";
 
   return (
     <div className="flex flex-col gap-2">

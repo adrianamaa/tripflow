@@ -141,11 +141,11 @@ export function RegistrarGasto({
                 type="button"
                 onClick={() => cambiarCategoria(c)}
                 aria-pressed={activa}
-                className="rounded-(--radius-accion) border px-3 py-1.5 text-sm"
+                className="rounded-(--radius-accion) border px-3 py-1.5 text-sm hover:border-(--color-tinta)"
                 style={{
                   borderColor: activa ? "var(--color-tinta)" : "var(--color-filete)",
                   background: activa ? "var(--color-tinta)" : "transparent",
-                  color: activa ? "var(--color-lienzo)" : "var(--color-tinta)",
+                  color: activa ? "var(--color-tarjeta)" : "var(--color-tinta)",
                 }}
               >
                 {ETIQUETA[c]}
@@ -158,16 +158,24 @@ export function RegistrarGasto({
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          className="rounded-(--radius-accion) bg-(--color-marca) px-5 py-2 font-medium text-(--color-sobre-marca)"
+          className="ancho-medio rounded-(--radius-accion) bg-(--color-acento) px-5 py-2.5 text-[15px] text-(--color-sobre-acento) hover:brightness-95 active:brightness-90"
         >
           {editando ? "Guardar cambios" : "Registrar"}
         </button>
         <button
           type="button"
           onClick={() => setMasCampos((v) => !v)}
-          className="text-sm text-(--color-tinta-2) underline underline-offset-2"
+          aria-expanded={masCampos}
+          className="ancho-ui flex items-center gap-1.5 rounded-(--radius-accion) border border-(--color-filete) px-3 py-1.5 text-[13px] text-(--color-tinta-2) hover:border-(--color-tinta) hover:text-(--color-tinta)"
         >
-          {masCampos ? "Menos campos" : "Más campos"}
+          <span
+            aria-hidden="true"
+            className="inline-block transition-transform"
+            style={{ transform: masCampos ? "rotate(90deg)" : "none" }}
+          >
+            ›
+          </span>
+          Fecha, nota y más
         </button>
         {editando && (
           <button
@@ -181,7 +189,7 @@ export function RegistrarGasto({
       </div>
 
       {masCampos && (
-        <div className="flex flex-col gap-3 border-t border-(--color-filete) pt-3">
+        <div className="flex flex-col gap-3 rounded-(--radius-chip) bg-(--color-papel) p-3">
           <div className="flex flex-col gap-1">
             <label htmlFor="desc" className="rotulo">
               Descripción

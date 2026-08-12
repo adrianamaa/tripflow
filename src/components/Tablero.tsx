@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import type { Gasto } from "@/lib/types.ts";
-import { activarViaje, useEstado } from "@/lib/almacen.ts";
+import { useEstado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
-import { formatearMoneda } from "@/lib/moneda.ts";
 import { diaLargo } from "@/lib/fechas.ts";
 import { CifraDeControl } from "./CifraDeControl.tsx";
 import { Medidor } from "./Medidor.tsx";
 import { Desglose } from "./Desglose.tsx";
+import { SelectorDeViajes } from "./SelectorDeViajes.tsx";
 import { Alerta } from "./Alerta.tsx";
 import { RegistrarGasto } from "./RegistrarGasto.tsx";
 import { ListaDeGastos } from "./ListaDeGastos.tsx";
@@ -50,7 +50,7 @@ export function Tablero() {
         <button
           type="button"
           onClick={() => setCreando(true)}
-          className="self-start rounded-(--radius-accion) bg-(--color-marca) px-5 py-2 font-medium text-(--color-sobre-marca)"
+          className="self-start rounded-(--radius-accion) bg-(--color-acento) px-5 py-2 font-medium text-(--color-sobre-acento)"
         >
           Crear mi primer viaje
         </button>
@@ -79,52 +79,35 @@ export function Tablero() {
 
   return (
     <main className="mx-auto w-full max-w-6xl p-(--spacing-borde)">
-      {/* ── Cabecera: selector de viaje ─────────────────────────────────── */}
-      <header className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-(--color-filete) pb-4">
-        <div className="flex items-baseline gap-2">
-          <h1 className="ancho-dato m-0 text-2xl">{viaje.nombre}</h1>
-          {viajes.length > 1 && (
-            <>
-              <label htmlFor="viaje" className="sr-only">Cambiar de viaje</label>
-              <select
-                id="viaje"
-                value={viaje.id}
-                onChange={(e) => activarViaje(e.target.value)}
-                className="rounded-(--radius-caja) border border-(--color-filete) bg-transparent px-2 py-1 text-sm"
-              >
-                {viajes.map((v) => (
-                  <option key={v.id} value={v.id}>{v.nombre}</option>
-                ))}
-              </select>
-            </>
-          )}
+      <header className="mb-7 flex flex-col gap-3">
+        <SelectorDeViajes
+          viajes={viajes}
+          activoId={viaje.id}
+          onNuevo={() => setCreando(true)}
+        />
+        <div>
+          <h1 className="ancho-dato m-0 text-[28px] leading-tight">{viaje.nombre}</h1>
+          <p className="m-0 text-sm text-(--color-tinta-2)">
+            {viaje.destino} · {diaLargo(viaje.inicio)} al {diaLargo(viaje.fin)}
+          </p>
         </div>
-        <p className="m-0 text-sm text-(--color-tinta-2)">
-          {viaje.destino} · {diaLargo(viaje.inicio)} al {diaLargo(viaje.fin)} ·{" "}
-          tope {formatearMoneda(viaje.presupuesto, viaje.moneda)}
-        </p>
-        <button
-          type="button"
-          onClick={() => setCreando(true)}
-          className="ml-auto rounded-(--radius-accion) border border-(--color-tinta) px-3 py-1.5 text-sm"
-        >
-          Nuevo viaje
-        </button>
       </header>
 
       {/* ── Dos columnas en escritorio, una en móvil ─────────────────────── */}
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <section className="flex flex-col gap-6">
-          <CifraDeControl viaje={viaje} balance={balance} />
-          <Medidor viaje={viaje} balance={balance} />
-          <Desglose viaje={viaje} gastos={delViaje} />
-          <Alerta
+        <section className="flex flex-col gap-4">
+          <div className="tarjeta flex flex-col gap-5">
+            <CifraDeControl viaje={viaje} balance={balance} />
+            <Medidor viaje={viaje} balance={balance} />
+            <Alerta
             viaje={viaje}
             balance={balance}
             gastos={delViaje}
-            onAjustar={() => document.getElementById("monto")?.focus()}
-          />
-          <div className="rounded-(--radius-caja) border border-(--color-filete) p-4">
+              onAjustar={() => document.getElementById("monto")?.focus()}
+            />
+          </div>
+
+          <div className="tarjeta">
             <RegistrarGasto
               key={editando?.id ?? `nuevo-${viaje.id}`}
               viaje={viaje}
@@ -134,9 +117,14 @@ export function Tablero() {
           </div>
         </section>
 
-        <section className="flex flex-col gap-3">
-          <h2 className="rotulo m-0">Gastos</h2>
-          <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
+        <section className="flex flex-col gap-4">
+          <div className="tarjeta">
+            <Desglose viaje={viaje} gastos={delViaje} />
+          </div>
+          <div className="tarjeta">
+            <h2 className="rotulo m-0 mb-3">Gastos</h2>
+            <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
+          </div>
         </section>
       </div>
     </main>

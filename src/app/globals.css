@@ -3,45 +3,61 @@
 /**
  * Tokens del sistema.
  *
- * Regla que gobierna todo esto: ningún componente escribe un color, un tamaño
- * ni un peso a mano. Si un valor no está acá, no se usa.
+ * ── La decisión de fondo ──────────────────────────────────────────────────
+ *
+ * La elevación no sale de un borde ni de una sombra: sale del cambio de
+ * superficie. El lienzo es un papel cálido y las tarjetas son blancas encima.
+ * Eso separa los planos sin dibujar una sola línea, y quita el defecto que más
+ * delata a una interfaz generada — la caja gris alrededor de todo.
+ *
+ * Y la jerarquía la hacen el TAMAÑO y el ESPACIO, no el peso ni el color. El
+ * color queda reservado para señales de estado: cuando todo está coloreado, el
+ * color deja de significar.
+ *
+ * Regla: si un valor no está acá, no se usa.
  */
 @theme {
-  /* ── Superficies ──────────────────────────────────────────────────────── */
-  --color-lienzo: #ffffff;
-  --color-reposo: #f4f6f6;
-  --color-filete: #e2e8e8;
+  /* ── Superficies ────────────────────────────────────────────────────────
+   * El papel es cálido, no blanco clínico. Las tarjetas son blancas SOBRE él.
+   */
+  --color-papel: #f4f2f0;
+  --color-tarjeta: #ffffff;
+  --color-reposo: #ebe8e5;
+  --color-filete: #e2ded9;
 
-  /* ── Tinta ────────────────────────────────────────────────────────────── */
-  --color-tinta: #0c1f21;
-  --color-tinta-2: #4f6669;
+  /* ── Tinta ──────────────────────────────────────────────────────────────
+   * Casi negro pero cálido, no azulado. El negro puro sobre papel cálido se
+   * ve como un agujero; este se asienta.
+   */
+  --color-tinta: #0c0a08;
+  --color-tinta-2: #6d6c6b;
 
-  /* ── Marca. Provisional mientras se cierra la dirección visual. ───────── */
-  --color-marca: #0b5f5a;
-  --color-sobre-marca: #ffffff;
+  /* ── El acento ──────────────────────────────────────────────────────────
+   * Uno solo, y solo donde se mueve el dinero: la acción de registrar. En
+   * ningún otro lado. Su fuerza viene de ser escaso.
+   * Texto tinta encima: 15.08:1.
+   */
+  --color-acento: #c8f04a;
+  --color-sobre-acento: #0c0a08;
 
-  /* ── Estados ──────────────────────────────────────────────────────────────
+  /* ── Estados ────────────────────────────────────────────────────────────
+   * Lo que los ordena no es el matiz sino
+   * la claridad, que baja con la gravedad: L* 46.9 → 34.5 → 24.1. El par que
+   * de verdad se confunde no es verde-rojo sino ámbar-rojo —los dos casi no
+   * tienen azul— y quien no distingue colores los separa por claridad.
    *
-   * Lo que los ordena no es el matiz sino la LUMINOSIDAD, y va bajando con la
-   * gravedad: L* 46.9 → 34.5 → 24.1. Eso importa porque el par que de verdad se
-   * confunde no es verde-rojo sino ÁMBAR-ROJO —los dos casi no tienen azul— y
-   * quien no distingue colores los separa por claridad, no por tono.
-   *
-   * Contraste sobre blanco, medido: 5.02:1 · 7.94:1 · 11.48:1.
-   * Y ninguno se usa solo: cada estado lleva además icono y palabra.
+   * ⚠️ Medidos sobre BLANCO: 5.02 · 7.94 · 11.48. Sobre el papel cálido la
+   * escalera se aplana hasta volverse indistinguible, así que los estados
+   * viven siempre dentro de una tarjeta blanca. Nunca sobre el papel.
    */
   --color-bien: #198038;
   --color-cuidado: #8a3800;
-  --color-cuidado-fondo: #fff2e8;
   --color-excedido: #750e13;
-  --color-excedido-fondo: #fff1f1;
 
-  /* ── Espaciado ────────────────────────────────────────────────────────── */
-  --spacing-borde: 1.25rem;
-
-  /* ── Radios. Distintos según el peso de la acción: un radio uniforme en
-       todo es el delator más silencioso de una plantilla. ────────────────── */
-  --radius-caja: 4px;
+  /* ── Radios. Distintos según el peso: uniforme en todo es el delator más
+       silencioso de una plantilla. ───────────────────────────────────────── */
+  --radius-chip: 4px;
+  --radius-caja: 10px;
   --radius-accion: 999px;
 
   --font-sans: var(--fuente), ui-sans-serif, system-ui, sans-serif;
@@ -53,7 +69,7 @@
 
 body {
   margin: 0;
-  background: var(--color-lienzo);
+  background: var(--color-papel);
   color: var(--color-tinta);
   font-family: var(--font-sans);
   font-variation-settings: "wdth" 100, "wght" 400;
@@ -61,13 +77,11 @@ body {
 }
 
 /**
- * Los tres anchos. Esta es la firma del sistema.
- *
- * `font-variation-settings` pisa a `font-weight`, así que el peso va declarado
- * dentro del mismo bloque o se ignora.
+ * Los anchos. La jerarquía la carga el eje de ancho, no el peso: así se pueden
+ * tener cinco niveles sin subir de peso 400 en el texto.
  */
 .ancho-dato {
-  font-variation-settings: "wdth" 118, "wght" 620;
+  font-variation-settings: "wdth" 116, "wght" 560;
   letter-spacing: -0.02em;
 }
 .ancho-ui {
@@ -77,56 +91,84 @@ body {
   font-variation-settings: "wdth" 100, "wght" 500;
 }
 .ancho-densa {
-  font-variation-settings: "wdth" 78, "wght" 520;
+  font-variation-settings: "wdth" 80, "wght" 500;
 }
 
 /**
- * Las cifras.
+ * Cifras.
  *
- * `tnum` va SOLO acá y nunca en un contenedor: puesto arriba se filtra al texto
- * corrido y separa la coma de «alojamiento, comida y transporte».
- *
- * Y en ningún otro punto del proyecto se usa `font-feature-settings`: por
- * especificación pisa a `font-variant` sin importar el orden ni la
- * especificidad, así que una sola aparición suelta rompe esto en silencio.
+ * `tnum` va SOLO acá y nunca en un contenedor: arriba se filtra al texto y
+ * separa la coma de «alojamiento, comida y transporte». Y en ningún otro punto
+ * del proyecto se usa `font-feature-settings`: por especificación pisa a
+ * `font-variant` sin importar el orden.
  */
 .cifra {
   font-variant-numeric: tabular-nums lining-nums;
   font-variation-settings: "wdth" 100, "wght" 500;
 }
 
-/**
- * La cifra héroe usa figuras PROPORCIONALES, no tabulares.
- *
- * Los dígitos de ancho igual sirven para alinear columnas, pero a 56px una
- * cifra tabular se ve suelta y desarmada: el 1 arrastra el mismo ancho que el
- * 8. Tabular donde hay columna, proporcional donde hay una sola cifra grande.
- */
+/* La cifra grande va proporcional: a 56px los dígitos de ancho igual se ven
+   desarmados, porque el 1 ocupa lo mismo que el 8. */
 .cifra-hero {
   font-variant-numeric: lining-nums;
-  font-variation-settings: "wdth" 118, "wght" 620;
-  letter-spacing: -0.025em;
+  font-variation-settings: "wdth" 112, "wght" 560;
+  letter-spacing: -0.03em;
 }
 
 @media (max-width: 400px) {
-  /* En pantallas angostas las columnas de montos se aprietan: el eje de ancho
-     las mete sin bajar el tamaño, que es lo que no se puede hacer con dinero. */
   .cifra {
-    font-variation-settings: "wdth" 78, "wght" 520;
+    font-variation-settings: "wdth" 80, "wght" 520;
   }
 }
 
-/* Las etiquetas en mayúscula necesitan aire entre letras o se leen como bloque. */
 .rotulo {
   font-variation-settings: "wdth" 100, "wght" 500;
   font-size: 11px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-tinta-2);
 }
 
-/* Que se vea dónde está el foco. Quien navega con teclado no debería adivinar. */
+/**
+ * Tarjeta: blanca sobre papel. Sin borde y sin sombra — el cambio de superficie
+ * ya separa los planos.
+ */
+.tarjeta {
+  background: var(--color-tarjeta);
+  border-radius: var(--radius-caja);
+  padding: 1.25rem;
+}
+
+/**
+ * Estados de interacción.
+ *
+ * En un sistema plano, sin sombras, los estados son justo donde el lenguaje se
+ * cae — y lo primero que hace cualquiera es hacer clic en cosas. Todo lo que
+ * responde al puntero lo dice.
+ */
+button,
+select,
+[role="button"] {
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    opacity 120ms ease;
+}
+
+button:not(:disabled),
+select {
+  cursor: pointer;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-tinta);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

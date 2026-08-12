@@ -91,7 +91,7 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       {error && <p role="alert" className="m-0 text-sm text-(--color-excedido)">{error}</p>}
 
       <button type="submit"
-        className="self-start rounded-(--radius-accion) bg-(--color-marca) px-5 py-2 font-medium text-(--color-sobre-marca)">
+        className="self-start rounded-(--radius-accion) bg-(--color-acento) px-5 py-2 font-medium text-(--color-sobre-acento)">
         Crear viaje
       </button>
     </form>

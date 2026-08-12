@@ -45,10 +45,15 @@ const COLOR: Record<Balance["estado"], string> = {
 };
 
 /** El estado bueno no necesita fondo: la ausencia de alarma es el mensaje. */
+/**
+ * El estado bueno no lleva caja: la ausencia de alarma es el mensaje, y
+ * dibujarle un marco sería ruido. Los otros dos sí, porque tienen que
+ * interrumpir.
+ */
 const FONDO: Record<Balance["estado"], string> = {
   bien: "transparent",
-  cuidado: "var(--color-cuidado-fondo)",
-  excedido: "var(--color-excedido-fondo)",
+  cuidado: "#FFF2E8",
+  excedido: "#FFF1F1",
 };
 
 export function Alerta({
@@ -68,14 +73,17 @@ export function Alerta({
 
   return (
     <div
-      className="flex flex-col gap-2.5 rounded-(--radius-caja) border p-4"
-      style={{ borderColor: color, background: FONDO[balance.estado] }}
+      className="flex flex-col gap-2 rounded-(--radius-caja)"
+      style={{
+        background: FONDO[balance.estado],
+        padding: balance.estado === "bien" ? "0" : "0.875rem 1rem",
+      }}
       role={balance.estado === "bien" ? undefined : "status"}
     >
       <div className="flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-(--color-lienzo)"
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-(--color-tarjeta)"
           style={{ background: color }}
         >
           {ICONO[balance.estado]}
@@ -91,7 +99,8 @@ export function Alerta({
         <button
           type="button"
           onClick={onAjustar}
-          className="self-start rounded-(--radius-accion) border border-(--color-tinta) px-4 py-1.5 text-sm font-medium hover:bg-(--color-tinta) hover:text-(--color-lienzo)"
+          className="ancho-medio mt-0.5 self-start rounded-(--radius-accion) border border-current px-3.5 py-1.5 text-[13px] hover:bg-current"
+          style={{ color }}
         >
           Ajustar el resto del viaje
         </button>

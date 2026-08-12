@@ -45,7 +45,7 @@ export function ListaDeGastos({
 
   if (gastos.length === 0) {
     return (
-      <div className="rounded-(--radius-caja) border border-dashed border-(--color-filete) p-6 text-center">
+      <div className="rounded-(--radius-chip) bg-(--color-papel) p-6 text-center">
         <p className="ancho-medio m-0">Todavía no has registrado nada</p>
         <p className="m-0 mt-1 text-sm text-(--color-tinta-2)">
           El primer gasto que anotes empieza a construir tu ritmo diario.
@@ -65,7 +65,7 @@ export function ListaDeGastos({
       {deshacer && (
         <div
           role="status"
-          className="mb-3 flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-3 py-2 text-sm text-(--color-lienzo)"
+          className="mb-3 flex items-center gap-3 rounded-(--radius-caja) bg-(--color-tinta) px-3 py-2 text-sm text-(--color-tarjeta)"
         >
           <span>
             Borraste <span className="ancho-medio">{deshacer.que}</span>
@@ -76,7 +76,7 @@ export function ListaDeGastos({
               deshacer.fn();
               setDeshacer(null);
             }}
-            className="ancho-medio ml-auto rounded-(--radius-accion) border border-(--color-lienzo) px-3 py-1"
+            className="ancho-medio ml-auto rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1"
           >
             Deshacer
           </button>
@@ -87,7 +87,7 @@ export function ListaDeGastos({
         const total = delDia.reduce((s, g) => s + g.monto, 0);
         return (
           <section key={fecha} className="mb-5">
-            <div className="mb-1 flex items-baseline justify-between border-b border-(--color-tinta) pb-1">
+            <div className="mb-1.5 flex items-baseline justify-between border-b border-(--color-filete) pb-1.5">
               <h3 className="ancho-medio m-0 text-sm">{diaCorto(fecha)}</h3>
               <span className="cifra text-sm text-(--color-tinta-2)">
                 {formatearMoneda(total, viaje.moneda)}
@@ -98,7 +98,7 @@ export function ListaDeGastos({
               {delDia.map((g) => (
                 <li
                   key={g.id}
-                  className="flex items-baseline gap-3 border-b border-(--color-filete) py-2"
+                  className="flex items-baseline gap-3 py-[7px]"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="ancho-ui m-0 truncate text-[15px]">{g.descripcion}</p>

@@ -58,7 +58,7 @@ export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
                 className="h-full rounded-full"
                 style={{
                   width: `${(monto / mayor) * 100}%`,
-                  background: "var(--color-marca)",
+                  background: "var(--color-tinta)",
                   // La primera es la respuesta; las demás son contexto.
                   opacity: i === 0 ? 1 : 0.45,
                 }}
