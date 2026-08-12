@@ -92,6 +92,10 @@ export interface Balance {
   excesoProyectado: number | null;
   /** `false` mientras no haya evidencia suficiente para proyectar. */
   hayRitmoConfiable: boolean;
+  /** Qué proporción del tope se lleva gastada, de 0 a 1 y más allá. */
+  consumido: number;
+  /** La alerta se encendió por consumo del tope, no por ir muy rápido. */
+  porConsumo: boolean;
   /** El viaje ya terminó: la fecha de fin quedó atrás. */
   terminado: boolean;
 }

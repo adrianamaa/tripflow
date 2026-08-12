@@ -106,6 +106,21 @@ function explicar(
   }
 
   if (balance.estado === "cuidado") {
+    // La alerta se enciende por dos vías distintas y cada una necesita decir
+    // algo distinto. La de ritmo puede nombrar el día; la de consumo todavía no
+    // tiene días suficientes para calcularlo, y prometer una fecha ahí sería
+    // inventarla.
+    if (balance.porConsumo && !seAcaba) {
+      return (
+        <>
+          Llevas gastado el {Math.round(balance.consumido * 100)}% del presupuesto y todavía te
+          quedan {balance.diasRestantes} {balance.diasRestantes === 1 ? "día" : "días"}. Para llegar
+          al final, {m(balance.diarioDisponible)} por día.
+          {culpable && <> Lo que más pesa hasta ahora es {culpable.categoria}.</>}
+        </>
+      );
+    }
+
     return (
       <>
         {seAcaba ? (

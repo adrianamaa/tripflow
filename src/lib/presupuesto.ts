@@ -38,6 +38,22 @@ const GASTOS_MINIMOS_PARA_PROYECTAR = 3;
  */
 const MARGEN_ALERTA = 1.02;
 
+/**
+ * Segunda vía de alerta, independiente del ritmo: cuánto del tope se lleva
+ * consumido.
+ *
+ * Hace falta porque la proyección necesita dos días cerrados y tres gastos para
+ * existir, y hasta entonces la app se queda muda. Alguien que crea un viaje hoy
+ * y se gasta el 95% del presupuesto esta misma tarde vería «vas bien», que es
+ * exactamente lo contrario de lo que el enunciado pide: avisar cuando se llega
+ * a los límites.
+ *
+ * El 80% es el umbral que usan casi todas las apps de presupuesto. No reemplaza
+ * la alerta de ritmo —esa avisa antes y dice qué día— sino que cubre el hueco
+ * de los primeros días.
+ */
+const UMBRAL_CONSUMO = 0.8;
+
 export function calcularBalance(
   viaje: Viaje,
   gastos: Gasto[],
@@ -84,10 +100,17 @@ export function calcularBalance(
       ? gastadoTotal + ritmoReal * restantes
       : null;
 
+  const consumido = viaje.presupuesto > 0 ? gastadoTotal / viaje.presupuesto : 0;
+
   let estado: Estado = "bien";
   if (gastadoTotal > viaje.presupuesto) {
     estado = "excedido";
-  } else if (proyeccion !== null && proyeccion > viaje.presupuesto * MARGEN_ALERTA) {
+  } else if (
+    // Cualquiera de las dos vías enciende la alerta: ir muy rápido, o llevar
+    // consumida buena parte del tope. La segunda funciona desde el primer gasto.
+    (proyeccion !== null && proyeccion > viaje.presupuesto * MARGEN_ALERTA) ||
+    (consumido >= UMBRAL_CONSUMO && !yaTermino)
+  ) {
     estado = "cuidado";
   }
 
@@ -111,6 +134,8 @@ export function calcularBalance(
     estado,
     excesoProyectado,
     hayRitmoConfiable,
+    consumido,
+    porConsumo: estado === "cuidado" && consumido >= UMBRAL_CONSUMO,
     terminado: yaTermino,
   };
 }

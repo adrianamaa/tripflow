@@ -151,3 +151,35 @@ test("un viaje terminado no dice «por día», dice cuánto sobró", () => {
   assert.equal(b.diarioDisponible, 0, "«$1.190.000 por día» en un viaje que ya pasó no significa nada");
   assert.equal(b.sobrante, 1_190_000, "lo que importa al final es cuánto sobró");
 });
+
+test("gastar casi todo el tope el primer día SÍ dispara alerta", () => {
+  // El agujero que encontró la auditoría: la proyección necesita dos días
+  // cerrados, así que alguien que crea un viaje hoy y se gasta casi todo esta
+  // misma tarde veía «vas bien» — lo contrario de lo que pide el enunciado.
+  const b = calcularBalance(VIAJE, [gasto({ monto: 2_850_000, fecha: "2026-08-10" })], "2026-08-10");
+
+  assert.equal(b.hayRitmoConfiable, false, "sigue sin haber ritmo, y está bien");
+  assert.equal(b.proyeccion, null, "la proyección sigue sin inventarse nada");
+  assert.equal(b.estado, "cuidado", "pero la alerta por consumo sí funciona desde el primer gasto");
+  assert.equal(b.porConsumo, true, "y la app sabe por cuál de las dos vías se encendió");
+});
+
+test("el umbral de consumo no se dispara antes de tiempo", () => {
+  const b = calcularBalance(VIAJE, [gasto({ monto: 2_000_000, fecha: "2026-08-10" })], "2026-08-10");
+  assert.equal(b.estado, "bien", "dos tercios del tope el primer día todavía no es alarma");
+});
+
+test("las dos vías de alerta conviven sin pisarse", () => {
+  // Ritmo alto pero consumo bajo: se enciende por ritmo, no por consumo.
+  const porRitmo = calcularBalance(
+    VIAJE,
+    [
+      gasto({ monto: 400_000, fecha: "2026-08-10" }),
+      gasto({ monto: 450_000, fecha: "2026-08-11" }),
+      gasto({ monto: 500_000, fecha: "2026-08-12" }),
+    ],
+    "2026-08-13",
+  );
+  assert.equal(porRitmo.estado, "cuidado");
+  assert.equal(porRitmo.porConsumo, false, "esta se encendió por ir rápido, no por el tope");
+});
