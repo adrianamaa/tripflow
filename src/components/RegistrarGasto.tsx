@@ -46,26 +46,23 @@ export function RegistrarGasto({
   editando?: Gasto | null;
   onListo?: () => void;
 }) {
-  const [monto, setMonto] = useState("");
-  const [categoria, setCategoria] = useState<Categoria>("comida");
-  const [descripcion, setDescripcion] = useState("");
-  const [fecha, setFecha] = useState(hoy());
-  const [fueraDelRitmo, setFueraDelRitmo] = useState(false);
-  const [masCampos, setMasCampos] = useState(false);
+  // El estado arranca de lo que se está editando, sin sincronizarlo después con
+  // un efecto. Cuando cambia el gasto en edición, el padre reinicia este
+  // componente con `key` — que es más simple y no dispara renders en cascada.
+  const [monto, setMonto] = useState(editando ? String(editando.monto) : "");
+  const [categoria, setCategoria] = useState<Categoria>(editando?.categoria ?? "comida");
+  const [descripcion, setDescripcion] = useState(editando?.descripcion ?? "");
+  const [fecha, setFecha] = useState(editando?.fecha ?? hoy());
+  const [fueraDelRitmo, setFueraDelRitmo] = useState(editando?.fueraDelRitmo ?? false);
+  const [masCampos, setMasCampos] = useState(Boolean(editando));
   const [error, setError] = useState<string | null>(null);
   const campoMonto = useRef<HTMLInputElement>(null);
 
+  // Lo único que sí es un efecto: poner el foco al montar. Registrar un gasto
+  // debe empezar escribiendo el monto, sin un toque previo.
   useEffect(() => {
-    if (editando) {
-      setMonto(String(editando.monto));
-      setCategoria(editando.categoria);
-      setDescripcion(editando.descripcion);
-      setFecha(editando.fecha);
-      setFueraDelRitmo(editando.fueraDelRitmo);
-      setMasCampos(true);
-    }
     campoMonto.current?.focus();
-  }, [editando]);
+  }, []);
 
   // Alojamiento y vuelos se pagan una vez y no se repiten. Si contaran para el
   // ritmo diario, pagar el hotel el primer día haría que la app declarara

@@ -121,7 +121,12 @@ export function Tablero() {
             onAjustar={() => document.getElementById("monto")?.focus()}
           />
           <div className="rounded-(--radius-caja) border border-(--color-filete) p-4">
-            <RegistrarGasto viaje={viaje} editando={editando} onListo={() => setEditando(null)} />
+            <RegistrarGasto
+              key={editando?.id ?? `nuevo-${viaje.id}`}
+              viaje={viaje}
+              editando={editando}
+              onListo={() => setEditando(null)}
+            />
           </div>
         </section>
 
