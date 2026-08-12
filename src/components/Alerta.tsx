@@ -52,8 +52,8 @@ const COLOR: Record<Balance["estado"], string> = {
  */
 const FONDO: Record<Balance["estado"], string> = {
   bien: "transparent",
-  cuidado: "#FFF2E8",
-  excedido: "#FFF1F1",
+  cuidado: "#FDF3E7",
+  excedido: "#FDF0EF",
 };
 
 export function Alerta({
@@ -74,21 +74,23 @@ export function Alerta({
   return (
     <div
       className="flex flex-col gap-2 rounded-(--radius-caja)"
-      style={{
-        background: FONDO[balance.estado],
-        padding: balance.estado === "bien" ? "0" : "0.875rem 1rem",
-      }}
+      style={
+        {
+          background: FONDO[balance.estado],
+          padding: balance.estado === "bien" ? "0" : "0.875rem 1rem",
+          "--estado": color,
+        } as React.CSSProperties
+      }
       role={balance.estado === "bien" ? undefined : "status"}
     >
       <div className="flex items-center gap-2">
         <span
           aria-hidden="true"
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[13px] font-bold text-(--color-tarjeta)"
-          style={{ background: color }}
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--estado) text-[13px] font-bold text-(--color-tarjeta)"
         >
           {ICONO[balance.estado]}
         </span>
-        <span className="ancho-medio text-sm" style={{ color }}>
+        <span className="ancho-medio text-sm text-(--estado)">
           {PALABRA[balance.estado]}
         </span>
       </div>
@@ -96,13 +98,14 @@ export function Alerta({
       <p className="m-0 text-sm leading-relaxed">{explicar(viaje, balance, seAcaba, culpable)}</p>
 
       {balance.estado !== "bien" && (
+        // Sin `style` en línea: le gana a la clase de :hover y el estado no
+        // se ve. El color del estado entra por variable CSS.
         <button
           type="button"
           onClick={onAjustar}
-          className="ancho-medio mt-0.5 self-start rounded-(--radius-accion) border border-current px-3.5 py-1.5 text-[13px] hover:bg-current"
-          style={{ color }}
+          className="ancho-medio mt-0.5 self-start rounded-(--radius-accion) border border-(--estado) px-3.5 py-1.5 text-[13px] text-(--estado) hover:bg-(--estado) hover:text-(--color-tarjeta)"
         >
-          Ajustar el resto del viaje
+          Ajustar el tope del viaje
         </button>
       )}
     </div>

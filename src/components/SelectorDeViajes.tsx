@@ -27,7 +27,7 @@ export function SelectorDeViajes({
   onNuevo: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-2">
       {viajes.map((v) => {
         const activo = v.id === activoId;
         return (
@@ -38,8 +38,8 @@ export function SelectorDeViajes({
             aria-pressed={activo}
             className={
               activo
-                ? "ancho-medio rounded-(--radius-accion) bg-(--color-tinta) px-3.5 py-1.5 text-[13px] text-(--color-tarjeta)"
-                : "ancho-ui rounded-(--radius-accion) bg-(--color-tarjeta) px-3.5 py-1.5 text-[13px] text-(--color-tinta-2) hover:text-(--color-tinta)"
+                ? "ancho-medio rounded-(--radius-accion) bg-(--color-tinta) px-4 py-2 text-sm text-(--color-tarjeta)"
+                : "ancho-ui rounded-(--radius-accion) bg-(--color-tarjeta) px-4 py-2 text-sm text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
             }
           >
             {v.nombre}
@@ -50,7 +50,7 @@ export function SelectorDeViajes({
       <button
         type="button"
         onClick={onNuevo}
-        className="ancho-ui rounded-(--radius-accion) px-3 py-1.5 text-[13px] text-(--color-tinta-2) underline underline-offset-4 hover:text-(--color-tinta)"
+        className="ancho-ui ml-1 rounded-(--radius-accion) px-3 py-2 text-sm text-(--color-tinta-2) hover:text-(--color-tinta)"
       >
         + Nuevo viaje
       </button>

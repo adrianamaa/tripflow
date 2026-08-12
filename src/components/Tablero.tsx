@@ -13,6 +13,7 @@ import { Alerta } from "./Alerta.tsx";
 import { RegistrarGasto } from "./RegistrarGasto.tsx";
 import { ListaDeGastos } from "./ListaDeGastos.tsx";
 import { CrearViaje } from "./CrearViaje.tsx";
+import { AjustarPresupuesto } from "./AjustarPresupuesto.tsx";
 
 /**
  * El tablero.
@@ -34,6 +35,7 @@ export function Tablero() {
   const { viajes, gastos, viajeActivoId } = useEstado();
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Gasto | null>(null);
+  const [ajustando, setAjustando] = useState(false);
 
   const viaje = viajes.find((v) => v.id === viajeActivoId) ?? viajes[0] ?? null;
 
@@ -103,11 +105,22 @@ export function Tablero() {
             viaje={viaje}
             balance={balance}
             gastos={delViaje}
-              onAjustar={() => document.getElementById("monto")?.focus()}
+              onAjustar={() => setAjustando(true)}
             />
+            {ajustando && (
+              <AjustarPresupuesto
+                viaje={viaje}
+                balance={balance}
+                onCerrar={() => setAjustando(false)}
+              />
+            )}
           </div>
 
           <div className="tarjeta">
+            <Desglose viaje={viaje} gastos={delViaje} />
+          </div>
+
+          <div id="formulario-gasto" className="tarjeta">
             <RegistrarGasto
               key={editando?.id ?? `nuevo-${viaje.id}`}
               viaje={viaje}
@@ -119,11 +132,21 @@ export function Tablero() {
 
         <section className="flex flex-col gap-4">
           <div className="tarjeta">
-            <Desglose viaje={viaje} gastos={delViaje} />
-          </div>
-          <div className="tarjeta">
             <h2 className="rotulo m-0 mb-3">Gastos</h2>
-            <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
+              <ListaDeGastos
+              viaje={viaje}
+              gastos={delViaje}
+              onEditar={(g) => {
+                setEditando(g);
+                // Sin esto, tocar «Editar» cambia un formulario que en móvil
+                // está fuera de pantalla: parece que el botón no hizo nada.
+                requestAnimationFrame(() =>
+                  document
+                    .getElementById("formulario-gasto")
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+                );
+              }}
+            />
           </div>
         </section>
       </div>

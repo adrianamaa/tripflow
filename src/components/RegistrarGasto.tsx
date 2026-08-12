@@ -103,6 +103,12 @@ export function RegistrarGasto({
 
   return (
     <form onSubmit={guardar} className="flex flex-col gap-3">
+      {editando && (
+        <div className="-m-1 mb-1 flex items-center gap-2 rounded-(--radius-chip) bg-(--color-tinta) px-3 py-1.5 text-xs text-(--color-tarjeta)">
+          <span className="ancho-medio">Editando</span>
+          <span className="truncate opacity-80">{editando.descripcion}</span>
+        </div>
+      )}
       <div className="flex flex-col gap-1">
         <label
           htmlFor="monto"
@@ -136,17 +142,19 @@ export function RegistrarGasto({
           {CATEGORIAS.map((c) => {
             const activa = c === categoria;
             return (
+              // Nada de estilos en línea acá: un `style` le gana a cualquier
+              // clase de :hover, así que el estado al pasar el puntero existía
+              // en el código y no se veía en pantalla.
               <button
                 key={c}
                 type="button"
                 onClick={() => cambiarCategoria(c)}
                 aria-pressed={activa}
-                className="rounded-(--radius-accion) border px-3 py-1.5 text-sm hover:border-(--color-tinta)"
-                style={{
-                  borderColor: activa ? "var(--color-tinta)" : "var(--color-filete)",
-                  background: activa ? "var(--color-tinta)" : "transparent",
-                  color: activa ? "var(--color-tarjeta)" : "var(--color-tinta)",
-                }}
+                className={
+                  activa
+                    ? "ancho-medio rounded-(--radius-accion) border border-(--color-tinta) bg-(--color-tinta) px-3 py-1.5 text-sm text-(--color-tarjeta)"
+                    : "ancho-ui rounded-(--radius-accion) border border-(--color-filete) px-3 py-1.5 text-sm text-(--color-tinta-2) hover:border-(--color-tinta) hover:text-(--color-tinta)"
+                }
               >
                 {ETIQUETA[c]}
               </button>
