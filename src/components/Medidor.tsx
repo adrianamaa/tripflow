@@ -16,8 +16,36 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  * un problema y en el día seis es ir sobrado. La barra responde «cuánto»; la
  * marca responde «¿y eso es mucho?».
  *
- * La marca va DENTRO de la pista, cruzándola. Antes colgaba debajo con su
- * propia etiqueta y quedaba flotando sin anclaje visible.
+ * ══ LO QUE SE REHIZO, Y POR QUÉ ═══════════════════════════════════════════
+ *
+ * La raya vertical no se explicaba sola. Un gráfico que hay
+ * que explicar ya falló, así que se fue a buscar el motivo y había tres, no uno:
+ *
+ * 1. LA MARCA ESTABA EN EL SITIO EQUIVOCADO. Se calculaba sobre el presupuesto
+ *    entero, y eso contradice la idea sobre la que está construida la app: el
+ *    gasto adelantado no se reparte por días, se paga de un golpe antes de
+ *    salir. Repartirlo en la referencia era volver a meterlo al ritmo por la
+ *    puerta de atrás, justo después de haberlo sacado.
+ *
+ *    En el viaje de ejemplo eso se veía así: marca en 28,6%, gastado en 60%. El
+ *    dibujo decía «vas disparadísima» mientras la frase de al lado decía «vas
+ *    bien». Corrida al tramo variable —lo único que sí se gasta día a día— la
+ *    marca cae en 61,9% contra 60% gastado: apenas por delante, que es
+ *    exactamente lo que dice el texto.
+ *
+ * 2. HABÍA DOS CORTES BLANCOS QUE SIGNIFICABAN COSAS DISTINTAS Y SE VEÍAN
+ *    IGUALES: la marca del ritmo, y una separación de 2px entre lo adelantado y
+ *    lo del día a día. Con la barra oscura a ambos lados, las dos se leían como
+ *    que la barra estaba PARTIDA. La separación sobraba: el cambio de tono ya
+ *    dice dónde termina un tramo y empieza el otro, así que se quitó.
+ *
+ * 3. LA MARCA VIVÍA DENTRO DE LA PISTA. Cualquier cosa dibujada dentro de una
+ *    barra se lee como parte de la barra. Ahora es una señal ENCIMA, apoyada en
+ *    el borde superior: no corta nada y se lee como lo que es, una referencia
+ *    externa.
+ *
+ * Y la leyenda nombra los dos tonos. Antes solo explicaba el claro, así que el
+ * oscuro se quedaba sin decir qué era.
  */
 export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
   const tope = viaje.presupuesto;
@@ -28,10 +56,13 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
   const excedido = balance.gastadoTotal > tope;
   const consumido = Math.round((balance.gastadoTotal / tope) * 100);
 
-  const proporcion =
-    balance.diasTotales > 0 ? balance.diasCerrados / balance.diasTotales : 0;
-  const marca = Math.min(100, proporcion * 100);
-  const hayMarca = !balance.terminado && balance.diasCerrados > 0 && marca > 2 && marca < 98;
+  const proporcion = balance.diasTotales > 0 ? balance.diasCerrados / balance.diasTotales : 0;
+  // El tramo que de verdad se gasta día a día es lo que queda del eje después
+  // de lo ya pagado. La referencia de ritmo solo tiene sentido sobre él.
+  const tramoVariable = Math.max(0, 100 - anchoFijo);
+  const marca = Math.min(100, anchoFijo + tramoVariable * proporcion);
+  const hayMarca =
+    !balance.terminado && balance.diasCerrados > 0 && balance.gastadoTotal > 0 && marca < 99;
 
   // La barra va en tinta, no en el acento: el acento está reservado para la
   // acción de registrar. Si se gasta acá, deja de significar «esto se toca».
@@ -39,43 +70,40 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
 
   return (
     <div className="flex flex-col gap-2">
-      <div
-        role="progressbar"
-        aria-valuenow={consumido}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuetext={`${formatearMoneda(balance.gastadoTotal, viaje.moneda)} de ${formatearMoneda(tope, viaje.moneda)}, ${consumido}%`}
-        className="relative h-3 w-full rounded-full bg-(--color-reposo)"
-      >
-        <div className="absolute inset-0 overflow-hidden rounded-full">
-          {/* Adelantado: el mismo color, más claro. Es el mismo dinero, otro momento. */}
-          <div
-            className="absolute inset-y-0 left-0"
-            style={{ width: `${anchoFijo}%`, background: color, opacity: 0.3 }}
-          />
-          {/* Gasto del día a día. Los 2px de separación son superficie, no un
-              borde dibujado encima. */}
-          <div
-            className="absolute inset-y-0"
-            style={{
-              left: `calc(${anchoFijo}% + ${anchoFijo > 0 ? "2px" : "0px"})`,
-              width: `max(0px, calc(${anchoVariable}% - ${anchoFijo > 0 ? "2px" : "0px"}))`,
-              background: color,
-            }}
-          />
-        </div>
-
-        {/* La muesca cruza la pista de arriba abajo, así que se lee como
-            referencia y no como otro dato más. */}
+      {/* El espacio de arriba es donde se apoya la señal de ritmo. */}
+      <div className="relative pt-2.5">
         {hayMarca && (
           <div
             aria-hidden="true"
-            className="absolute -top-1 -bottom-1 w-1 rounded-full bg-(--color-tarjeta)"
-            style={{ left: `calc(${marca}% - 2px)` }}
-          >
-            <div className="absolute inset-y-0 left-[1.5px] w-px bg-(--color-tinta-2)" />
-          </div>
+            className="absolute top-0 h-2 w-[3px] rounded-t-full bg-(--color-tinta)"
+            style={{ left: `calc(${marca}% - 1.5px)` }}
+          />
         )}
+
+        <div
+          role="progressbar"
+          aria-label={`Gastado del presupuesto de ${viaje.nombre}`}
+          // Acotado: sin esto, pasarse del tope emitía valores como 145 contra un
+          // máximo de 100, que el navegador reporta como basura.
+          aria-valuenow={Math.min(100, Math.max(0, consumido))}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuetext={`${formatearMoneda(balance.gastadoTotal, viaje.moneda)} de ${formatearMoneda(tope, viaje.moneda)}, ${consumido}%`}
+          className="relative h-3 w-full overflow-hidden rounded-full bg-(--color-reposo)"
+        >
+          {/* Adelantado: el mismo color, más claro. Es el mismo dinero, otro
+              momento. Sin separación dibujada: el cambio de tono ya separa, y
+              una raya blanca ahí competía con la señal de ritmo. */}
+          <div
+            className="absolute inset-y-0 left-0"
+            style={{ width: `${anchoFijo}%`, background: color, opacity: 0.28 }}
+          />
+          {/* Gasto del día a día. */}
+          <div
+            className="absolute inset-y-0"
+            style={{ left: `${anchoFijo}%`, width: `${anchoVariable}%`, background: color }}
+          />
+        </div>
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs text-(--color-tinta-2)">
@@ -86,21 +114,39 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
           de <span className="cifra">{formatearMoneda(tope, viaje.moneda)}</span>
           <span className="cifra"> · {consumido}%</span>
         </span>
-        {/* La leyenda solo aparece cuando hay algo que comparar. Sin un solo
-            gasto, explicar la muesca es explicar una referencia de nada. */}
-        {hayMarca && balance.gastadoTotal > 0 && (
-          <span className="ancho-densa whitespace-nowrap">la muesca es el ritmo parejo</span>
+
+        {/* La leyenda repite la forma de la señal, no la nombra: «la muesca» no
+            le dice nada a quien no sabe qué es una muesca. */}
+        {hayMarca && (
+          <span className="ancho-densa flex items-center gap-1.5 whitespace-nowrap">
+            <span aria-hidden="true" className="inline-block h-2.5 w-[3px] rounded-full bg-(--color-tinta)" />
+            deberías ir por acá hoy
+          </span>
         )}
       </div>
 
+      {/* Los dos tonos, nombrados. Antes solo se explicaba el claro y el oscuro
+          se quedaba sin decir qué era, que es justo lo que se preguntó. */}
       {balance.gastadoFijo > 0 && (
-        <p className="m-0 text-xs leading-relaxed text-(--color-tinta-2)">
-          <span
-            className="mr-1.5 inline-block h-2 w-2 rounded-full align-[0.5px]"
-            style={{ background: color, opacity: 0.3 }}
-          />
-          <span className="cifra">{formatearMoneda(balance.gastadoFijo, viaje.moneda)}</span> ya
-          estaban pagados antes de salir, así que no cuentan para el ritmo diario.
+        <p className="m-0 flex flex-wrap gap-x-4 gap-y-1 text-xs text-(--color-tinta-2)">
+          <span className="flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ background: color, opacity: 0.28 }}
+            />
+            <span className="cifra">{formatearMoneda(balance.gastadoFijo, viaje.moneda)}</span>{" "}
+            pagados antes de salir
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="inline-block h-2 w-2 shrink-0 rounded-full"
+              style={{ background: color }}
+            />
+            <span className="cifra">{formatearMoneda(balance.gastadoVariable, viaje.moneda)}</span>{" "}
+            del día a día
+          </span>
         </p>
       )}
     </div>
