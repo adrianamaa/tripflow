@@ -66,6 +66,13 @@ export function RegistrarGasto({
   const [error, setError] = useState<string | null>(null);
   const campoMonto = useRef<HTMLInputElement>(null);
 
+  // Este formulario vive montado DOS VECES a la vez: en el tablero y dentro
+  // del diálogo de editar. Con ids fijos, `document` tenía dos `#monto` y las
+  // dos etiquetas apuntaban al campo del tablero — el del diálogo quedaba sin
+  // nombre accesible y el lector de pantalla anunciaba el placeholder como si
+  // fuera la etiqueta. El prefijo hace únicos los ids de la instancia.
+  const pref = editando ? "editar-" : "";
+
   // El foco al montar sirve para que registrar un gasto empiece escribiendo el
   // monto, sin un toque previo. Pero `focus()` a secas hace que el navegador
   // desplace la página hasta el campo: al abrir la app aparecías a media
@@ -143,11 +150,11 @@ export function RegistrarGasto({
           ocurre en su propio diálogo, cuyo encabezado ya lo dice: un letrero
           que repite el título es ruido. */}
       <div className="flex flex-col gap-1">
-        <label htmlFor="monto" className="rotulo">
+        <label htmlFor={`${pref}monto`} className="rotulo">
           Cuánto gastaste
         </label>
         <CampoMonto
-          id="monto"
+          id={`${pref}monto`}
           ref={campoMonto}
           // Dentro de un diálogo, `showModal()` manda el foco al primer elemento
           // enfocable —que sería el botón de cerrar— y pisaría cualquier foco
@@ -161,11 +168,11 @@ export function RegistrarGasto({
           // puesto, no un ejemplo. Con el símbolo fijo adelante, «$ 0» es
           // inequívocamente un campo vacío.
           placeholder="0"
-          aria-describedby={error ? "monto-error" : undefined}
+          aria-describedby={error ? `${pref}monto-error` : undefined}
           className="cifra-dato text-3xl"
         />
         {error && (
-          <p id="monto-error" role="alert" className="m-0 text-sm text-(--color-excedido)">
+          <p id={`${pref}monto-error`} role="alert" className="m-0 text-sm text-(--color-excedido)">
             {error}
           </p>
         )}
@@ -200,54 +207,27 @@ export function RegistrarGasto({
         </div>
       </fieldset>
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          className="ancho-medio rounded-(--radius-accion) bg-(--color-acento) px-5 py-2.5 text-[15px] text-(--color-sobre-acento) hover:brightness-95 active:brightness-90"
-        >
-          {editando ? "Guardar cambios" : "Registrar"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setMasCampos((v) => !v)}
-          aria-expanded={masCampos}
-          className="ancho-ui flex items-center gap-1.5 rounded-(--radius-accion) border border-(--color-filete) px-3 py-1.5 text-[13px] text-(--color-tinta-2) hover:border-(--color-tinta) hover:text-(--color-tinta)"
-        >
-          <span
-            aria-hidden="true"
-            className="inline-block transition-transform"
-            style={{ transform: masCampos ? "rotate(90deg)" : "none" }}
-          >
-            ›
-          </span>
-          Fecha, nota y más
-        </button>
-        {editando && (
-          <button
-            type="button"
-            onClick={onListo}
-            className="text-sm text-(--color-tinta-2) underline underline-offset-2"
-          >
-            Cancelar
-          </button>
-        )}
-      </div>
-
+      {/* El panel expandido va ANTES de los botones. Estaba después, y en el
+          diálogo de editar —donde llega abierto— el «Guardar cambios» quedaba
+          por ENCIMA de la nota, la fecha y la casilla: el ojo terminaba el
+          formulario en el botón primario y los campos de abajo se quedaban
+          fuera del recorrido. El botón que guarda cierra el formulario, no lo
+          parte por la mitad. */}
       {masCampos && (
         <div className="flex flex-col gap-3 rounded-(--radius-chip) bg-(--color-papel) p-3">
           <div className="flex flex-col gap-1">
-            <label htmlFor="desc" className="rotulo">
-              Descripción
+            <label htmlFor={`${pref}desc`} className="rotulo">
+              Nota
             </label>
             <input
-              id="desc"
+              id={`${pref}desc`}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Almuerzo en Getsemaní"
               className="campo-linea"
             />
           </div>
-          <Calendario id="fecha" etiqueta="Cuándo" valor={fecha} onCambio={setFecha} />
+          <Calendario id={`${pref}fecha`} etiqueta="Cuándo" valor={fecha} onCambio={setFecha} />
           {/**
             * La casilla dibujada.
             *
@@ -281,6 +261,42 @@ export function RegistrarGasto({
           </label>
         </div>
       )}
+
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          className="ancho-medio rounded-(--radius-accion) bg-(--color-acento) px-5 py-2.5 text-[15px] text-(--color-sobre-acento) hover:brightness-95 active:brightness-90"
+        >
+          {editando ? "Guardar cambios" : "Registrar"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMasCampos((v) => !v)}
+          aria-expanded={masCampos}
+          className="ancho-ui flex items-center gap-1.5 rounded-(--radius-accion) border border-(--color-filete) px-3 py-1.5 text-[13px] text-(--color-tinta-2) hover:border-(--color-tinta) hover:text-(--color-tinta)"
+        >
+          <span
+            aria-hidden="true"
+            className="inline-block transition-transform"
+            style={{ transform: masCampos ? "rotate(90deg)" : "none" }}
+          >
+            ›
+          </span>
+          Fecha, nota y más
+        </button>
+        {/* La misma píldora fantasma del Cancelar de ajustar el tope. Era el
+            único texto subrayado de toda la app: un lenguaje de enlace que
+            ningún otro control usa. */}
+        {editando && (
+          <button
+            type="button"
+            onClick={onListo}
+            className="ancho-ui rounded-(--radius-accion) px-3 py-2 text-sm text-(--color-tinta-2) hover:text-(--color-tinta)"
+          >
+            Cancelar
+          </button>
+        )}
+      </div>
     </form>
   );
 }
