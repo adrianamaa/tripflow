@@ -166,17 +166,25 @@ export function ListaDeGastos({
                   320px la descripción se quedaba con 42px —«Tour a Islas del
                   Rosario» se leía «Tour…»— porque las acciones reservan 104px
                   fijos y en pantalla táctil están siempre visibles. */}
-              {delDia.map((g) => (
+              {delDia.map((g) => {
+                // Guardar sin descripción escribe la categoría como descripción
+                // —es el camino rápido que el formulario promete—, y la fila
+                // decía «Comida» arriba y «comida» abajo. Una línea que repite
+                // la de encima no es información, es eco.
+                const repetida = g.descripcion.trim().toLowerCase() === g.categoria.toLowerCase();
+                return (
                 <li
                   key={g.id}
                   className="fila -mx-2.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 px-2.5 py-2 sm:grid-cols-[minmax(0,1fr)_auto_104px]"
                 >
                   <div className="min-w-0">
                     <p className="ancho-ui m-0 truncate text-[15px]">{g.descripcion}</p>
-                    <p className="m-0 truncate text-[13px] text-(--color-tinta-2) capitalize">
-                      {g.categoria}
-                      {g.fueraDelRitmo && " · pago único"}
-                    </p>
+                    {(!repetida || g.fueraDelRitmo) && (
+                      <p className="m-0 truncate text-[13px] text-(--color-tinta-2) capitalize">
+                        {!repetida && g.categoria}
+                        {g.fueraDelRitmo && (repetida ? "pago único" : " · pago único")}
+                      </p>
+                    )}
                   </div>
 
                   {/* A la derecha, como en cualquier hoja de cálculo: permite
@@ -207,7 +215,8 @@ export function ListaDeGastos({
                     </button>
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </section>
         );
