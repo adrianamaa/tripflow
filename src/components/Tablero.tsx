@@ -227,9 +227,11 @@ export function Tablero() {
     return (
       <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-5 px-5 sm:px-8">
         <Marca tamano={32} />
+        {/* «Anota» deshace el eco gastar/gastes, y «la plata» le pone sujeto
+            a «se acabe» — ¿se acababa qué, la plata o el viaje? */}
         <p className="m-0 text-lg leading-relaxed text-(--color-tinta-2)">
-          Define cuánto puedes gastar en un viaje y registra lo que gastes. La app te avisa antes de
-          que se acabe, no después.
+          Define cuánto puedes gastar en un viaje y anota lo que gastes. La app te avisa antes de que
+          se acabe la plata, no después.
         </p>
         <button
           type="button"

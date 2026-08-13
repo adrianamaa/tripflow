@@ -139,11 +139,15 @@ export function ListaDeGastos({
     return (
       <div className="flex flex-col gap-3">
         {avisoDeshacer}
+        {/* La alerta de al lado ya promete «acá te digo si tu ritmo te
+            alcanza» — este texto decía LO MISMO, en el mismo pantallazo, pero
+            en tercera persona («la app no puede decirte»). Dos voces para una
+            promesa repetida. Ahora este cuenta lo suyo: qué va a aparecer acá. */}
         <div className="tarjeta flex flex-col items-start gap-1 sm:p-7">
           <p className="ancho-medio m-0">Todavía no has registrado nada</p>
           <p className="m-0 max-w-[42ch] text-sm leading-relaxed text-(--color-tinta-2)">
-            El primer gasto que anotes empieza a construir tu ritmo diario. Hasta entonces la app no
-            puede decirte si vas bien.
+            Los gastos que anotes aparecen acá, agrupados por día. Con el primero empiezo a calcular
+            tu ritmo.
           </p>
         </div>
       </div>

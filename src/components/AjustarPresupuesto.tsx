@@ -70,8 +70,12 @@ export function AjustarPresupuesto({
         <span className="cifra text-(--color-tinta)">
           {formatearMoneda(Math.max(0, nuevoDiario), viaje.moneda)}
         </span>{" "}
-        por día durante los {balance.diasRestantes}{" "}
-        {balance.diasRestantes === 1 ? "día" : "días"} que faltan
+        {/* El ternario cubre la frase entera: ajustar solo el sustantivo
+            imprimía «durante los 1 día que faltan» el último día del viaje. */}
+        por día{" "}
+        {balance.diasRestantes === 1
+          ? "durante el día que falta"
+          : `durante los ${balance.diasRestantes} días que faltan`}
         {diferencia !== 0 && (
           <>
             {" "}—{" "}

@@ -146,7 +146,10 @@ function Ritmos({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
   return (
     <dl className="m-0 mt-1 grid grid-cols-2 gap-x-4 gap-y-1 border-t border-(--color-filete) pt-3">
       <dt className="rotulo m-0">Vas gastando</dt>
-      <dt className="rotulo m-0">{excedido ? "Te quedaban" : "Te alcanzan"}</dt>
+      {/* «Te quedan», presente: el monto de abajo es el $0 de AHORA, y
+          «quedaban $0» además nunca fue cierto — quedaba algo hasta que se
+          acabó. Paralelo con «Te alcanzan», la otra rama del mismo ternario. */}
+      <dt className="rotulo m-0">{excedido ? "Te quedan" : "Te alcanzan"}</dt>
       <dd className="cifra m-0 text-[17px]">{m(balance.ritmoReal ?? 0)}<span className="ancho-ui text-xs text-(--color-tinta-2)"> /día</span></dd>
       <dd className="cifra m-0 text-[17px]">
         {m(Math.max(0, balance.diarioDisponible))}
@@ -184,8 +187,11 @@ export function Alerta({
    * no queda nada que corregir — por eso tampoco ofrece ajustar el tope.
    */
   if (balance.terminado) {
+    // «Terminado», no «cerrado»: la banda de al lado dice «El viaje terminó»
+    // y el propio cuerpo de este panel dice «Terminaste con…» — un estado,
+    // un verbo.
     return (
-      <Panel {...neutro} icono={<PuntoNeutro />} titulo="Viaje cerrado">
+      <Panel {...neutro} icono={<PuntoNeutro />} titulo="Viaje terminado">
         <p className="m-0 text-sm leading-relaxed text-(--color-tinta-2)">
           {balance.sobrante >= 0 ? (
             <>
@@ -292,10 +298,16 @@ function explicar(
     // tiene días suficientes para calcularlo, y prometer una fecha ahí sería
     // inventarla.
     if (balance.porConsumo && !seAcaba) {
+      // «Aún te faltan» y no «todavía te quedan»: quedar encuadra los días
+      // como alivio, cuando el problema es justo ese — falta viaje y queda
+      // poca plata. Es una alerta, no una buena noticia.
       return (
         <>
-          Llevas gastado el {Math.round(balance.consumido * 100)}% del presupuesto y todavía te
-          quedan {balance.diasRestantes} {balance.diasRestantes === 1 ? "día" : "días"}.
+          Llevas gastado el {Math.round(balance.consumido * 100)}% del presupuesto y aún{" "}
+          {balance.diasRestantes === 1
+            ? "te falta 1 día"
+            : `te faltan ${balance.diasRestantes} días`}{" "}
+          de viaje.
           {culpable && <> Del día a día, lo que más pesa es {culpable.categoria}.</>}
         </>
       );
@@ -328,5 +340,7 @@ function explicar(
 
   // El estado bueno también habla: el silencio no confirma nada, y una app que
   // solo aparece cuando algo va mal se siente como un regaño esperando turno.
-  return <>Tu ritmo te alcanza para llegar al {diaCorto(viaje.fin)} sin quedarte corta.</>;
+  // «Sin apuros» y no «sin quedarte corta»: era la única palabra con género de
+  // toda la interfaz, en la frase del pantallazo por defecto.
+  return <>Tu ritmo te alcanza para llegar al {diaCorto(viaje.fin)} sin apuros.</>;
 }

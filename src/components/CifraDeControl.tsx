@@ -28,8 +28,10 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
         <p className="cifra-hero m-0 mt-1 text-5xl">
           {conSigno(balance.sobrante, viaje.moneda)}
         </p>
+        {/* «Gastaste de más», el par natural de «te sobraron». «Por este
+            valor» era registro de extracto bancario en una app que tutea. */}
         <p className="m-0 mt-1 text-sm text-(--color-tinta-2)">
-          {balance.sobrante >= 0 ? "te sobraron" : "te pasaste por este valor"}
+          {balance.sobrante >= 0 ? "te sobraron" : "gastaste de más"}
         </p>
       </div>
     );
@@ -41,8 +43,12 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
 
   return (
     <div>
+      {/* «Del tope»: la regla de la app es «tope» para el límite que se fija
+          y «presupuesto» para la plata que se consume. Dos líneas más abajo
+          la misma cifra se llama tope; este rótulo era el único que la
+          rompía. */}
       <p className="rotulo m-0">
-        {excedido ? "Te pasaste del presupuesto" : "Puedes gastar por día"}
+        {excedido ? "Te pasaste del tope" : "Puedes gastar por día"}
       </p>
       <p
         className="cifra-hero m-0 mt-1 text-5xl leading-none sm:text-6xl"

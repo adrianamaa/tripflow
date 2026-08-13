@@ -172,7 +172,10 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="adelantado" className={etiqueta}>Ya pagaste algo (opcional)</label>
+        {/* Sintagma, no pregunta de sí/no: los demás rótulos son
+            interrogativas indirectas que funcionan sin signos («A dónde vas»,
+            «Cuánto puedes gastar»); «Ya pagaste algo» exigía sus «¿?». */}
+        <label htmlFor="adelantado" className={etiqueta}>Lo que ya pagaste (opcional)</label>
         {/* El marcador decía «Hotel, vuelos» en un campo de números con teclado
             decimal: pedía texto y esperaba una cifra. */}
         <CampoMonto id="adelantado" valor={adelantado} onCambio={setAdelantado}

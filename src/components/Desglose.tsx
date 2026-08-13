@@ -80,7 +80,10 @@ export function Desglose({
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="rotulo m-0">En qué se va</h2>
+      {/* «…la plata»: el formulario de al lado pregunta «En qué» (la
+          categoría de UN gasto) y este título decía casi lo mismo para otra
+          cosa. En móvil quedan apilados a una tarjeta de distancia. */}
+      <h2 className="rotulo m-0">En qué se va la plata</h2>
 
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
         {filas.map(([categoria, monto], i) => (
