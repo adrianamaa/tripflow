@@ -36,8 +36,10 @@
  */
 
 type Props = {
-  /** Lado en píxeles. El trazo NO se reescala: a tamaños distintos el peso
-      óptico cambia, y por eso el set se usa a 16 salvo excepción justificada. */
+  /** Lado en píxeles. 16 es la base de la retícula; en la práctica cada icono
+      se ajusta a la caja del control donde vive (14–17). El trazo NO se
+      reescala con el tamaño, así que en ese rango el peso óptico se mantiene;
+      por fuera de él habría que redibujar. */
   tamano?: number;
   className?: string;
 };

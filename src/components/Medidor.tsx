@@ -89,15 +89,12 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
         *
         * Ha estado en los dos extremos y los dos estaban mal. Dentro de la
         * pista, dibujada como un hueco claro, se leía como que la barra estaba
-        * partida. Fuera de la pista, apoyada encima, dejaba de pertenecerle a la
-        * barra —una marquita suelta— y además quedaba en tinta sobre una barra
-        * de tinta, o sea casi invisible.
+        * partida. Fuera de la pista, apoyada encima, dejaba de pertenecerle a
+        * la barra — una marquita suelta. Cruzándola, se lee como lo que es:
+        * una referencia externa contra la que se compara el relleno.
         *
-        * Lo que resuelve las dos cosas es el halo: un trazo claro un poco más
-        * ancho con el trazo oscuro adentro. Sobre el relleno negro se ve por el
-        * halo; sobre la pista clara se ve por el núcleo. Y como sobresale doce
-        * píxeles más que la pista, se lee como una referencia que la atraviesa y
-        * no como un corte en ella.
+        * El color con el que se ve sobre los dos fondos a la vez no se eligió,
+        * se despejó — esa historia está en el comentario de la señal, abajo.
         */}
       <div className="relative py-1.5">
         <div
@@ -162,9 +159,9 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
             le dice nada a quien no sabe qué es una muesca. */}
         {hayMarca && (
           <span className="ancho-densa flex items-center gap-1.5 whitespace-nowrap">
-            {/* La muestra repite la señal completa —halo y núcleo— y no solo el
-                núcleo: si la leyenda no se parece a lo que hay en la barra, no
-                sirve de leyenda. */}
+            {/* La muestra repite la señal tal cual se dibuja —el mismo trazo,
+                el mismo color— y no un símbolo aparte: si la leyenda no se
+                parece a lo que hay en la barra, no sirve de leyenda. */}
             <span
               aria-hidden="true"
               className="inline-block h-3.5 w-1 shrink-0 rounded-full bg-(--color-marca-media)"

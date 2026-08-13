@@ -11,7 +11,8 @@ Reto técnico para Alegra — Adriana Forero, agosto de 2026.
 
 ## Cómo correrlo
 
-Requiere Node 20 o superior.
+Requiere **Node 22.6 o superior** — las pruebas corren TypeScript directo con
+`--experimental-strip-types`, que existe desde esa versión.
 
 ```bash
 npm install
@@ -22,7 +23,7 @@ No hace falta configurar nada: ni variables de entorno, ni base de datos, ni cue
 dos viajes de ejemplo cargados para que se pueda usar de inmediato.
 
 ```bash
-npm test         # 18 pruebas del motor de presupuesto
+npm test         # 18 pruebas: motor de presupuesto y formato de moneda
 npm run build    # build de producción
 npx eslint src   # linter
 ```

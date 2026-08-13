@@ -9,9 +9,10 @@ import "./globals.css";
  * variable y trae dos ejes en un solo archivo: peso y ANCHO.
  *
  * Ese segundo eje es la decisión de sistema: **la jerarquía la carga el ancho,
- * no el peso ni el tamaño**. Tres anchos —78, 100, 118— dan escalones
+ * no el peso ni el tamaño**. Tres anchos —80, 100, 116— dan escalones
  * intermedios sin sumar tamaños ni pesos, que es justo lo que le falta a una
- * pantalla donde todo compite en el mismo plano.
+ * pantalla donde todo compite en el mismo plano. Los valores exactos de cada
+ * rol viven en las clases `.ancho-*` de globals.css.
  *
  * Y para el dinero está verificada en el binario: su `tnum` deja los diez
  * dígitos del mismo ancho, y —esto es lo decisivo acá— **no ensancha el punto

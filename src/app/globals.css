@@ -38,12 +38,10 @@
   --color-tinta-3: #a3a09d;
 
   /* ── La marca ───────────────────────────────────────────────────────────
-   * Petróleo. Es el único color de la app que puede ser TEXTO: 7.50:1 sobre
+   * Oliva profundo: la punta oscura de la familia de la lima, no un color
+   * aparte. Es el único color de la app que puede ser TEXTO: 10.16:1 sobre
    * blanco, medido, no estimado. Por eso carga la identidad —logo, cabecera,
    * iconos— sin pedir una excepción de contraste en ningún lado.
-   *
-   * Se eligió azulado a propósito. El verde amarillento oscuro es el territorio
-   * de la categoría, y el azul índigo es el de todo lo demás que cobra plata.
    *
    * Dónde NO va: en los datos. Una cifra de dinero se lee en tinta. Si la marca
    * se mete en los números, el color deja de significar «esto es Tripflow» y
@@ -91,18 +89,15 @@
   --color-sobre-acento: #0c0a08;
 
   /* ── Estados ────────────────────────────────────────────────────────────
-   * Lo que los ordena no es el matiz sino
-   * la claridad, que baja con la gravedad: L* 46.9 → 34.5 → 24.1. El par que
-   * de verdad se confunde no es verde-rojo sino ámbar-rojo —los dos casi no
-   * tienen azul— y quien no distingue colores los separa por claridad.
+   * El tono sale de la convención de seguridad: ámbar advierte, rojo marca el
+   * límite pasado. El porqué del valor exacto está en el bloque de abajo y en
+   * docs/04-color.md. El par que de verdad se confunde no es verde-rojo sino
+   * ámbar-rojo —los dos casi no tienen azul—, y por eso ningún estado se
+   * comunica solo con color: siempre llevan icono y palabra.
    *
-   * ⚠️ Medidos sobre BLANCO: 5.02 · 7.94 · 11.48. Sobre el papel cálido la
-   * escalera se aplana hasta volverse indistinguible, así que los estados
-   * viven siempre dentro de una tarjeta blanca. Nunca sobre el papel.
-   *
-   * Los fondos son el par pálido de cada tono, medidos con su texto
-   * encima: 7.24:1 y 10.33:1. Estaban escritos a mano dentro de un componente,
-   * que es justo lo que esta hoja prohíbe.
+   * ⚠️ Medidos con su texto sobre su fondo: cuidado 5.54:1, excedido 5.74:1.
+   * Los estados viven siempre dentro de una tarjeta blanca, nunca sobre el
+   * papel cálido, donde cualquier escalera de claridad se aplana.
    */
   /* No hay `--color-bien`: el estado bueno usa la marca.
      Tenerlo aparte significaba un tercer verde, en 140°, que en pantalla se
