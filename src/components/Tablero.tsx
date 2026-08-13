@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Gasto } from "@/lib/types.ts";
+import { useState } from "react";
+import type { Balance, Gasto, Viaje } from "@/lib/types.ts";
 import { useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
 import { diaLargo } from "@/lib/fechas.ts";
@@ -127,25 +127,77 @@ function Esqueleto() {
   );
 }
 
+/**
+ * La banda de resumen, con el panel de ajustar el tope adentro.
+ *
+ * Es un componente aparte por una razón de seguridad, no de orden: el estado
+ * «panel abierto» vive ACÁ, y el Tablero monta esta banda con `key={viaje.id}`.
+ * Cambiar de viaje desmonta y remonta la banda, así que el panel se cierra y
+ * su formulario nunca puede quedar cargado con el tope del viaje anterior —
+ * que era una pérdida de datos: guardar se lo escribía al viaje nuevo.
+ *
+ * La primera versión de este arreglo limpiaba el estado con un efecto; React
+ * tiene nombre para ese antipatrón (`set-state-in-effect`) y su alternativa
+ * oficial es esta: si un estado depende de la identidad de un dato, se ata el
+ * ciclo de vida del componente a esa identidad con `key`.
+ */
+function ResumenViaje({
+  viaje,
+  balance,
+  gastos,
+}: {
+  viaje: Viaje;
+  balance: Balance;
+  gastos: Gasto[];
+}) {
+  const [ajustando, setAjustando] = useState(false);
+
+  return (
+    <section className="tarjeta mb-6 sm:p-7">
+      <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
+        <div className="flex flex-col gap-6">
+          <CifraDeControl viaje={viaje} balance={balance} />
+          <Medidor viaje={viaje} balance={balance} />
+        </div>
+
+        {/* Centrada: la columna de palabras es más corta que la de cifras, y
+            anclada arriba dejaba un vacío debajo que se leía como algo que
+            falta. Centrada, el aire queda repartido y parece decidido. */}
+        <div className="flex flex-col justify-center gap-4">
+          <Alerta
+            viaje={viaje}
+            balance={balance}
+            gastos={gastos}
+            onAjustar={() => setAjustando(true)}
+          />
+          {ajustando && (
+            <AjustarPresupuesto
+              viaje={viaje}
+              balance={balance}
+              // El foco vuelve al botón que abrió el panel. Sin esto se
+              // quedaba en `body` al cerrar, y quien navega con teclado tenía
+              // que tabular desde el principio del documento.
+              onCerrar={() => {
+                setAjustando(false);
+                requestAnimationFrame(() =>
+                  document.getElementById("boton-ajustar")?.focus(),
+                );
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function Tablero() {
   const { viajes, gastos, viajeActivoId } = useEstado();
   const hidratado = useHidratado();
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Gasto | null>(null);
-  // Guarda PARA QUÉ viaje se abrió el panel, no solo que está abierto. Con un
-  // booleano, cambiar de viaje con el panel abierto dejaba el formulario cargado
-  // con el tope del viaje anterior, y guardar se lo escribía al viaje nuevo —
-  // pérdida de datos sin confirmación y sin deshacer.
-  const [ajustando, setAjustando] = useState<string | null>(null);
 
   const viaje = viajes.find((v) => v.id === viajeActivoId) ?? viajes[0] ?? null;
-  const viajeId = viaje?.id ?? null;
-
-  // Cambiar de viaje cierra el panel del todo: si quedara el id viejo guardado,
-  // volver a ese viaje lo reabriría solo, sin que nadie lo pidiera.
-  useEffect(() => {
-    setAjustando((a) => (a !== null && a !== viajeId ? null : a));
-  }, [viajeId]);
 
   // Antes de hidratar no se sabe si hay viajes: el almacén vive en el
   // navegador. Pintar la bienvenida acá sería afirmar que no hay nada.
@@ -221,47 +273,10 @@ export function Tablero() {
       </header>
 
       {/* ── PLANO 1 · el resumen ─────────────────────────────────────────────
-          Cifras a la izquierda, palabras a la derecha. */}
-      <section className="tarjeta mb-6 sm:p-7">
-        <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
-          <div className="flex flex-col gap-6">
-            <CifraDeControl viaje={viaje} balance={balance} />
-            <Medidor viaje={viaje} balance={balance} />
-          </div>
-
-          {/* Centrada: la columna de palabras es más corta que la de cifras, y
-              anclada arriba dejaba un vacío debajo que se leía como algo que
-              falta. Centrada, el aire queda repartido y parece decidido. */}
-          <div className="flex flex-col justify-center gap-4">
-            <Alerta
-              viaje={viaje}
-              balance={balance}
-              gastos={delViaje}
-              onAjustar={() => setAjustando(viaje.id)}
-            />
-            {/* Solo se pinta si el panel se abrió para ESTE viaje, y `key` lo
-                remonta si el viaje cambia: dos barreras para que el formulario
-                nunca muestre el tope de un viaje sobre otro. El mismo patrón
-                que ya usa <RegistrarGasto> más abajo. */}
-            {ajustando === viaje.id && (
-              <AjustarPresupuesto
-                key={viaje.id}
-                viaje={viaje}
-                balance={balance}
-                // El foco vuelve al botón que abrió el panel. Sin esto se
-                // quedaba en `body` al cerrar, y quien navega con teclado tenía
-                // que tabular desde el principio del documento.
-                onCerrar={() => {
-                  setAjustando(null);
-                  requestAnimationFrame(() =>
-                    document.getElementById("boton-ajustar")?.focus(),
-                  );
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </section>
+          Cifras a la izquierda, palabras a la derecha. La `key` no es adorno:
+          reinicia el estado interno de la banda (el panel de ajustar el tope)
+          al cambiar de viaje. */}
+      <ResumenViaje key={viaje.id} viaje={viaje} balance={balance} gastos={delViaje} />
 
       {/* ── PLANO 2 · el detalle ───────────────────────────────────────────── */}
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">

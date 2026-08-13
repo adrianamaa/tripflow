@@ -46,3 +46,92 @@ fundamento de ninguna decisión.**
 
 Lo dejo escrito porque es exactamente el tipo de error que hay que atrapar: la IA construye rápido
 sobre lo que uno le da, y si uno le da una anécdota, le devuelve una anécdota bien argumentada.
+
+---
+
+### 12 de agosto — La primera pantalla, revisada a mano
+
+**Qué pedí:** la primera versión completa del tablero, con las tres funcionalidades.
+
+**Qué devolvió:** una pantalla que funcionaba y que a primera vista se veía bien.
+
+**Qué ajusté yo:** la revisé y encontré siete problemas que la IA no había reportado: los datos eran
+difíciles de leer, no se sabía dónde enfocarse, las etiquetas de categoría no se diferenciaban, el
+conmutador de «más campos» era casi imperceptible, no se veía que hubiera varios viajes hasta hacer
+clic en el selector, y editar y borrar eran confusos. Los siete apuntaban a lo mismo: **había
+información pero no había jerarquía.** De ese diagnóstico salió la redistribución de la pantalla en
+dos planos —el resumen en una banda de ancho completo, el detalle en dos columnas— y que el
+formulario de registrar subiera, porque en 1440×900 quedaba debajo del pliegue.
+
+---
+
+### 12 de agosto — Tres verdes que no eran un sistema
+
+**Qué encontré yo:** el calendario tenía un verde, los estados otro y la marca otro. No parecía que
+hubiera un sistema de color alrededor de la app. Medidos, estaban en 76°, 140° y 176° de tono — cien
+grados entre el primero y el último.
+
+**Qué pedí:** un solo sistema, con cada color medido y con rol escrito.
+
+**Qué devolvió:** una familia de un solo tono (74–76°) en tres claridades, con el contraste de cada
+par calculado y no estimado. La marca de ritmo del medidor no se eligió a ojo: cruza dos fondos
+opuestos, así que se despejó el rango de luminancia que pasa 3:1 contra ambos y se buscó el color
+dentro de esa ventana.
+
+**Qué ajusté yo:** rechacé dos versiones de esa marca antes de la definitiva — una se leía como una
+línea resaltada, no como una señal. También pregunté qué significaba la línea del medidor y la
+respuesta destapó que estaba dibujada en un sitio que no correspondía con el dato: se rehizo el
+componente.
+
+---
+
+### 12 de agosto — El calendario nativo mentía
+
+**Qué encontré yo:** los campos de fecha se veían fuera del sistema, sin diseñar.
+
+**Qué devolvió al revisarlo:** el problema era peor que estético. `<input type="date">` mostraba
+`08/12/2026` — formato gringo — y en Colombia eso se lee 8 de diciembre, no 12 de agosto. Un error
+de correctitud disfrazado de detalle visual.
+
+**Qué ajusté yo:** aprobé construir un calendario propio que escribe «12 ago 2026», sin ambigüedad,
+con teclado completo (flechas, Re/Av Pág, Enter, Esc).
+
+---
+
+### 13 de agosto — Los detalles que hacen que se sienta una app
+
+**Qué pedí:** tres cosas concretas, cada una con su referencia. Que la plata se formatee mientras se
+escribe, como en las apps de banco de acá. Que el destino se sugiera mientras se escribe, como en los
+buscadores de vuelos. Y que editar un gasto pase a un diálogo, porque editar en el mismo formulario
+de registrar no corresponde con el modelo mental: registrar y corregir son momentos distintos.
+
+**Qué devolvió:** el formato en vivo con el cursor recolocado contando dígitos (no caracteres, que es
+lo que lo vuelve insoportable en la mayoría de apps), un autocompletado local de ~110 destinos sin
+llamadas de red, y el diálogo nativo con foco y Esc resueltos por el navegador.
+
+**Qué ajusté yo:** con el autocompletado puesto, caí en cuenta de que los dos campos de destino
+—«A dónde vas» y «Destino completo»— quedaron rellenándose solos con casi lo mismo: se fundieron en
+uno y el recorte quedó anotado en el alcance. También moví la flecha de volver a la izquierda, donde
+el ojo la busca en una pantalla de segundo nivel.
+
+---
+
+### 13 de agosto — Crítica en frío y un error grave
+
+**Qué pedí:** una crítica de todo lo construido, con varios lentes a la vez —producto, accesibilidad,
+consistencia visual, código— y con la instrucción de intentar refutar cada hallazgo antes de
+reportarlo.
+
+**Qué devolvió:** un error grave y cuatro menores. El grave: abrir el panel de ajustar el tope en un
+viaje y cambiar a otro viaje sin cerrarlo dejaba el formulario cargado con el tope del viaje
+anterior — guardar se lo escribía al viaje equivocado, sin confirmación y sin deshacer. Los menores:
+una fila que repetía «Comida» como título y subtítulo al guardar sin descripción, la alerta nombrando
+dos veces la misma fecha cuando la plata se acaba justo el último día, el error de validación de
+crear viaje que no decía cuál campo falló, y este mismo documento con el registro atrasado.
+
+La refutación también descartó falsos positivos: los objetivos táctiles de 24px cumplen el nivel AA
+(44px es AAA), y el revelar acciones al pasar el puntero es comportamiento decidido, no descuido —
+en pantalla táctil están siempre visibles.
+
+**Qué ajusté yo:** verifiqué el repro del error grave antes de aceptar el arreglo, y se corrigieron
+los cinco.
