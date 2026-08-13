@@ -316,7 +316,7 @@ export function Tablero() {
               como un rectángulo blanco vacío en mitad de la columna. */}
           {delViaje.length > 0 && (
             <div className="tarjeta">
-              <Desglose viaje={viaje} gastos={delViaje} />
+              <Desglose viaje={viaje} gastos={delViaje} estado={balance.estado} />
             </div>
           )}
         </div>

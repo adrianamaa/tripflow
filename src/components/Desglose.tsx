@@ -1,7 +1,8 @@
 "use client";
 
-import type { Gasto, Viaje } from "@/lib/types.ts";
+import type { Estado, Gasto, Viaje } from "@/lib/types.ts";
 import { formatearMoneda } from "@/lib/moneda.ts";
+import { categoriaCulpable } from "@/lib/presupuesto.ts";
 
 /**
  * En qué se va la plata.
@@ -40,7 +41,15 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  * Porque la barra ya es el porcentaje. Monto, longitud y porcentaje son la
  * misma información tres veces, y el resultado es que ninguna se lee.
  */
-export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
+export function Desglose({
+  viaje,
+  gastos,
+  estado,
+}: {
+  viaje: Viaje;
+  gastos: Gasto[];
+  estado: Estado;
+}) {
   if (gastos.length === 0) return null;
 
   const porCategoria = new Map<string, number>();
@@ -50,6 +59,24 @@ export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
 
   const filas = [...porCategoria.entries()].sort((a, b) => b[1] - a[1]);
   const mayor = filas[0][1];
+
+  /**
+   * A quién se destaca depende del estado del viaje, y no es decoración:
+   *
+   * En «vas bien», la mayor por total, en el color de la marca — la lectura
+   * neutra de «en qué se ha ido más».
+   *
+   * En cuidado/excedido, EL MISMO culpable que nombra la alerta, en el color
+   * del estado. Antes acá se destacaba la mayor por total (pagos únicos
+   * incluidos) en verde de marca, así que con la alerta diciendo «lo que más
+   * pesa es comida» el gráfico señalaba Alojamiento —el hotel ya pagado,
+   * sobre el que no hay nada que regular— y lo pintaba del color de lo
+   * bueno. Dos respuestas distintas a «¿qué pesa más?» en el mismo vistazo,
+   * y la equivocada en positivo. `categoriaCulpable` excluye los pagos
+   * únicos a propósito: es la misma fuente que usa la alerta.
+   */
+  const culpable = estado !== "bien" ? (categoriaCulpable(gastos, viaje.id)?.categoria ?? null) : null;
+  const colorDestacada = estado === "excedido" ? "bg-(--color-excedido)" : "bg-(--color-cuidado)";
 
   return (
     <section className="flex flex-col gap-3">
@@ -68,7 +95,13 @@ export function Desglose({ viaje, gastos }: { viaje: Viaje; gastos: Gasto[] }) {
             <div className="h-2 w-full overflow-hidden rounded-full bg-(--color-reposo)">
               <div
                 className={`h-full rounded-full ${
-                  i === 0 ? "bg-(--color-marca)" : "bg-(--color-tinta-2)"
+                  culpable
+                    ? categoria === culpable
+                      ? colorDestacada
+                      : "bg-(--color-tinta-2)"
+                    : i === 0
+                      ? "bg-(--color-marca)"
+                      : "bg-(--color-tinta-2)"
                 }`}
                 style={{ width: `${(monto / mayor) * 100}%` }}
               />
