@@ -61,7 +61,15 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  */
 const CLARIDAD_ADELANTADO = 0.5;
 
-export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
+export function Medidor({
+  viaje,
+  balance,
+  onAjustar,
+}: {
+  viaje: Viaje;
+  balance: Balance;
+  onAjustar?: () => void;
+}) {
   const tope = viaje.presupuesto;
   const pct = (n: number) => Math.min(100, Math.max(0, (n / tope) * 100));
 
@@ -147,12 +155,40 @@ export function Medidor({ viaje, balance }: { viaje: Viaje; balance: Balance }) 
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs text-(--color-tinta-2)">
-        <span>
+        <span className="flex flex-wrap items-baseline gap-x-1">
           <span className="cifra text-(--color-tinta)">
             {formatearMoneda(balance.gastadoTotal, viaje.moneda)}
-          </span>{" "}
-          de <span className="cifra">{formatearMoneda(tope, viaje.moneda)}</span>
-          <span className="cifra"> · {consumido}%</span>
+          </span>
+          <span>de</span>
+          {/**
+            * El tope se edita donde se lee.
+            *
+            * Antes la única puerta al panel de ajustar era el botón de la
+            * alerta, que solo existe en «cuidado» y «excedido» — y el error que
+            * más necesita corrección, un tope escrito DE MÁS, es justo el que
+            * nunca enciende la alerta: los umbrales se calculan sobre el tope
+            * equivocado. Un falso «vas bien» permanente e incorregible.
+            *
+            * Las apps de presupuesto que se revisaron (Trail Wallet, YNAB,
+            * Copilot, Monzo) dejan editar el presupuesto en cualquier momento
+            * desde una entrada permanente; YNAB lo tiene hasta como regla del
+            * método. El atajo de la alerta se queda — ajustar en el momento
+            * del dolor es buen patrón — pero deja de ser la única puerta.
+            */}
+          {onAjustar ? (
+            <button
+              type="button"
+              id="boton-tope"
+              onClick={onAjustar}
+              aria-label={`Ajustar el tope del viaje, hoy ${formatearMoneda(tope, viaje.moneda)}`}
+              className="cifra rounded-(--radius-chip) underline decoration-(--color-tinta-3) decoration-dotted underline-offset-2 hover:text-(--color-tinta) hover:decoration-(--color-tinta)"
+            >
+              {formatearMoneda(tope, viaje.moneda)}
+            </button>
+          ) : (
+            <span className="cifra">{formatearMoneda(tope, viaje.moneda)}</span>
+          )}
+          <span className="cifra">· {consumido}%</span>
         </span>
 
         {/* La leyenda repite la forma de la señal, no la nombra: «la muesca» no

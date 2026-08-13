@@ -157,7 +157,7 @@ function ResumenViaje({
       <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
         <div className="flex flex-col gap-6">
           <CifraDeControl viaje={viaje} balance={balance} />
-          <Medidor viaje={viaje} balance={balance} />
+          <Medidor viaje={viaje} balance={balance} onAjustar={() => setAjustando(true)} />
         </div>
 
         {/* Centrada: la columna de palabras es más corta que la de cifras, y
@@ -174,13 +174,18 @@ function ResumenViaje({
             <AjustarPresupuesto
               viaje={viaje}
               balance={balance}
-              // El foco vuelve al botón que abrió el panel. Sin esto se
-              // quedaba en `body` al cerrar, y quien navega con teclado tenía
-              // que tabular desde el principio del documento.
+              // El foco vuelve a un botón que abre el panel. El de la alerta
+              // puede haber DESAPARECIDO justo por guardar: si el tope nuevo
+              // devuelve el viaje a «vas bien», la alerta ya no ofrece ajustar
+              // — el desenlace feliz dejaba el foco en `body`. El del medidor
+              // existe siempre, así que es el respaldo.
               onCerrar={() => {
                 setAjustando(false);
                 requestAnimationFrame(() =>
-                  document.getElementById("boton-ajustar")?.focus(),
+                  (
+                    document.getElementById("boton-ajustar") ??
+                    document.getElementById("boton-tope")
+                  )?.focus(),
                 );
               }}
             />

@@ -22,6 +22,7 @@ cinco minutos.
 | Registrar un gasto en el menor número de toques posible | Funcionalidad 3, con la condición explícita de que sea rápida |
 | Dashboard con la cifra de control y el desglose | Funcionalidad 1 |
 | **Editar y borrar un gasto** | Un cero de más no puede dañar la cifra principal para siempre |
+| **Ajustar el tope en cualquier momento** | El mismo argumento, con más fuerza: un cero de más en el tope corrompe todas las cifras derivadas. Y el tope escrito de más es justo el error que nunca enciende la alerta — la entrada de ajuste no puede vivir solo ahí |
 | **Selector de viajes** | Sin él, crear un segundo viaje deja el primero inalcanzable |
 | **Separar gasto adelantado de gasto diario** | El hotel pagado el día 1 rompe cualquier cálculo de ritmo |
 | Alerta de ritmo **con una acción para corregir** | El enunciado pide alertas *"para regular"*, no solo para avisar |
