@@ -6,6 +6,7 @@ import { leerMonto } from "@/lib/moneda.ts";
 import { hoy, sumarDias } from "@/lib/fechas.ts";
 import { Calendario } from "./Calendario.tsx";
 import { CampoMonto } from "./CampoMonto.tsx";
+import { CampoDestino } from "./CampoDestino.tsx";
 
 /**
  * Crear un viaje.
@@ -21,6 +22,7 @@ import { CampoMonto } from "./CampoMonto.tsx";
 export function CrearViaje({ onListo }: { onListo: () => void }) {
   const [nombre, setNombre] = useState("");
   const [destino, setDestino] = useState("");
+  const [destinoTocado, setDestinoTocado] = useState(false);
   const [inicio, setInicio] = useState(hoy());
   const [fin, setFin] = useState(sumarDias(hoy(), 6));
   const [presupuesto, setPresupuesto] = useState("");
@@ -83,13 +85,25 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
     <form onSubmit={guardar} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label htmlFor="nombre" className={etiqueta}>A dónde vas</label>
-        <input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)}
-          placeholder="Cartagena" className={`${campo} ancho-medio text-2xl`} autoFocus />
+        <CampoDestino
+          id="nombre"
+          valor={nombre}
+          onCambio={setNombre}
+          onElegir={(d) => {
+            setNombre(d.ciudad);
+            // El destino completo se rellena solo, pero NO se pisa si la
+            // persona ya escribió el suyo: alguien que puso «Cartagena, con la
+            // familia» no quiere que elegir de la lista se lo borre.
+            if (!destinoTocado) setDestino(`${d.ciudad}, ${d.pais}`);
+          }}
+          placeholder="Cartagena"
+          className={`${campo} ancho-medio text-2xl`}
+        />
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="destino" className={etiqueta}>Destino completo</label>
-        <input id="destino" value={destino} onChange={(e) => setDestino(e.target.value)}
+        <input id="destino" value={destino} onChange={(e) => { setDestino(e.target.value); setDestinoTocado(true); }}
           placeholder="Cartagena, Colombia" className={campo} />
       </div>
 
