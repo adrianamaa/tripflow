@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Balance, Gasto, Viaje } from "@/lib/types.ts";
 import { useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
@@ -202,6 +202,16 @@ export function Tablero() {
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Gasto | null>(null);
 
+  // Abrir «Nuevo viaje» cambia la pantalla entera, y era la única vista de la
+  // app que no gestionaba el foco: quedaba en `body`, así que quien navega con
+  // teclado tabulaba desde cero y el lector de pantalla no anunciaba el cambio.
+  // El foco cae en el título —que anuncia el contexto— y el primer Tab queda
+  // en «Volver».
+  const tituloCrear = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (creando) tituloCrear.current?.focus();
+  }, [creando]);
+
   const viaje = viajes.find((v) => v.id === viajeActivoId) ?? viajes[0] ?? null;
 
   // Antes de hidratar no se sabe si hay viajes: el almacén vive en el
@@ -246,7 +256,9 @@ export function Tablero() {
           </button>
           <Marca tamano={22} />
         </div>
-        <h1 className="ancho-dato m-0 mb-6 text-[26px]">Nuevo viaje</h1>
+        <h1 ref={tituloCrear} tabIndex={-1} className="ancho-dato m-0 mb-6 text-[26px] outline-none">
+          Nuevo viaje
+        </h1>
         <div className="tarjeta">
           <CrearViaje onListo={() => setCreando(false)} />
         </div>
@@ -310,7 +322,11 @@ export function Tablero() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h2 className="rotulo m-0">Gastos</h2>
+          {/* Enfocable a propósito: es a dónde vuelve el foco después de
+              deshacer un borrado, cuando el botón que lo tenía desaparece. */}
+          <h2 id="titulo-gastos" tabIndex={-1} className="rotulo m-0">
+            Gastos
+          </h2>
           <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
         </div>
       </div>

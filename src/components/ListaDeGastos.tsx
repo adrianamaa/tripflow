@@ -112,6 +112,21 @@ export function ListaDeGastos({
         onClick={() => {
           deshacer.fn();
           setDeshacer(null);
+          // El botón desaparece con el clic, y el foco se iba con él a `body`
+          // — justo después de la acción, quien navega con teclado perdía su
+          // posición. El encabezado de la lista es el destino estable: el
+          // gasto restaurado está ahí debajo.
+          document.getElementById("titulo-gastos")?.focus();
+        }}
+        // El temporizador se congela mientras el botón tenga el foco. La
+        // propia app lo pone ahí después de borrar; si además le corriera el
+        // reloj, a quien tarda más de diez segundos en decidir se le esfumaba
+        // el botón debajo del foco.
+        onFocus={() => {
+          if (reloj.current) clearTimeout(reloj.current);
+        }}
+        onBlur={() => {
+          reloj.current = setTimeout(() => setDeshacer(null), 10000);
         }}
         className="ancho-medio ml-auto shrink-0 rounded-(--radius-accion) border border-(--color-tarjeta) px-3 py-1 hover:bg-(--color-tarjeta) hover:text-(--color-tinta)"
       >

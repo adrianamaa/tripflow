@@ -80,8 +80,15 @@ export function RegistrarGasto({
   //
   // Y solo se pide en escritorio: en un teléfono el foco automático levanta el
   // teclado y tapa la mitad de la pantalla antes de que puedas mirar nada.
+  // Y solo si el foco está libre: este efecto corre al HIDRATAR, no al abrir
+  // la página, y con red lenta alguien ya puede ir tabulando por el encabezado
+  // — quitarle el foco a mitad de recorrido lo teletransporta al formulario
+  // sin anuncio. Si el foco ya es de alguien, se respeta.
   useEffect(() => {
-    if (window.matchMedia("(min-width: 1024px)").matches) {
+    const enEscritorio = window.matchMedia("(min-width: 1024px)").matches;
+    const focoLibre =
+      document.activeElement === document.body || document.activeElement === null;
+    if (enEscritorio && focoLibre) {
       campoMonto.current?.focus({ preventScroll: true });
     }
   }, []);
