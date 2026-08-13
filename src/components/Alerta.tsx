@@ -1,7 +1,7 @@
 "use client";
 
 import type { Balance, Gasto, Viaje } from "@/lib/types.ts";
-import { categoriaCulpable, diaEnQueSeAcaba } from "@/lib/presupuesto.ts";
+import { categoriaCulpable, diaEnQueSeAcaba, ritmoNecesario } from "@/lib/presupuesto.ts";
 import { formatearMoneda } from "@/lib/moneda.ts";
 import { diaCorto } from "@/lib/fechas.ts";
 import { IconoCuidado, IconoExcedido, IconoVisto } from "./iconos.tsx";
@@ -159,7 +159,9 @@ function Ritmos({ viaje, balance }: { viaje: Viaje; balance: Balance }) {
       <dt className="rotulo m-0">{excedido ? "Te quedan" : "Te alcanzan"}</dt>
       <dd className="cifra m-0 text-[17px]">{m(balance.ritmoReal ?? 0)}<span className="ancho-ui text-xs text-(--color-tinta-2)"> /día</span></dd>
       <dd className="cifra m-0 text-[17px]">
-        {m(Math.max(0, balance.diarioDisponible))}
+        {/* La palanca que pide el enunciado tiene función propia en el motor;
+            reimplementarla acá era tener dos fuentes para el mismo número. */}
+        {m(ritmoNecesario(balance))}
         <span className="ancho-ui text-xs text-(--color-tinta-2)"> /día</span>
       </dd>
     </dl>

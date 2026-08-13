@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Balance, Gasto, Viaje } from "@/lib/types.ts";
-import { useEstado, useHidratado } from "@/lib/almacen.ts";
+import { reiniciar, useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
 import { diaLargo } from "@/lib/fechas.ts";
 import { Marca } from "./Marca.tsx";
@@ -124,6 +124,59 @@ function Esqueleto() {
         </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * Volver a los datos de ejemplo.
+ *
+ * Existe porque cualquiera va a crear viajes y gastos de prueba, y sin esto
+ * cada prueba se le queda en el selector para siempre — `reiniciar()` estaba
+ * en el almacén con un comentario que prometía exactamente este uso, y ningún
+ * control lo exponía. De paso vuelve alcanzable la pantalla de bienvenida.
+ *
+ * La confirmación es en dos pasos EN EL SITIO, no un `confirm()` del
+ * navegador — el mismo criterio del resto de la app: nada dibujado por el
+ * sistema operativo. Y el segundo paso dice qué se pierde.
+ */
+function VolverAlEjemplo() {
+  const [confirmando, setConfirmando] = useState(false);
+
+  if (!confirmando) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirmando(true)}
+        className="ancho-ui rounded-(--radius-accion) px-3 py-1.5 text-[13px] text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
+      >
+        Volver a los datos de ejemplo
+      </button>
+    );
+  }
+
+  return (
+    <span className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[13px] text-(--color-tinta-2)">
+      Esto borra tus viajes y restaura los dos de ejemplo.
+      <button
+        type="button"
+        // El foco pasa al selector de viajes restaurado vía recarga de estado;
+        // el botón desaparece con el estado de confirmación.
+        onClick={() => {
+          reiniciar();
+          setConfirmando(false);
+        }}
+        className="ancho-medio rounded-(--radius-accion) px-2.5 py-1 text-(--color-excedido) hover:bg-(--color-excedido-fondo)"
+      >
+        Sí, volver
+      </button>
+      <button
+        type="button"
+        onClick={() => setConfirmando(false)}
+        className="ancho-ui rounded-(--radius-accion) px-2.5 py-1 hover:bg-(--color-reposo) hover:text-(--color-tinta)"
+      >
+        Cancelar
+      </button>
+    </span>
   );
 }
 
@@ -354,6 +407,10 @@ export function Tablero() {
           <ListaDeGastos viaje={viaje} gastos={delViaje} onEditar={setEditando} />
         </div>
       </div>
+
+      <footer className="mt-12 flex justify-center">
+        <VolverAlEjemplo />
+      </footer>
 
       {/* El diálogo se monta con el gasto dentro y `key` lo reinicia al cambiar
           de gasto, así que abrir dos gastos distintos no arrastra el estado del
