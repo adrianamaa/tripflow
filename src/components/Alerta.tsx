@@ -303,7 +303,17 @@ function explicar(
 
     return (
       <>
-        {seAcaba ? (
+        {/* Cuando la plata se acaba justo el último día, la forma general decía
+            «te quedas sin presupuesto el sábado 15, y el viaje termina el
+            sábado 15» — la misma fecha dos veces, como si fueran dos datos.
+            Pasa en viajes con hotel prepagado, donde el ritmo come lo que queda
+            casi exacto. Ese caso tiene su propia frase. */}
+        {seAcaba && seAcaba === viaje.fin ? (
+          <>
+            A este ritmo el presupuesto se te acaba justo el {diaCorto(viaje.fin)}, el último día del
+            viaje: llegas, pero sin margen para nada imprevisto.
+          </>
+        ) : seAcaba ? (
           <>
             A este ritmo te quedas sin presupuesto el {diaCorto(seAcaba)}, y el viaje termina el{" "}
             {diaCorto(viaje.fin)}.
