@@ -168,7 +168,12 @@ export function ListaDeGastos({
               <h3 className="ancho-medio m-0 text-[15px] first-letter:uppercase">
                 {diaCorto(fecha)}
               </h3>
-              <span className="cifra text-[13px] text-(--color-tinta-2)">
+              {/* El total del día comparte EJE con los montos de las filas: el
+                  margen es el ancho de la columna de acciones (104px) más su
+                  separación. Pegado al borde derecho quedaba alineado con
+                  «Borrar», y una tarjeta con dos ejes derechos para números
+                  rompe el escaneo vertical de cifras. */}
+              <span className="cifra text-[13px] text-(--color-tinta-2) sm:mr-[116px]">
                 {formatearMoneda(total, viaje.moneda)}
               </span>
             </div>

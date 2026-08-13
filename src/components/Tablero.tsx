@@ -80,9 +80,9 @@ function Esqueleto() {
     <main
       aria-busy="true"
       aria-label="Cargando tus viajes"
-      className="mx-auto w-full max-w-6xl px-5 pt-6 pb-16 sm:px-8 sm:pt-8"
+      className="mx-auto w-full max-w-6xl px-5 pt-4 pb-16 sm:px-8 sm:pt-8"
     >
-      <div className="mb-6 flex flex-col gap-5">
+      <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:gap-5">
         <div className="flex items-center justify-between gap-4">
           <Marca tamano={24} />
           <div className={`${bloque} h-9 w-44`} />
@@ -93,8 +93,8 @@ function Esqueleto() {
         </div>
       </div>
 
-      <section className="tarjeta mb-6 sm:p-7">
-        <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
+      <section className="tarjeta mb-4 sm:mb-6 sm:p-7">
+        <div className="grid gap-5 sm:gap-7 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] md:gap-8 lg:gap-12">
           <div className="flex flex-col gap-4">
             <div className={`${bloque} h-3 w-40`} />
             <div className={`${bloque} h-14 w-64`} />
@@ -153,9 +153,14 @@ function ResumenViaje({
   const [ajustando, setAjustando] = useState(false);
 
   return (
-    <section className="tarjeta mb-6 sm:p-7">
-      <div className="grid gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
-        <div className="flex flex-col gap-6">
+    // La banda se acuesta desde `md`, no desde `lg`. Entre 768 y 1023 quedaba
+    // el layout de móvil estirado —tarjetas de 700px en una columna— y en ese
+    // rango no solo caen las tabletas: una ventana a media pantalla en un
+    // monitor de 1920 da ~960px. A 768 las dos columnas quedan de ~330px, el
+    // mismo reparto que ya funciona en escritorio.
+    <section className="tarjeta mb-4 sm:mb-6 sm:p-7">
+      <div className="grid gap-5 sm:gap-7 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] md:gap-8 lg:gap-12">
+        <div className="flex flex-col gap-4 sm:gap-6">
           <CifraDeControl viaje={viaje} balance={balance} />
           <Medidor viaje={viaje} balance={balance} onAjustar={() => setAjustando(true)} />
         </div>
@@ -239,28 +244,35 @@ export function Tablero() {
 
   if (creando || !viaje) {
     return (
-      <main className="mx-auto w-full max-w-lg px-5 pt-8 pb-16 sm:px-8 sm:pt-12">
-        {/* Volver a la izquierda y la marca a la derecha.
-            Estaban al revés, y era una contradicción: una flecha que apunta a
-            la izquierda puesta en el borde derecho. En una pantalla de segundo
-            nivel el sitio de salida manda, así que se lleva la esquina que el
-            ojo lee primero; la marca cede porque acá no es la protagonista. */}
-        <div className="mb-7 flex items-center justify-between gap-4">
+      <main className="mx-auto w-full max-w-6xl px-5 pt-6 pb-16 sm:px-8 sm:pt-8">
+        {/* La marca ancla la MISMA esquina que en el tablero. Antes acá
+            saltaba al borde derecho — el ancla de identidad moviéndose de
+            esquina entre las dos únicas plantillas de la app. «Volver» sigue
+            a la izquierda, que es donde el ojo busca la salida en una
+            pantalla de segundo nivel, pero alineado con la columna del
+            formulario, que es a donde vuelve la vista. */}
+        <div className="mb-7 flex items-center">
+          <Marca tamano={24} />
+        </div>
+        <div className="mx-auto w-full max-w-lg">
           <button
             type="button"
             onClick={() => setCreando(false)}
-            className="ancho-medio -ml-2 flex items-center gap-1.5 rounded-(--radius-accion) px-2.5 py-1.5 text-sm text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
+            className="ancho-medio -ml-2 mb-5 flex items-center gap-1.5 rounded-(--radius-accion) px-2.5 py-1.5 text-sm text-(--color-tinta-2) hover:bg-(--color-reposo) hover:text-(--color-tinta)"
           >
             <IconoIzquierda tamano={15} />
             Volver
           </button>
-          <Marca tamano={22} />
-        </div>
-        <h1 ref={tituloCrear} tabIndex={-1} className="ancho-dato m-0 mb-6 text-[26px] outline-none">
-          Nuevo viaje
-        </h1>
-        <div className="tarjeta">
-          <CrearViaje onListo={() => setCreando(false)} />
+          <h1
+            ref={tituloCrear}
+            tabIndex={-1}
+            className="ancho-dato m-0 mb-6 text-[26px] outline-none"
+          >
+            Nuevo viaje
+          </h1>
+          <div className="tarjeta">
+            <CrearViaje onListo={() => setCreando(false)} />
+          </div>
         </div>
       </main>
     );
@@ -270,8 +282,11 @@ export function Tablero() {
   const balance = calcularBalance(viaje, delViaje);
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-5 pt-6 pb-16 sm:px-8 sm:pt-8">
-      <header className="mb-6 flex flex-col gap-5">
+    <main className="mx-auto w-full max-w-6xl px-5 pt-4 pb-16 sm:px-8 sm:pt-8">
+      {/* El ritmo vertical se aprieta solo en base: en 390×844 el botón de
+          registrar quedaba 44px bajo el pliegue, y la acción que el enunciado
+          pide «fácil y rápida» necesitaba un scroll para verse completa. */}
+      <header className="mb-3 flex flex-col gap-3 sm:mb-6 sm:gap-5">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <Marca tamano={24} />
           <SelectorDeViajes viajes={viajes} activoId={viaje.id} onNuevo={() => setCreando(true)} />
@@ -279,11 +294,18 @@ export function Tablero() {
 
         <div>
           <h1 className="ancho-dato m-0 text-[28px] leading-tight">{viaje.nombre}</h1>
-          {/* El destino solo se repite si aporta algo. Con «Cartagena» arriba,
-              una línea que diga «Cartagena · 13 de agosto al 19 de agosto» está
-              gastando la mitad de su ancho en decir lo que ya se leyó. */}
+          {/* La línea de abajo solo dice lo que el título no dijo. El destino
+              guardado es «Cartagena, Colombia»; con «Cartagena» de título, acá
+              queda solo «Colombia» — sigue siendo exactamente lo que se
+              escribió al crear el viaje, sin la palabra repetida. */}
           <p className="m-0 text-sm text-(--color-tinta-2)">
-            {viaje.destino && viaje.destino !== viaje.nombre && <>{viaje.destino} · </>}
+            {(() => {
+              if (!viaje.destino || viaje.destino === viaje.nombre) return null;
+              const resto = viaje.destino.startsWith(`${viaje.nombre},`)
+                ? viaje.destino.slice(viaje.nombre.length + 1).trim()
+                : viaje.destino;
+              return resto ? <>{resto} · </> : null;
+            })()}
             {diaLargo(viaje.inicio)} al {diaLargo(viaje.fin)}
           </p>
         </div>

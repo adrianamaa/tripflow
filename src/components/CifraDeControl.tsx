@@ -52,7 +52,7 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
           ? conSigno(balance.sobrante, viaje.moneda)
           : formatearMoneda(balance.diarioDisponible, viaje.moneda)}
       </p>
-      <p className="m-0 mt-2 text-sm text-(--color-tinta-2)">
+      <p className="m-0 mt-1.5 text-sm text-(--color-tinta-2)">
         {excedido ? (
           <>por encima del tope de {formatearMoneda(viaje.presupuesto, viaje.moneda)}</>
         ) : (

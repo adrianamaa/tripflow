@@ -315,6 +315,15 @@
     padding: 1.25rem;
   }
 
+  /* En el teléfono la tarjeta respira un paso menos: los 20px de relleno por
+     lado eran el 10% del ancho de la pantalla, y en vertical empujaban la
+     acción de registrar bajo el pliegue. */
+  @media (max-width: 639px) {
+    .tarjeta {
+      padding: 1rem;
+    }
+  }
+
   /**
    * Campos de línea. Un campo acá no es una caja: es una línea inferior.
    *
@@ -406,6 +415,25 @@
     .fila:hover,
     .fila:focus-within {
       background: var(--color-papel);
+    }
+  }
+
+  /* Donde se toca con el dedo, los objetivos crecen. 24px de alto es el
+     mínimo AA exacto y «Borrar» es destructivo: el alto sube a 40px en toda
+     pantalla táctil, y en el teléfono —donde las acciones tienen su propia
+     línea y sobra ancho— también se separan y se ensanchan. En tableta el
+     ancho no se toca: la columna de acciones mide 104px fijos. */
+  @media (pointer: coarse) {
+    .acciones-fila button {
+      min-height: 40px;
+    }
+  }
+  @media (pointer: coarse) and (max-width: 639px) {
+    .acciones-fila {
+      gap: 8px;
+    }
+    .acciones-fila button {
+      padding-inline: 12px;
     }
   }
 }
