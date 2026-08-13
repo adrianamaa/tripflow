@@ -29,14 +29,27 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
   const [fin, setFin] = useState(sumarDias(hoy(), 6));
   const [presupuesto, setPresupuesto] = useState("");
   const [adelantado, setAdelantado] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // El error sabe DE QUÉ CAMPO es. Decía «Ponle un nombre al viaje» debajo del
+  // botón, cuando la etiqueta del campo dice «A dónde vas»: quien lo leía tenía
+  // que traducir el mensaje a un campo que se llama distinto, y quien usa
+  // lector de pantalla no recibía ninguna marca de cuál falló.
+  const [error, setError] = useState<{ campo: "nombre" | "tope" | null; texto: string } | null>(
+    null,
+  );
+
+  function fallar(campo: "nombre" | "tope", texto: string) {
+    setError({ campo, texto });
+    // El foco va al campo que falló: el error se corrige ahí, no donde se lee.
+    document.getElementById(campo === "tope" ? "tope" : "nombre")?.focus();
+  }
 
   function guardar(e: React.FormEvent) {
     e.preventDefault();
     const tope = leerMonto(presupuesto, "COP");
-    if (!nombre.trim()) return setError("Ponle un nombre al viaje");
-    if (tope === null || tope <= 0) return setError("Escribe cuánto puedes gastar en total");
-    if (fin < inicio) return setError("El regreso no puede ser antes de la salida");
+    // Cada mensaje usa las palabras de la etiqueta a la que apunta.
+    if (!nombre.trim()) return fallar("nombre", "Escribe a dónde vas");
+    if (tope === null || tope <= 0) return fallar("tope", "Escribe cuánto puedes gastar en total");
+    if (fin < inicio) return setError({ campo: null, texto: "El regreso no puede ser antes de la salida" });
     setError(null);
 
     const viajeId = crearViaje({
@@ -119,6 +132,8 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
             setDestino(`${d.ciudad}, ${d.pais}`);
           }}
           placeholder="Cartagena"
+          aria-invalid={error?.campo === "nombre" || undefined}
+          aria-describedby={error?.campo === "nombre" ? "error-viaje" : undefined}
           className={`${campo} ancho-medio text-2xl`}
         />
       </div>
@@ -152,7 +167,10 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       <div className="flex flex-col gap-1">
         <label htmlFor="tope" className={etiqueta}>Cuánto puedes gastar en total</label>
         <CampoMonto id="tope" valor={presupuesto} onCambio={setPresupuesto}
-          placeholder="3.000.000" className={`${campo} cifra-dato text-2xl`} />
+          placeholder="3.000.000"
+          aria-invalid={error?.campo === "tope" || undefined}
+          aria-describedby={error?.campo === "tope" ? "error-viaje" : undefined}
+          className={`${campo} cifra-dato text-2xl`} />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -167,7 +185,11 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
         </p>
       </div>
 
-      {error && <p role="alert" className="m-0 text-sm text-(--color-excedido)">{error}</p>}
+      {error && (
+        <p id="error-viaje" role="alert" className="m-0 text-sm text-(--color-excedido)">
+          {error.texto}
+        </p>
+      )}
 
       <button type="submit"
         className="self-start rounded-(--radius-accion) bg-(--color-acento) px-5 py-2 font-medium text-(--color-sobre-acento)">

@@ -35,6 +35,7 @@ export function CampoMonto({
   autoFocus,
   ref,
   "aria-describedby": describedBy,
+  "aria-invalid": invalido,
 }: {
   id: string;
   valor: string;
@@ -45,6 +46,7 @@ export function CampoMonto({
   autoFocus?: boolean;
   ref?: React.Ref<HTMLInputElement>;
   "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }) {
   const propio = useRef<HTMLInputElement>(null);
   const cursorPendiente = useRef<number | null>(null);
@@ -80,6 +82,7 @@ export function CampoMonto({
       placeholder={placeholder}
       autoFocus={autoFocus}
       aria-describedby={describedBy}
+      aria-invalid={invalido}
       className={className}
     />
   );

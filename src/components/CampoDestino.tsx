@@ -37,6 +37,8 @@ export function CampoDestino({
   onElegir,
   placeholder,
   className,
+  "aria-describedby": describedBy,
+  "aria-invalid": invalido,
 }: {
   id: string;
   valor: string;
@@ -44,6 +46,8 @@ export function CampoDestino({
   onElegir: (d: Destino) => void;
   placeholder?: string;
   className?: string;
+  "aria-describedby"?: string;
+  "aria-invalid"?: boolean;
 }) {
   const [abierto, setAbierto] = useState(false);
   const [indice, setIndice] = useState(-1);
@@ -113,6 +117,8 @@ export function CampoDestino({
         aria-controls={listaId}
         aria-autocomplete="list"
         aria-activedescendant={marcado ? `${listaId}-${indice}` : undefined}
+        aria-describedby={describedBy}
+        aria-invalid={invalido}
         autoComplete="off"
         placeholder={placeholder}
         className={className}
