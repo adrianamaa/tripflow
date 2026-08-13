@@ -122,12 +122,19 @@ function Panel({
   );
 }
 
-/** El icono del estado neutro: contorno hueco, sin color de estado. */
+/**
+ * El icono del estado neutro: contorno hueco, sin color de estado.
+ *
+ * En `tinta-3` y no en `filete`: los paneles neutros tienen fondo papel, y
+ * filete sobre papel da 1.20:1 — el mismo error, medido, que ya había hecho
+ * desaparecer los días bloqueados del calendario. `tinta-3` es el token que
+ * existe exactamente para «lo inactivo que aun así tiene que verse».
+ */
 function PuntoNeutro() {
   return (
     <span
       aria-hidden="true"
-      className="h-[17px] w-[17px] shrink-0 rounded-full border-2 border-(--color-filete)"
+      className="h-[17px] w-[17px] shrink-0 rounded-full border-2 border-(--color-tinta-3)"
     />
   );
 }

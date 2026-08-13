@@ -129,7 +129,7 @@ export function CampoDestino({
           id={listaId}
           role="listbox"
           aria-label="Destinos sugeridos"
-          className="absolute top-full left-0 z-20 m-0 mt-2 flex w-full max-w-[340px] list-none flex-col rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-1.5 shadow-[0_8px_24px_-8px_rgba(12,10,8,0.18)]"
+          className="absolute top-full left-0 z-20 m-0 mt-2 flex w-full max-w-[340px] list-none flex-col rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-1.5 shadow-(--shadow-flotante)"
         >
           {sugerencias.map((d, i) => (
             <li key={`${d.ciudad}-${d.pais}`} id={`${listaId}-${i}`} role="option" aria-selected={i === indice}>

@@ -73,7 +73,7 @@ export function Dialogo({
     <dialog
       ref={ref}
       aria-label={titulo}
-      className="m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-[rgba(12,10,8,0.45)]"
+      className="m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-(--color-velo)"
     >
       {/* Tocar fuera cierra. Se compara contra el propio contenedor para que un
           clic dentro del panel no se lo lleve por delante. */}
@@ -83,7 +83,7 @@ export function Dialogo({
         }}
         className="flex h-full w-full items-end justify-center sm:items-center sm:p-6"
       >
-        <div className="w-full max-w-[460px] rounded-t-[16px] bg-(--color-tarjeta) p-5 sm:rounded-(--radius-caja) sm:p-6">
+        <div className="w-full max-w-[460px] rounded-t-(--radius-hoja) bg-(--color-tarjeta) p-5 sm:rounded-(--radius-caja) sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="ancho-dato m-0 text-lg">{titulo}</h2>
             <button

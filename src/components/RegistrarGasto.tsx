@@ -202,6 +202,12 @@ export function RegistrarGasto({
               // Nada de estilos en línea acá: un `style` le gana a cualquier
               // clase de :hover, así que el estado al pasar el puntero existía
               // en el código y no se veía en pantalla.
+              //
+              // El chip activo va en TINTA, mientras el viaje activo del
+              // header va en MARCA — y es regla, no descuido: la selección de
+              // navegación (dónde estoy) usa la marca; la selección de
+              // captura (qué estoy escribiendo) usa la tinta, porque es un
+              // dato del formulario y los datos no se visten de marca.
               <button
                 key={c}
                 type="button"

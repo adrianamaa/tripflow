@@ -90,6 +90,9 @@ export function AjustarPresupuesto({
       </p>
 
       <div className="flex items-center gap-2">
+        {/* `opacity` y no `brightness` como en los botones lima: aclarar un
+            casi-negro con brightness no se percibe; dejar traslucir el papel
+            sí. Cada física de hover con el fondo que la hace visible. */}
         <button
           type="submit"
           disabled={!valido}

@@ -137,6 +137,19 @@
   --radius-chip: 4px;
   --radius-caja: 10px;
   --radius-accion: 999px;
+  /* La hoja móvil del diálogo: un escalón por encima de la caja porque toca
+     el borde de la pantalla y el radio compite con las esquinas físicas. */
+  --radius-hoja: 16px;
+
+  /* ── Elevación real: solo dos efectos en toda la app ────────────────────
+   * Los planos se separan por superficie, no por sombra — estas dos son las
+   * únicas excepciones y por eso viven acá y no escritas a mano en un
+   * componente: si un panel flotante ajusta su sombra y el otro no, derivan
+   * en silencio.
+   */
+  --shadow-flotante: 0 8px 24px -8px rgba(12, 10, 8, 0.18);
+  /* El velo del diálogo: la tinta al 45%, no un negro cualquiera. */
+  --color-velo: rgba(12, 10, 8, 0.45);
 
   --font-sans: var(--fuente), ui-sans-serif, system-ui, sans-serif;
 }
@@ -297,6 +310,22 @@
     }
   }
 
+  /**
+   * El mapa de tamaños y su rol. La escala mezcla la de Tailwind con cuatro
+   * puntuales, y aunque no están tokenizados, cada uno tiene UN trabajo:
+   *
+   *   11  .rotulo — etiquetas en versalita
+   *   12  text-xs — leyendas del medidor y metadatos mínimos
+   *   13  text-[13px] — línea secundaria de fila, leyenda de la señal
+   *   14  text-sm — prosa de paneles y ayudas
+   *   15  text-[15px] — cuerpo de UI: filas, títulos de panel, botón primario
+   *   17  text-[17px] — las cifras de ritmo comparadas en la alerta
+   *   18–28 — títulos, por nivel
+   *   48/60 — la cifra héroe, la única en ese plano
+   *
+   * Si un tamaño nuevo no cabe en un rol de estos, primero se pregunta si
+   * hace falta el rol, no el tamaño.
+   */
   .rotulo {
     font-variation-settings: "wdth" 100, "wght" 500;
     font-size: 11px;

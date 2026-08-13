@@ -210,7 +210,7 @@ export function Calendario({
              calendario de «Cuándo» —que vive dentro del panel de más campos,
              con tres niveles de relleno encima— se salía por la derecha a 320px
              y aparecía barra de desplazamiento horizontal. */
-          className={`absolute top-full z-20 mt-2 w-[min(276px,80vw)] rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-3 shadow-[0_8px_24px_-8px_rgba(12,10,8,0.18)] ${
+          className={`absolute top-full z-20 mt-2 w-[min(276px,80vw)] rounded-(--radius-caja) border border-(--color-filete) bg-(--color-tarjeta) p-3 shadow-(--shadow-flotante) ${
             alinear === "derecha" ? "right-0" : "left-0"
           }`}
         >

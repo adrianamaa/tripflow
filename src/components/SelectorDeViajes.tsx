@@ -55,13 +55,18 @@ export function SelectorDeViajes({
       {/* Crear un viaje es una de las tres funcionalidades del producto y estaba
           puesta como un enlace de texto gris en una esquina — el tratamiento
           más débil que existe. Ahora es un control con contorno e icono: se lee
-          como una acción sin robarle presencia al viaje activo. */}
+          como una acción sin robarle presencia al viaje activo.
+
+          El borde va en tinta-3 y el «+» en marca: con borde filete sobre el
+          papel, el botón era el elemento más débil de la cabecera —junto a los
+          pills blancos podía leerse deshabilitado— y es la acción que arranca
+          todo el producto. */}
       <button
         type="button"
         onClick={onNuevo}
-        className="ancho-medio ml-1 flex items-center gap-1.5 rounded-(--radius-accion) border border-(--color-filete) px-3.5 py-2 text-sm text-(--color-tinta-2) hover:border-(--color-marca) hover:bg-(--color-marca-suave) hover:text-(--color-marca)"
+        className="ancho-medio ml-1 flex items-center gap-1.5 rounded-(--radius-accion) border border-(--color-tinta-3) px-3.5 py-2 text-sm text-(--color-tinta-2) hover:border-(--color-marca) hover:bg-(--color-marca-suave) hover:text-(--color-marca)"
       >
-        <IconoMas tamano={14} />
+        <IconoMas tamano={14} className="text-(--color-marca)" />
         Nuevo viaje
       </button>
     </div>
