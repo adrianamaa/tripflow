@@ -316,6 +316,61 @@
   }
 
   /**
+   * Campos de línea. Un campo acá no es una caja: es una línea inferior.
+   *
+   * Viven como clase de componente y no como utilidades sueltas POR LA
+   * CASCADA: cualquier `border-*` de utilidad pisa a la capa base, así que el
+   * foco documentado abajo en base («la línea pasa a la marca y dobla su
+   * grosor») no ocurría en ningún campo — cada uno traía su propio
+   * `focus:border-tinta` encima y la línea quedaba de dos colores apilados.
+   * Con la clase acá, el reposo y el foco se declaran en la misma capa y no
+   * hay utilidad que gane sin querer.
+   */
+  .campo-linea {
+    width: 100%;
+    border-bottom: 1px solid var(--color-filete);
+    padding-bottom: 0.25rem;
+    background: transparent;
+    outline: none;
+  }
+  .campo-linea:focus-visible {
+    border-bottom-color: var(--color-marca);
+    box-shadow: 0 1px 0 0 var(--color-marca);
+  }
+
+  /**
+   * El campo de plata: la misma línea, al doble de grosor —es el protagonista
+   * de su formulario— y con el símbolo de peso fijo adelante. Todo monto que
+   * la app MUESTRA dice «$ 45.000»; un campo que lo pide sin el símbolo era
+   * el mismo dato con otro uniforme. El símbolo va en el contenedor y no
+   * dentro del valor para que no se pueda borrar ni contar como dígito.
+   */
+  .campo-plata {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4em;
+    border-bottom: 2px solid var(--color-filete);
+    padding-bottom: 0.25rem;
+  }
+  .campo-plata:focus-within {
+    border-bottom-color: var(--color-marca);
+    box-shadow: 0 1px 0 0 var(--color-marca);
+  }
+  .campo-plata > input {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+  }
+  /* El foco lo dibuja el contenedor; el subrayado de la regla base sobre el
+     input quedaría flotando a mitad del campo. */
+  .campo-plata > input:focus-visible {
+    box-shadow: none;
+  }
+
+  /**
    * Acciones de fila (editar, borrar).
    *
    * Trece filas con dos enlaces cada una son veintiséis enlaces compitiendo con

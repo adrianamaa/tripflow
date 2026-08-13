@@ -157,9 +157,12 @@ export function RegistrarGasto({
           valor={monto}
           onCambio={setMonto}
           moneda={viaje.moneda}
-          placeholder="45.000"
+          // «0» y no «45.000»: un número realista en gris parecía un monto ya
+          // puesto, no un ejemplo. Con el símbolo fijo adelante, «$ 0» es
+          // inequívocamente un campo vacío.
+          placeholder="0"
           aria-describedby={error ? "monto-error" : undefined}
-          className="cifra-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl outline-none focus:border-(--color-tinta)"
+          className="cifra-dato text-3xl"
         />
         {error && (
           <p id="monto-error" role="alert" className="m-0 text-sm text-(--color-excedido)">
@@ -241,7 +244,7 @@ export function RegistrarGasto({
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Almuerzo en Getsemaní"
-              className="border-b border-(--color-filete) bg-transparent pb-1 outline-none focus:border-(--color-tinta)"
+              className="campo-linea"
             />
           </div>
           <Calendario id="fecha" etiqueta="Cuándo" valor={fecha} onCambio={setFecha} />

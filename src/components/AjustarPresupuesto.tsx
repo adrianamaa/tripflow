@@ -61,7 +61,7 @@ export function AjustarPresupuesto({
           onCambio={setTexto}
           moneda={viaje.moneda}
           autoFocus
-          className="cifra-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-2xl outline-none focus:border-(--color-tinta)"
+          className="cifra-dato text-2xl"
         />
       </div>
 

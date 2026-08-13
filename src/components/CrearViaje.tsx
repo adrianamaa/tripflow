@@ -92,8 +92,6 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
     onListo();
   }
 
-  const campo =
-    "w-full border-b border-(--color-filete) bg-transparent pb-1 outline-none focus:border-(--color-tinta)";
   const etiqueta = "rotulo";
 
   return (
@@ -134,7 +132,7 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
           placeholder="Cartagena"
           aria-invalid={error?.campo === "nombre" || undefined}
           aria-describedby={error?.campo === "nombre" ? "error-viaje" : undefined}
-          className={`${campo} ancho-medio text-2xl`}
+          className="campo-linea ancho-medio text-2xl"
         />
       </div>
 
@@ -167,10 +165,10 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
       <div className="flex flex-col gap-1">
         <label htmlFor="tope" className={etiqueta}>Cuánto puedes gastar en total</label>
         <CampoMonto id="tope" valor={presupuesto} onCambio={setPresupuesto}
-          placeholder="3.000.000"
+          placeholder="0"
           aria-invalid={error?.campo === "tope" || undefined}
           aria-describedby={error?.campo === "tope" ? "error-viaje" : undefined}
-          className={`${campo} cifra-dato text-2xl`} />
+          className="cifra-dato text-2xl" />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -178,7 +176,7 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
         {/* El marcador decía «Hotel, vuelos» en un campo de números con teclado
             decimal: pedía texto y esperaba una cifra. */}
         <CampoMonto id="adelantado" valor={adelantado} onCambio={setAdelantado}
-          placeholder="1.400.000" className={`${campo} cifra`} />
+          placeholder="0" className="cifra" />
         <p className="m-0 text-xs leading-relaxed text-(--color-tinta-2)">
           El hotel y los vuelos, por ejemplo. Queda registrado como un gasto ya hecho y marcado para
           que no cuente en tu ritmo diario, porque no se repite.

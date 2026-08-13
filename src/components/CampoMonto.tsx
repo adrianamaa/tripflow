@@ -66,24 +66,32 @@ export function CampoMonto({
   }
 
   return (
-    <input
-      id={id}
-      ref={(n) => {
-        propio.current = n;
-        if (typeof ref === "function") ref(n);
-        else if (ref) (ref as React.RefObject<HTMLInputElement | null>).current = n;
-      }}
-      value={valor}
-      onChange={alEscribir}
-      // `numeric` y no `decimal`: en pesos no se escriben centavos, así que la
-      // tecla del separador solo estorba en el teclado del teléfono.
-      inputMode="numeric"
-      autoComplete="off"
-      placeholder={placeholder}
-      autoFocus={autoFocus}
-      aria-describedby={describedBy}
-      aria-invalid={invalido}
-      className={className}
-    />
+    // El símbolo vive en el contenedor, no en el valor: así no se puede borrar,
+    // no cuenta como dígito para el cursor, y el campo dice «esto es plata»
+    // igual que toda cifra mostrada. El foco lo pinta `.campo-plata` con
+    // `:focus-within`, porque el borde es del contenedor.
+    <span className={`campo-plata ${className ?? ""}`}>
+      <span aria-hidden="true" className="text-(--color-tinta-2)">
+        $
+      </span>
+      <input
+        id={id}
+        ref={(n) => {
+          propio.current = n;
+          if (typeof ref === "function") ref(n);
+          else if (ref) (ref as React.RefObject<HTMLInputElement | null>).current = n;
+        }}
+        value={valor}
+        onChange={alEscribir}
+        // `numeric` y no `decimal`: en pesos no se escriben centavos, así que la
+        // tecla del separador solo estorba en el teclado del teléfono.
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder={placeholder}
+        autoFocus={autoFocus}
+        aria-describedby={describedBy}
+        aria-invalid={invalido}
+      />
+    </span>
   );
 }
