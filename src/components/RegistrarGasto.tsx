@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CATEGORIAS, type Categoria, type Gasto, type Viaje } from "@/lib/types.ts";
 import { formatearNumero, leerMonto } from "@/lib/moneda.ts";
-import { hoy } from "@/lib/fechas.ts";
+import { acotarFecha, hoy } from "@/lib/fechas.ts";
 import { agregarGasto, editarGasto } from "@/lib/almacen.ts";
 import { Calendario } from "./Calendario.tsx";
 import { CampoMonto } from "./CampoMonto.tsx";
@@ -60,7 +60,13 @@ export function RegistrarGasto({
   );
   const [categoria, setCategoria] = useState<Categoria>(editando?.categoria ?? "comida");
   const [descripcion, setDescripcion] = useState(editando?.descripcion ?? "");
-  const [fecha, setFecha] = useState(editando?.fecha ?? hoy());
+  // «Hoy» solo si hoy es un día del viaje. En un viaje que empieza en tres
+  // semanas, el camino rápido fechaba el gasto ocho días antes de la salida —
+  // el mismo principio que el propio formulario de crear ya aplicaba a lo
+  // adelantado: un viaje no puede tener gastos fuera de sus propios días.
+  const [fecha, setFecha] = useState(
+    editando?.fecha ?? acotarFecha(hoy(), viaje.inicio, viaje.fin),
+  );
   const [fueraDelRitmo, setFueraDelRitmo] = useState(editando?.fueraDelRitmo ?? false);
   const [masCampos, setMasCampos] = useState(Boolean(editando));
   const [error, setError] = useState<string | null>(null);
@@ -141,7 +147,7 @@ export function RegistrarGasto({
      * paso ahorra un toque cuando se anotan tres comidas seguidas.
      */
     if (!editando) {
-      setFecha(hoy());
+      setFecha(acotarFecha(hoy(), viaje.inicio, viaje.fin));
       setFueraDelRitmo(categoria === "alojamiento");
     }
 

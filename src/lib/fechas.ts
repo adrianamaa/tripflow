@@ -97,6 +97,16 @@ export function noHaEmpezado(inicio: FechaISO, desde: FechaISO = hoy()): boolean
   return diasEntre(desde, inicio) > 0;
 }
 
+/**
+ * Encierra una fecha dentro de un rango. En formato ISO la comparación de
+ * texto ES la comparación de fechas, así que no hace falta convertir.
+ */
+export function acotarFecha(fecha: FechaISO, min: FechaISO, max: FechaISO): FechaISO {
+  if (fecha < min) return min;
+  if (fecha > max) return max;
+  return fecha;
+}
+
 const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 const MESES = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",

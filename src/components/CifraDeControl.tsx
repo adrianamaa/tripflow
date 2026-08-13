@@ -1,7 +1,8 @@
 "use client";
 
 import type { Balance, Viaje } from "@/lib/types.ts";
-import { formatearMoneda } from "@/lib/moneda.ts";
+import { conSigno, formatearMoneda } from "@/lib/moneda.ts";
+import { diaCorto, noHaEmpezado } from "@/lib/fechas.ts";
 
 /**
  * La cifra protagonista.
@@ -21,8 +22,11 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
         <p className="rotulo m-0">
           El viaje terminó
         </p>
+        {/* `conSigno` y no el formateador a secas: con sobrante negativo,
+            Intl pone el guion del teclado (U+002D), corto y descolgado de las
+            cifras — justo lo que moneda.ts documenta como error. */}
         <p className="cifra-hero m-0 mt-1 text-5xl">
-          {formatearMoneda(balance.sobrante, viaje.moneda)}
+          {conSigno(balance.sobrante, viaje.moneda)}
         </p>
         <p className="m-0 mt-1 text-sm text-(--color-tinta-2)">
           {balance.sobrante >= 0 ? "te sobraron" : "te pasaste por este valor"}
@@ -45,7 +49,7 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
         style={{ color: excedido ? "var(--color-excedido)" : undefined }}
       >
         {excedido
-          ? `−${formatearMoneda(Math.abs(balance.sobrante), viaje.moneda)}`
+          ? conSigno(balance.sobrante, viaje.moneda)
           : formatearMoneda(balance.diarioDisponible, viaje.moneda)}
       </p>
       <p className="m-0 mt-2 text-sm text-(--color-tinta-2)">
@@ -54,7 +58,12 @@ export function CifraDeControl({ viaje, balance }: { viaje: Viaje; balance: Bala
         ) : (
           <>
             {formatearMoneda(balance.sobrante, viaje.moneda)} entre {balance.diasRestantes}{" "}
-            {balance.diasRestantes === 1 ? "día" : "días"} (incluye hoy)
+            {balance.diasRestantes === 1 ? "día" : "días"}{" "}
+            {/* «(incluye hoy)» en un viaje que no ha empezado era falso: hoy
+                no es un día del viaje. La coletilla dice desde cuándo corre. */}
+            {noHaEmpezado(viaje.inicio)
+              ? `(desde el ${diaCorto(viaje.inicio)})`
+              : "(incluye hoy)"}
           </>
         )}
       </p>
