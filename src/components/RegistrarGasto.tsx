@@ -6,6 +6,7 @@ import { formatearNumero, leerMonto } from "@/lib/moneda.ts";
 import { hoy } from "@/lib/fechas.ts";
 import { agregarGasto, editarGasto } from "@/lib/almacen.ts";
 import { Calendario } from "./Calendario.tsx";
+import { CampoMonto } from "./CampoMonto.tsx";
 import { IconoVistoCasilla } from "./iconos.tsx";
 
 /**
@@ -145,7 +146,7 @@ export function RegistrarGasto({
         <label htmlFor="monto" className="rotulo">
           Cuánto gastaste
         </label>
-        <input
+        <CampoMonto
           id="monto"
           ref={campoMonto}
           // Dentro de un diálogo, `showModal()` manda el foco al primer elemento
@@ -153,10 +154,9 @@ export function RegistrarGasto({
           // pedido desde un efecto. El atributo se lo dice al navegador antes,
           // así que abrir para editar deja el cursor en el monto.
           autoFocus={Boolean(editando)}
-          value={monto}
-          onChange={(e) => setMonto(e.target.value)}
-          inputMode="decimal"
-          autoComplete="off"
+          valor={monto}
+          onCambio={setMonto}
+          moneda={viaje.moneda}
           placeholder="45.000"
           aria-describedby={error ? "monto-error" : undefined}
           className="cifra-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-3xl outline-none focus:border-(--color-tinta)"

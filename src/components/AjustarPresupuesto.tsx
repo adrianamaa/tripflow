@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { Balance, Viaje } from "@/lib/types.ts";
 import { editarViaje } from "@/lib/almacen.ts";
-import { formatearMoneda, leerMonto } from "@/lib/moneda.ts";
+import { formatearMoneda, formatearNumero, leerMonto } from "@/lib/moneda.ts";
+import { CampoMonto } from "./CampoMonto.tsx";
 
 /**
  * Ajustar el resto del viaje.
@@ -28,7 +29,9 @@ export function AjustarPresupuesto({
   balance: Balance;
   onCerrar: () => void;
 }) {
-  const [texto, setTexto] = useState(String(viaje.presupuesto));
+  // Formateado de entrada, como en los otros campos de plata: el tope actual
+  // aparecía como «3000000» en un formulario donde todo lo demás dice «3.000.000».
+  const [texto, setTexto] = useState(formatearNumero(viaje.presupuesto, viaje.moneda));
 
   const nuevoTope = leerMonto(texto, viaje.moneda);
   const valido = nuevoTope !== null && nuevoTope > 0;
@@ -52,13 +55,13 @@ export function AjustarPresupuesto({
         <label htmlFor="tope-nuevo" className="rotulo">
           Tope del viaje
         </label>
-        <input
+        <CampoMonto
           id="tope-nuevo"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          inputMode="decimal"
+          valor={texto}
+          onCambio={setTexto}
+          moneda={viaje.moneda}
           autoFocus
-          className="cifra w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-2xl outline-none focus:border-(--color-tinta)"
+          className="cifra-dato w-full border-b-2 border-(--color-filete) bg-transparent pb-1 text-2xl outline-none focus:border-(--color-tinta)"
         />
       </div>
 

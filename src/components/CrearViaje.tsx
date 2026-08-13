@@ -5,6 +5,7 @@ import { agregarGasto, crearViaje } from "@/lib/almacen.ts";
 import { leerMonto } from "@/lib/moneda.ts";
 import { hoy, sumarDias } from "@/lib/fechas.ts";
 import { Calendario } from "./Calendario.tsx";
+import { CampoMonto } from "./CampoMonto.tsx";
 
 /**
  * Crear un viaje.
@@ -120,16 +121,16 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
 
       <div className="flex flex-col gap-1">
         <label htmlFor="tope" className={etiqueta}>Cuánto puedes gastar en total</label>
-        <input id="tope" value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)}
-          inputMode="decimal" placeholder="3.000.000" className={`${campo} cifra-dato text-2xl`} />
+        <CampoMonto id="tope" valor={presupuesto} onCambio={setPresupuesto}
+          placeholder="3.000.000" className={`${campo} cifra-dato text-2xl`} />
       </div>
 
       <div className="flex flex-col gap-1">
         <label htmlFor="adelantado" className={etiqueta}>Ya pagaste algo (opcional)</label>
         {/* El marcador decía «Hotel, vuelos» en un campo de números con teclado
             decimal: pedía texto y esperaba una cifra. */}
-        <input id="adelantado" value={adelantado} onChange={(e) => setAdelantado(e.target.value)}
-          inputMode="decimal" placeholder="1.400.000" className={`${campo} cifra`} />
+        <CampoMonto id="adelantado" valor={adelantado} onCambio={setAdelantado}
+          placeholder="1.400.000" className={`${campo} cifra`} />
         <p className="m-0 text-xs leading-relaxed text-(--color-tinta-2)">
           El hotel y los vuelos, por ejemplo. Queda registrado como un gasto ya hecho y marcado para
           que no cuente en tu ritmo diario, porque no se repite.
