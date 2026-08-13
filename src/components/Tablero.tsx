@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Gasto } from "@/lib/types.ts";
 import { useEstado, useHidratado } from "@/lib/almacen.ts";
 import { calcularBalance } from "@/lib/presupuesto.ts";
@@ -132,9 +132,20 @@ export function Tablero() {
   const hidratado = useHidratado();
   const [creando, setCreando] = useState(false);
   const [editando, setEditando] = useState<Gasto | null>(null);
-  const [ajustando, setAjustando] = useState(false);
+  // Guarda PARA QUÉ viaje se abrió el panel, no solo que está abierto. Con un
+  // booleano, cambiar de viaje con el panel abierto dejaba el formulario cargado
+  // con el tope del viaje anterior, y guardar se lo escribía al viaje nuevo —
+  // pérdida de datos sin confirmación y sin deshacer.
+  const [ajustando, setAjustando] = useState<string | null>(null);
 
   const viaje = viajes.find((v) => v.id === viajeActivoId) ?? viajes[0] ?? null;
+  const viajeId = viaje?.id ?? null;
+
+  // Cambiar de viaje cierra el panel del todo: si quedara el id viejo guardado,
+  // volver a ese viaje lo reabriría solo, sin que nadie lo pidiera.
+  useEffect(() => {
+    setAjustando((a) => (a !== null && a !== viajeId ? null : a));
+  }, [viajeId]);
 
   // Antes de hidratar no se sabe si hay viajes: el almacén vive en el
   // navegador. Pintar la bienvenida acá sería afirmar que no hay nada.
@@ -226,17 +237,22 @@ export function Tablero() {
               viaje={viaje}
               balance={balance}
               gastos={delViaje}
-              onAjustar={() => setAjustando(true)}
+              onAjustar={() => setAjustando(viaje.id)}
             />
-            {ajustando && (
+            {/* Solo se pinta si el panel se abrió para ESTE viaje, y `key` lo
+                remonta si el viaje cambia: dos barreras para que el formulario
+                nunca muestre el tope de un viaje sobre otro. El mismo patrón
+                que ya usa <RegistrarGasto> más abajo. */}
+            {ajustando === viaje.id && (
               <AjustarPresupuesto
+                key={viaje.id}
                 viaje={viaje}
                 balance={balance}
                 // El foco vuelve al botón que abrió el panel. Sin esto se
                 // quedaba en `body` al cerrar, y quien navega con teclado tenía
                 // que tabular desde el principio del documento.
                 onCerrar={() => {
-                  setAjustando(false);
+                  setAjustando(null);
                   requestAnimationFrame(() =>
                     document.getElementById("boton-ajustar")?.focus(),
                   );
