@@ -21,8 +21,10 @@ import { CampoDestino } from "./CampoDestino.tsx";
  */
 export function CrearViaje({ onListo }: { onListo: () => void }) {
   const [nombre, setNombre] = useState("");
+  // El destino completo no tiene campo propio: lo escribe el de arriba. Guarda
+  // «Cartagena, Colombia» cuando se elige de la lista y el texto tal cual
+  // cuando se escribe libre.
   const [destino, setDestino] = useState("");
-  const [destinoTocado, setDestinoTocado] = useState(false);
   const [inicio, setInicio] = useState(hoy());
   const [fin, setFin] = useState(sumarDias(hoy(), 6));
   const [presupuesto, setPresupuesto] = useState("");
@@ -83,28 +85,42 @@ export function CrearViaje({ onListo }: { onListo: () => void }) {
 
   return (
     <form onSubmit={guardar} className="flex flex-col gap-4">
+      {/**
+        * UN SOLO CAMPO DE DESTINO.
+        *
+        * Había dos, «A dónde vas» y «Destino completo», y existían porque en el
+        * tablero ocupan dos sitios distintos: el título grande y la línea de
+        * abajo. Pero eso es un problema de estructura de datos, no una pregunta
+        * que valga la pena hacerle a alguien que está creando un viaje —y al
+        * llegar el autocompletado quedaron los dos rellenándose solos con casi
+        * lo mismo, uno debajo del otro.
+        *
+        * Ahora se escribe una vez. Elegir de la lista guarda el país aparte
+        * para la línea de abajo; escribiendo libre, el destino es lo que se
+        * haya escrito y esa línea no aparece.
+        *
+        * ⚠️ Recorte consciente: no se puede nombrar un viaje distinto de su
+        * destino —«Luna de miel», «Puente con los primos»—. Se cambia un campo
+        * en todos los viajes por una posibilidad que casi nadie usa.
+        */}
       <div className="flex flex-col gap-1">
         <label htmlFor="nombre" className={etiqueta}>A dónde vas</label>
         <CampoDestino
           id="nombre"
           valor={nombre}
-          onCambio={setNombre}
+          onCambio={(t) => {
+            setNombre(t);
+            // Escribiendo a mano no hay país que añadir: el destino es
+            // exactamente lo que la persona escribió.
+            setDestino(t);
+          }}
           onElegir={(d) => {
             setNombre(d.ciudad);
-            // El destino completo se rellena solo, pero NO se pisa si la
-            // persona ya escribió el suyo: alguien que puso «Cartagena, con la
-            // familia» no quiere que elegir de la lista se lo borre.
-            if (!destinoTocado) setDestino(`${d.ciudad}, ${d.pais}`);
+            setDestino(`${d.ciudad}, ${d.pais}`);
           }}
           placeholder="Cartagena"
           className={`${campo} ancho-medio text-2xl`}
         />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="destino" className={etiqueta}>Destino completo</label>
-        <input id="destino" value={destino} onChange={(e) => { setDestino(e.target.value); setDestinoTocado(true); }}
-          placeholder="Cartagena, Colombia" className={campo} />
       </div>
 
       <div className="grid grid-cols-2 gap-3">

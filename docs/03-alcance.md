@@ -42,6 +42,8 @@ Cada una va al README con su motivo. Un recorte explicado demuestra criterio; un
 | Cuentas de usuario y sincronización | Sin login se abre el link y se usa la app de una. Con login, mucha gente no entra |
 | Importar datos | Nadie tiene datos que importar todavía |
 | Atajos de teclado más allá de Enter y Esc | Aporta poco frente a lo que cuesta probarlos bien |
+| **Ponerle al viaje un nombre distinto de su destino** | Había dos campos, «A dónde vas» y «Destino completo», y con el autocompletado quedaron rellenándose solos con casi lo mismo. Se cambió un campo que se ve en TODOS los viajes por una posibilidad —«Luna de miel», «Puente con los primos»— que casi nadie usa. |
+| **Buscar destinos contra una API de lugares** | La lista de sugerencias es local, ~110 destinos escogidos. Una llamada de red en el primer campo del primer formulario rompería lo único que hace que la app abra en dos segundos sin depender de nadie. Quien vaya a un pueblo que no está lo escribe: sugerir no es exigir. |
 
 ## Por qué los datos viven en el navegador
 

@@ -199,8 +199,12 @@ export function Tablero() {
 
         <div>
           <h1 className="ancho-dato m-0 text-[28px] leading-tight">{viaje.nombre}</h1>
+          {/* El destino solo se repite si aporta algo. Con «Cartagena» arriba,
+              una línea que diga «Cartagena · 13 de agosto al 19 de agosto» está
+              gastando la mitad de su ancho en decir lo que ya se leyó. */}
           <p className="m-0 text-sm text-(--color-tinta-2)">
-            {viaje.destino} · {diaLargo(viaje.inicio)} al {diaLargo(viaje.fin)}
+            {viaje.destino && viaje.destino !== viaje.nombre && <>{viaje.destino} · </>}
+            {diaLargo(viaje.inicio)} al {diaLargo(viaje.fin)}
           </p>
         </div>
       </header>
