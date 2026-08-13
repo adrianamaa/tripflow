@@ -83,8 +83,16 @@ export function Medidor({
   // de lo ya pagado. La referencia de ritmo solo tiene sentido sobre él.
   const tramoVariable = Math.max(0, 100 - anchoFijo);
   const marca = Math.min(100, anchoFijo + tramoVariable * proporcion);
+  // Con el tope reventado la señal se apaga, y no es solo por contraste
+  // (verde sobre la barra roja llena: 1.58:1, un tercer fondo contra el que
+  // nunca se despejó). Es que ya no regula nada: la referencia queda DETRÁS
+  // del gasto y la alerta de al lado ya dice qué hacer.
   const hayMarca =
-    !balance.terminado && balance.diasCerrados > 0 && balance.gastadoTotal > 0 && marca < 99;
+    !balance.terminado &&
+    !excedido &&
+    balance.diasCerrados > 0 &&
+    balance.gastadoTotal > 0 &&
+    marca < 99;
 
   // La barra va en tinta, no en el acento: el acento está reservado para la
   // acción de registrar. Si se gasta acá, deja de significar «esto se toca».
@@ -113,7 +121,10 @@ export function Medidor({
           aria-valuenow={Math.min(100, Math.max(0, consumido))}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuetext={`${formatearMoneda(balance.gastadoTotal, viaje.moneda)} de ${formatearMoneda(tope, viaje.moneda)}, ${consumido}%`}
+          // La referencia de ritmo también viaja acá: la señal dibujada es
+          // aria-hidden, y sin esto quien usa lector de pantalla oía la barra
+          // sin el «¿y eso es mucho?» que la marca le responde a quien la ve.
+          aria-valuetext={`${formatearMoneda(balance.gastadoTotal, viaje.moneda)} de ${formatearMoneda(tope, viaje.moneda)}, ${consumido}%${hayMarca ? `; lo parejo a estas alturas sería ${Math.round(marca)}%` : ""}`}
           className="relative h-3 w-full overflow-hidden rounded-full bg-(--color-reposo)"
         >
           {/* Adelantado: el mismo color, más claro. Es el mismo dinero, otro
@@ -154,6 +165,32 @@ export function Medidor({
         )}
       </div>
 
+      {/**
+        * La leyenda de la señal vive DEBAJO de la señal, centrada en su x.
+        *
+        * Antes compartía renglón con la leyenda del progreso, a 80px de la
+        * marca que explica: dos leyendas de temas distintos en una línea, y la
+        * del ritmo lejos de lo suyo. Anclada, la conexión marca-etiqueta se
+        * hace sola. El clamp evita que se salga de la tarjeta en los extremos.
+        *
+        * `aria-hidden`: para el lector de pantalla esta información ya va en
+        * el aria-valuetext de la barra, con su número.
+        */}
+      {hayMarca && (
+        <div aria-hidden="true" className="relative h-4 text-[13px] text-(--color-tinta-2)">
+          <span
+            className="absolute top-0 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap"
+            style={{ left: `clamp(78px, ${marca}%, calc(100% - 78px))` }}
+          >
+            {/* La muestra repite la señal tal cual se dibuja — el mismo trazo,
+                el mismo color: si la leyenda no se parece a lo que hay en la
+                barra, no sirve de leyenda. */}
+            <span className="inline-block h-3 w-1 shrink-0 rounded-full bg-(--color-marca-media)" />
+            deberías ir por acá hoy
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs text-(--color-tinta-2)">
         <span className="flex flex-wrap items-baseline gap-x-1">
           <span className="cifra text-(--color-tinta)">
@@ -190,21 +227,6 @@ export function Medidor({
           )}
           <span className="cifra">· {consumido}%</span>
         </span>
-
-        {/* La leyenda repite la forma de la señal, no la nombra: «la muesca» no
-            le dice nada a quien no sabe qué es una muesca. */}
-        {hayMarca && (
-          <span className="ancho-densa flex items-center gap-1.5 whitespace-nowrap">
-            {/* La muestra repite la señal tal cual se dibuja —el mismo trazo,
-                el mismo color— y no un símbolo aparte: si la leyenda no se
-                parece a lo que hay en la barra, no sirve de leyenda. */}
-            <span
-              aria-hidden="true"
-              className="inline-block h-3.5 w-1 shrink-0 rounded-full bg-(--color-marca-media)"
-            />
-            deberías ir por acá hoy
-          </span>
-        )}
       </div>
 
       {/* Los dos tonos, nombrados. Antes solo se explicaba el claro y el oscuro
@@ -217,8 +239,13 @@ export function Medidor({
               className="inline-block h-2 w-2 shrink-0 rounded-full"
               style={{ background: color, opacity: CLARIDAD_ADELANTADO }}
             />
+            {/* «En pagos únicos» y no «pagados antes de salir»: la casilla
+                permite marcar cualquier gasto —también uno de mitad de viaje,
+                un tour caro— y este tramo los incluye todos. Además es el
+                nombre que ya usan el chip de la fila y la propia casilla:
+                un concepto, un nombre. */}
             <span className="cifra">{formatearMoneda(balance.gastadoFijo, viaje.moneda)}</span>{" "}
-            pagados antes de salir
+            en pagos únicos
           </span>
           <span className="flex items-center gap-1.5">
             <span
