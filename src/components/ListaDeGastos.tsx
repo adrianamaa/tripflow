@@ -155,8 +155,15 @@ export function ListaDeGastos({
   }
 
   // Agrupar por día, del más reciente al más viejo.
+  //
+  // El desempate por `creadoEn` no es cosmético: sin él, dos gastos de la misma
+  // fecha empatan en la comparación y conservan el orden de inserción —o sea del
+  // más viejo al más nuevo— mientras los días van al revés. La lista termina
+  // corriendo en dos sentidos a la vez.
   const porDia = new Map<string, Gasto[]>();
-  for (const g of [...gastos].sort((a, b) => b.fecha.localeCompare(a.fecha))) {
+  for (const g of [...gastos].sort(
+    (a, b) => b.fecha.localeCompare(a.fecha) || b.creadoEn - a.creadoEn,
+  )) {
     porDia.set(g.fecha, [...(porDia.get(g.fecha) ?? []), g]);
   }
 
