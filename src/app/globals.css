@@ -73,10 +73,10 @@
    * aparte, es la versión clara del mismo color.
    *
    * Antes la app tenía TRES verdes sin relación: esta lima en 76°, el estado
-   * bueno en 140°, y la marca en un petróleo de 176°.
-   * Cien grados de tono entre el primero y el último. Eso no es una paleta: son
-   * tres colores que por casualidad se llaman verdes, y en pantalla se notaba —
-   * el visto se veía como «otro verde» y el calendario como «el otro verde».
+   * bueno en 140°, y la marca en un petróleo de 176°. Cien grados de tono entre
+   * el primero y el último. Eso no es una paleta: son tres colores que por
+   * casualidad se llaman verdes, y en pantalla se notaba — el visto se veía
+   * como «otro verde» y el calendario como «el otro verde».
    *
    * Se resolvió anclando la familia en la lima y recalculando el oscuro a su
    * mismo tono, en vez de al revés. Un tono, dos claridades: eso es lo que hace
@@ -89,13 +89,11 @@
   --color-sobre-acento: #0c0a08;
 
   /* ── Estados ────────────────────────────────────────────────────────────
-   * El tono sale de la convención de seguridad: ámbar advierte, rojo marca el
-   * límite pasado. El porqué del valor exacto está en el bloque de abajo y en
-   * docs/04-color.md. El par que de verdad se confunde no es verde-rojo sino
-   * ámbar-rojo —los dos casi no tienen azul—, y por eso ningún estado se
-   * comunica solo con color: siempre llevan icono y palabra.
+   * El par que de verdad se confunde no es verde-rojo sino ámbar-rojo —los dos
+   * son de onda larga y casi no tienen azul—, y por eso ningún estado se
+   * comunica solo con color: siempre llevan icono de silueta propia y palabra.
    *
-   * ⚠️ Medidos con su texto sobre su fondo: cuidado 5.54:1, excedido 5.74:1.
+   * ⚠️ Medidos con su texto sobre su fondo: cuidado 5.54:1, excedido 7.67:1.
    * Los estados viven siempre dentro de una tarjeta blanca, nunca sobre el
    * papel cálido, donde cualquier escalera de claridad se aplana.
    */
@@ -106,29 +104,27 @@
 
      ── De dónde salen estos dos ─────────────────────────────────────────────
 
-     El tono sale de la convención de seguridad: ámbar advierte, rojo marca el
-     límite pasado. El valor sale de tres restricciones verificables —contraste
-     sobre su propio fondo, croma suficiente para que siga señalando, y
-     separación de claridad entre los dos.
+     El TONO sale de la convención de seguridad: ámbar advierte, rojo marca el
+     límite pasado. Es el código de color con más alcance que existe — nadie lo
+     aprendió para esta app y todo el mundo llega con él puesto.
 
-     La razón de que la claridad sea la vía y no el tono: la deuteranopía anula
-     la discriminación rojo-verde SIN oscurecer nada, o sea que el canal de
-     luminancia queda intacto. Quien no separa esos dos tonos sí separa sus
-     claridades.
+     El VALOR sale de tres restricciones verificables:
+     · contraste ≥4.5:1 sobre su propio fondo (WCAG 2.2, SC 1.4.3, nivel AA)
+     · croma alto: un rojo que se oscurece hasta parecer tinta deja de señalar
+     · separación de claridad entre los dos, que es la de abajo
 
-     Lo que se descartó por el camino:
-     · un ámbar que tiraba a marrón y un rojo que tiraba a vino; leídos junto
-       al oliva no se sentían de la misma familia.
-     · una escalera que SUBÍA con la gravedad en vez de bajar, con el ámbar más
-       oscuro que el rojo.
-     · dejar los dos estados casi a la misma claridad, que es como terminan
-       pareciéndose entre sí.
+     ── Por qué la claridad y no solo el tono ────────────────────────────────
 
-     ⚠️ Lo que se pierde al cambiar: separación de escalera. Era un refuerzo,
-     no el requisito. Lo obligatorio —que ningún estado se comunique solo con
+     Porque la deuteranopía anula la discriminación rojo-verde SIN oscurecer
+     nada: el canal de luminancia queda intacto. O sea que quien no separa esos
+     dos tonos sí separa sus claridades, y por eso el rojo baja hasta L* 31.9 en
+     vez de quedarse al lado del ámbar.
+
+     Escalera entre los dos estados: 10.0 puntos de L*. Aun así es un refuerzo,
+     no el requisito: lo obligatorio —que ningún estado se comunique solo con
      color— lo cumplen el icono y la palabra, no el tono. */
-  --color-excedido: #ae2e24;
-  --color-excedido-fondo: #ffeceb; /* excedido encima: 5.74:1 · L* 39.7 */
+  --color-excedido: #961414;
+  --color-excedido-fondo: #ffeceb; /* excedido encima: 7.67:1 · L* 31.9 */
   --color-cuidado: #9e4c00;
   --color-cuidado-fondo: #fff5db; /* cuidado encima: 5.54:1 · L* 41.9 */
 

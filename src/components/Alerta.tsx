@@ -67,8 +67,8 @@ const PALABRA: Record<Balance["estado"], string> = {
 /**
  * «Vas bien» usa el color de la MARCA, no un verde propio.
  *
- * Antes tenía un verde propio en 140° mientras la marca vive en 75°, así que
- * la app mostraba dos verdes sin relación y el visto se leía como «otro verde».
+ * Antes tenía un verde propio en 140° mientras la marca vive en 75°, así que la
+ * app mostraba dos verdes sin relación y el visto se leía como «otro verde».
  *
  * El principio que lo ordena: el verde ES la marca y ES el estado normal. Los
  * colores de estado aparecen solo cuando algo va mal.
