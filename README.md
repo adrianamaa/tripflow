@@ -99,6 +99,7 @@ El motor está separado de la interfaz a propósito: es la parte que tiene regla
 | [`docs/02-proceso-ia.md`](docs/02-proceso-ia.md) | Qué le pedí a la IA, qué me devolvió y qué corregí yo |
 | [`docs/03-alcance.md`](docs/03-alcance.md) | Qué entra, qué queda fuera y por qué |
 | [`docs/04-color.md`](docs/04-color.md) | El sistema de color, con los contrastes medidos |
+| [`docs/05-prueba-con-usuarias.md`](docs/05-prueba-con-usuarias.md) | Qué pasó al ponerla en manos de seis personas |
 
 ---
 
