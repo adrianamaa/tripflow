@@ -18,8 +18,8 @@ import { formatearMoneda } from "@/lib/moneda.ts";
  *
  * ══ LO QUE SE REHIZO, Y POR QUÉ ═══════════════════════════════════════════
  *
- * La raya vertical no se explicaba sola. Un gráfico que hay
- * que explicar ya falló, así que se fue a buscar el motivo y había tres, no uno:
+ * Pregunté qué significaba la raya vertical. Un gráfico que hay que explicar ya
+ * falló, así que fui a buscar el motivo y había tres, no uno:
  *
  * 1. LA MARCA ESTABA EN EL SITIO EQUIVOCADO. Se calculaba sobre el presupuesto
  *    entero, y eso contradice la idea sobre la que está construida la app: el

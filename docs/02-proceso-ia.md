@@ -135,3 +135,31 @@ en pantalla táctil están siempre visibles.
 
 **Qué ajusté yo:** verifiqué el repro del error grave antes de aceptar el arreglo, y se corrigieron
 los cinco.
+
+---
+
+### 13 de agosto — Segunda ronda de crítica, y una decisión de producto con evidencia
+
+**Qué pedí:** una segunda crítica, más dura, con lentes separados trabajando en paralelo y la
+instrucción de refutar cada hallazgo antes de reportarlo. Y aparte, dos tareas de investigación con
+fuentes verificables.
+
+**Qué devolvió:** 63 hallazgos. No todos sobrevivieron la revisión —el de «las acciones de fila
+siempre visibles» era falso: el entorno donde se probó no reporta puntero fino y por eso las veía; en un
+computador real se revelan al acercarse— pero la mayoría eran ciertos y medibles. Los más serios: el
+linter del propio README fallando por un arreglo de esa mañana, comentarios describiendo colores que
+ya no existen, ids duplicados que dejaban al diálogo de editar sin etiqueta accesible, la señal de
+ritmo a 1.58:1 sobre la barra roja de excedido, el rango 768–1023 mostrando el layout de móvil
+estirado, y el botón de registrar 44px por debajo del pliegue en un teléfono.
+
+**Qué ajusté yo:** prioricé y se corrigió por tandas, verificando cada una en el navegador antes del
+commit — el historial de este día cuenta ese orden.
+
+**La decisión de producto:** me pregunté si el usuario debería poder modificar el tope en cualquier
+momento, no solo cuando hay alerta. En vez de decidirlo por intuición pedí investigación: de las apps
+con presupuesto revisadas (Trail Wallet, YNAB, Copilot Money, Monzo), todas permiten editarlo siempre
+desde una entrada permanente y ninguna lo condiciona a una alerta — YNAB lo tiene hasta como regla de
+su método. Y el argumento decisivo salió de nuestra propia app: un tope escrito DE MÁS es justo el
+error que nunca enciende la alerta, así que la única puerta de ajuste jamás aparecía cuando más se
+necesitaba. Se añadió la entrada permanente donde el tope se lee, en la leyenda del medidor, y el
+atajo de la alerta se quedó.

@@ -21,9 +21,8 @@ import { buscarDestinos, type Destino } from "@/lib/destinos.ts";
  *
  * `<datalist>` sería una línea de código, pero se dibuja con el estilo del
  * sistema operativo —imposible de tocar—, no deja mostrar dos líneas por opción
- * y su comportamiento cambia entre navegadores. En un reto donde el estilo lo
- * es todo, eso es exactamente el tipo de control que delata que nadie lo
- * diseñó.
+ * y su comportamiento cambia entre navegadores. Es exactamente el tipo de
+ * control que delata que nadie lo diseñó.
  *
  * Así que va el patrón ARIA de combobox con listbox: `aria-expanded`,
  * `aria-activedescendant` y `role="option"`. El foco NUNCA sale del campo —se

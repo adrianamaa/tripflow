@@ -36,7 +36,7 @@ Cada una va al README con su motivo. Un recorte explicado demuestra criterio; un
 
 | Fuera | Por qué |
 |---|---|
-| Varias monedas con conversión | La conversión exige red y datos en vivo. Un viaje, una moneda, elegida al crearlo |
+| Varias monedas con conversión | La conversión exige red y datos en vivo. Un viaje, una moneda: pesos colombianos. El motor ya formatea otras siete —hay una prueba que cubre los centavos en dólares—; exponer el selector es un paso siguiente, no un requisito |
 | Gasto compartido entre personas | Es otro producto. Splitwise existe |
 | Presupuesto por ciudad dentro de un viaje | Complica el modelo sin resolver el problema del enunciado |
 | Foto del recibo | Bonito en la maqueta, caro de verdad (almacenamiento, permisos, peso) |

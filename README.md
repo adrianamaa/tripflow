@@ -108,3 +108,8 @@ El motor está separado de la interfaz a propósito: es la parte que tiene regla
 - **Ningún estado se comunica solo con color:** cada uno lleva icono de silueta distinta y palabra.
 - Recorrido completo con teclado, incluido el calendario (flechas, Re/Av Pág, Enter, Esc).
 - Respeta `prefers-reduced-motion`.
+
+---
+
+© 2026 Adriana Forero. Entregado para evaluación dentro del proceso de selección de Alegra.
+Todos los derechos reservados.

@@ -3,10 +3,9 @@
  *
  * ── Por qué propios y no una biblioteca ────────────────────────────────────
  *
- * Porque las bibliotecas grandes se reconocen. El trazo de Lucide o de Feather
- * lo identifica de una cualquiera que dibuje interfaces, y este es un reto que
- * premia explícitamente diseñar sin kits prefabricados. Además la app necesita
- * siete iconos: instalar cientos para usar siete es traer una dependencia y un
+ * Porque las bibliotecas grandes se reconocen: el trazo de Lucide o de Feather
+ * lo identifica de una cualquiera que dibuje interfaces. Y la app necesita
+ * siete iconos — instalar cientos para usar siete es traer una dependencia y un
  * estilo ajeno a cambio de nada.
  *
  * ── Qué estaba mal antes ───────────────────────────────────────────────────

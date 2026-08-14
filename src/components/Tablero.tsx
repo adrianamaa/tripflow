@@ -130,9 +130,9 @@ function Esqueleto() {
 /**
  * Volver a los datos de ejemplo.
  *
- * Existe porque cualquiera va a crear viajes y gastos de prueba, y sin esto
- * cada prueba se le queda en el selector para siempre — `reiniciar()` estaba
- * en el almacén con un comentario que prometía exactamente este uso, y ningún
+ * La app abre con dos viajes de ejemplo, así que cualquiera que la pruebe va a
+ * crear viajes y gastos de mentira — y sin esto cada prueba se le queda en el
+ * selector para siempre. `reiniciar()` ya existía en el almacén y ningún
  * control lo exponía. De paso vuelve alcanzable la pantalla de bienvenida.
  *
  * La confirmación es en dos pasos EN EL SITIO, no un `confirm()` del
