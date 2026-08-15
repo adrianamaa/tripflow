@@ -48,6 +48,13 @@ export function crearSemilla(): { viajes: Viaje[]; gastos: Gasto[] } {
     creadoEn: ahora - 86_400_000 * 5,
   };
 
+  // Dos gastos del mismo día NO pueden compartir `creadoEn`. La lista ordena por
+  // fecha y desempata por ese campo; con el instante idéntico el desempate
+  // devuelve cero, el orden se cae al de inserción —del más viejo al más nuevo—
+  // y ese día queda leyéndose al revés que los demás. El minuto de separación es
+  // lo que vuelve determinista el orden dentro del día.
+  let orden = 0;
+
   const g = (
     viaje: Viaje,
     monto: number,
@@ -63,7 +70,7 @@ export function crearSemilla(): { viajes: Viaje[]; gastos: Gasto[] } {
     descripcion,
     fecha: sumarDias(hoyISO, diaRelativo),
     fueraDelRitmo,
-    creadoEn: ahora + diaRelativo * 86_400_000,
+    creadoEn: ahora + diaRelativo * 86_400_000 + orden++ * 60_000,
   });
 
   const gastos: Gasto[] = [

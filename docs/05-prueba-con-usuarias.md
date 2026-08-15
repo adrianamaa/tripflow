@@ -98,9 +98,10 @@ alcanzable.
   no lo ha visto ningún usuario.
 - **Muestra por conveniencia, no probabilística.** Sirve para descubrir problemas, no para estimar a
   cuánta gente le pasan. Y las seis son mujeres.
-- **Que casi no aparecieran problemas no significa que no haya.** Con cero hallazgos en cinco
-  personas solo se descartan problemas que afecten a cerca de la mitad de los usuarios; uno que
-  afecte a un tercio pasa sin verse.
+- **Seis personas no alcanzan para descartar nada.** Aun si no hubiera salido ningún problema, con
+  seis observaciones limpias solo quedarían descartados los que afecten a cerca del 40% de los
+  usuarios: uno que le pase a un tercio se cuela sin que nadie lo vea. Y sí salieron cosas, así que
+  la cifra que importa no es cuántos problemas hay sino cuántos quedaron sin ver.
 - **La segunda pregunta de `01-research.md` sigue abierta:** si la alerta de ritmo se siente útil o
   se siente como un regaño. Ninguna llegó a estado de alerta en el rato que la usó.
 
