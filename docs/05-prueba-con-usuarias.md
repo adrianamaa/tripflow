@@ -91,17 +91,85 @@ alcanzable.
 
 ---
 
+## Una séptima persona, en escritorio y en otro idioma
+
+Después de entregar, una séptima persona probó la app. Va aparte porque entra por un lado que las
+seis primeras no cubrían: **la usó en escritorio**, y las seis la habían usado en el celular. Es
+además el primer hombre. Le di el mismo encuadre de una frase y lo dejé solo, igual que a las demás.
+
+Lo que **no** aporta es viajar poco, aunque a primera vista lo parezca: cuatro de las seis tampoco
+viajan seguido. Está en la tabla de arriba.
+
+Y hay que decir lo que le resta peso: **no habla español, y la app está entera en español.** O sea
+que lo que leyó fue una traducción. Eso no invalida lo que vio, pero obliga a separar sus
+comentarios en dos montones.
+
+### El filtro que usé
+
+Lo que observa **cómo se comporta** la app sobrevive a la traducción: dos elementos que no
+concuerdan, una situación que la app no contempla. Para ver eso no hace falta el idioma.
+
+Lo que observa **si una palabra se entiende** no sobrevive, porque nunca leyó mis palabras.
+
+### Lo que se aplicó
+
+**El ejemplo de la nota no cambiaba con la categoría.** Con «Alojamiento» marcado, el formulario
+proponía «Almuerzo en Getsemaní». Son dos cosas en pantalla que no concuerdan, y eso se ve sin
+entender una sola palabra. Corregido: cada categoría tiene su propio ejemplo.
+
+### Lo que se descartó, con motivo
+
+**«No se entiende qué es el ritmo diario».** Él mismo dejó la duda por escrito: *«maybe this is just
+a translation difference»*. Tenía razón. Nunca vio «ritmo diario», vio su traducción, y en inglés esa
+palabra no lleva la idea de a qué velocidad se está gastando. Contra eso está el dato tomado en el
+idioma real de la app: **las seis primeras entendieron la cifra sin que nadie se la explicara.**
+Manda ese.
+
+**«Las fechas no se actualizan hasta crear el viaje».** Comprobado: sí se actualizan, al instante.
+Lo que probablemente vio es otra cosa — al mover la salida más allá del regreso, el regreso se
+ajusta solo, y visto desde afuera parece que la pantalla hace algo raro.
+
+Pero debajo hay algo cierto que él no llegó a nombrar: **ese formulario no dice qué significan las
+fechas que uno escoge.** No aparece «son siete días» ni «te quedan tanto por día». En una app cuyo
+argumento entero es la cifra diaria, la pantalla donde esa cifra se define no la muestra hasta
+después de crear el viaje. Eso sí entra a lo que sigue.
+
+### Lo que quedó anotado y no se tocó
+
+**Dos viajes al mismo destino se ven iguales en el selector.** Es cierto, y es exactamente el costo
+que quedó anotado en `03-alcance.md` cuando se tomó la decisión, a mitad de la construcción: el
+autocompletado dejó «A dónde vas» y «Destino completo» llenándose solos con casi lo mismo, así que
+se quitó el nombre propio del viaje. Se cambió un campo visible en TODOS los viajes por una
+posibilidad que casi nadie usa. Un usuario acaba de encontrar el costo de ese cambio.
+
+**No tengo seis opiniones del otro lado, y no las voy a inventar.** A las seis primeras nunca se les
+preguntó por esto, y ninguna tuvo dos viajes al mismo destino, así que su silencio no es evidencia
+de nada. Lo que hay es una persona que encontró el costo y seis que no estaban en posición de
+encontrarlo. Eso no alcanza para revertir la decisión, pero sí la mueve de supuesta a medida — que
+es lo único que cambió acá.
+
+**Nada impide crear dos viajes con fechas solapadas.** Cierto, no hay ninguna validación. Si eso se
+bloquea o solo se avisa es una decisión de producto, no un parche, y no se toma a un día de que
+venza el plazo.
+
+---
+
 ## Lo que esto no puede contestar
 
 - **Sin tareas definidas no hay medición de éxito.** Solo hay observación.
-- **Solo celular.** El comportamiento en escritorio —incluido el trabajo de los anchos intermedios—
-  no lo ha visto ningún usuario.
+- **Casi todo en celular.** Seis de las siete personas la usaron en el teléfono. Solo la séptima
+  entró desde escritorio, y una sola pasada no alcanza para dar por visto el trabajo de los anchos
+  intermedios.
 - **Muestra por conveniencia, no probabilística.** Sirve para descubrir problemas, no para estimar a
-  cuánta gente le pasan. Y las seis son mujeres.
+  cuánta gente le pasan. Seis mujeres y un hombre.
 - **Seis personas no alcanzan para descartar nada.** Aun si no hubiera salido ningún problema, con
   seis observaciones limpias solo quedarían descartados los que afecten a cerca del 40% de los
   usuarios: uno que le pase a un tercio se cuela sin que nadie lo vea. Y sí salieron cosas, así que
   la cifra que importa no es cuántos problemas hay sino cuántos quedaron sin ver.
+
+  **La séptima persona no mueve ese número, y por eso no lo moví.** Leyó una traducción, no la app,
+  así que no es una séptima observación limpia del mismo experimento. Sumarla para bajar la cifra
+  sería hacer que el dato diga más de lo que puede.
 - **La segunda pregunta de `01-research.md` sigue abierta:** si la alerta de ritmo se siente útil o
   se siente como un regaño. Ninguna llegó a estado de alerta en el rato que la usó.
 
@@ -117,3 +185,8 @@ cosas, en este orden:
 2. **Una tarea que obligue a recorrer la lista hasta el primer día del viaje**, que es el costo de
    haber dejado lo más reciente arriba y es el lado que todavía no medí.
 3. **Un viaje con la alerta ya disparada**, para contestar la segunda pregunta.
+
+Y una cosa que no es una prueba sino un arreglo, salida de la séptima persona: **que el formulario de
+crear viaje diga qué significan las fechas y el tope mientras se escriben** — cuántos días son y
+cuánto queda por día. Hoy esa cifra, que es el argumento entero de la app, solo aparece cuando el
+viaje ya está creado.

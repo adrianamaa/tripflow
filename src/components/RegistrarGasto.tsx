@@ -40,6 +40,26 @@ const ETIQUETA: Record<Categoria, string> = {
   otros: "Otros",
 };
 
+/**
+ * El ejemplo de la nota, uno por categoría.
+ *
+ * Era uno solo y fijo —«Almuerzo en Getsemaní»— saliera la categoría que
+ * saliera. Con «Alojamiento» marcado, el formulario proponía un almuerzo. Lo
+ * encontró la séptima persona que probó la app, y es de las cosas que se ven
+ * sin entender el idioma: son dos elementos en pantalla que no concuerdan.
+ *
+ * Son ejemplos, no valores por defecto. Importa la diferencia: guardar sin nota
+ * escribe la CATEGORÍA como descripción, no esto.
+ */
+const EJEMPLO: Record<Categoria, string> = {
+  alojamiento: "Noche en el hostal",
+  transporte: "Taxi al aeropuerto",
+  comida: "Almuerzo en Getsemaní",
+  actividades: "Tour a Islas del Rosario",
+  compras: "Sombrero en el mercado",
+  otros: "Lavandería",
+};
+
 export function RegistrarGasto({
   viaje,
   editando,
@@ -242,7 +262,7 @@ export function RegistrarGasto({
               id={`${pref}desc`}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Almuerzo en Getsemaní"
+              placeholder={EJEMPLO[categoria]}
               className="campo-linea"
             />
           </div>
