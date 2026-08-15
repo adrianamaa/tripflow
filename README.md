@@ -45,9 +45,11 @@ Tres pantallas, que son las tres funcionalidades del enunciado:
 adelante»**, recalculado con cada gasto. Es la única cifra que responde la pregunta que uno se hace
 de verdad, que es «¿puedo pedir este plato?».
 
-Y la alerta no avisa por umbral —«llegaste al 80%»— sino **por ritmo**: dice qué día te quedas sin
-plata y a cuánto diario tendrías que ir para llegar al final. Las alertas de umbral llegan tarde y la
-gente las apaga.
+Y la alerta principal no es de umbral —«llegaste al 80%»— sino **de ritmo**: dice qué día te quedas
+sin plata y a cuánto diario tendrías que ir para llegar al final. Las alertas de umbral llegan tarde
+y la gente las apaga. El 80% sigue existiendo, pero de respaldo: el ritmo necesita dos días cerrados
+y tres gastos para poder calcularse, y sin ese piso alguien que se gasta casi todo el primer día
+vería «vas bien».
 
 ### El problema del hotel
 

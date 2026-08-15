@@ -21,10 +21,10 @@ fecha se rompe.
 ## Las barandas, puestas antes de la primera pantalla
 
 Los dos primeros commits del repositorio no son interfaz. Son el planteamiento del problema
-(`b56623b`) y el alcance firmado (`a3e4b79`), y en el primero ya iba escrita la lista de lo que
+(`3a888ef`) y el alcance firmado (`a5f07e0`), y en el primero ya iba escrita la lista de lo que
 queda prohibido acá: nada de librerías de componentes, nada de fuente del sistema, ningún color sin
 un rol definido. El color se midió y se documentó en el commit seis; la primera pantalla llegó en
-el trece.
+el doce.
 
 Eso cambia qué clase de error es posible. Cuando la herramienta propuso algo fuera del sistema, el
 error era detectable contra un documento y no contra mi gusto de ese día.
@@ -66,7 +66,7 @@ Rechacé dos versiones de esa marca antes de la definitiva. Una se leía como un
 resaltador. Y preguntando qué representaba exactamente esa línea apareció que estaba calculada
 sobre el presupuesto entero, incluyendo lo ya pagado antes de salir: el dibujo decía «vas
 disparada» mientras la frase de al lado decía «vas bien». Mandé a rehacer el componente completo
-(`0b57f0c`).
+(`b53c563`).
 
 ## Reproduje el error antes de aceptar el arreglo
 
@@ -75,7 +75,7 @@ viaje dejaba el formulario cargado con el tope del viaje anterior. Guardar se lo
 equivocado. Sin confirmación y sin deshacer.
 
 Lo reproduje yo con las cifras de los dos viajes de ejemplo antes de tocar nada, porque un arreglo
-aprobado sobre una descripción es un arreglo sin verificar. Está corregido en `2bfa206`.
+aprobado sobre una descripción es un arreglo sin verificar. Está corregido en `c231186`.
 
 De ahí salió además una decisión de producto que no estaba en el plan. Si el tope se puede escribir
 mal, ¿por qué la única puerta para corregirlo vivía dentro de una alerta? Fui a buscar cómo lo
