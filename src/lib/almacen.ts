@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import type { Gasto, Viaje } from "./types.ts";
 import { crearSemilla } from "./semilla.ts";
+import { interpretar, type Guardado, type Lectura } from "./lectura.ts";
 
 /**
  * El almacén de datos.
@@ -15,7 +16,7 @@ import { crearSemilla } from "./semilla.ts";
  * Cambiar esto por un servidor real es reemplazar este archivo. Nada más lo
  * toca directamente.
  *
- * ── Dos trampas resueltas acá ──────────────────────────────────────────────
+ * ── Tres trampas resueltas acá ─────────────────────────────────────────────
  *
  * 1. Next dibuja la primera versión de la página en el servidor, donde no existe
  *    `localStorage`. Si el servidor y el navegador dibujan cosas distintas, React
@@ -26,80 +27,97 @@ import { crearSemilla } from "./semilla.ts";
  *    cambie. Si devolviera un objeto nuevo en cada llamada, React entraría en un
  *    ciclo infinito. Por eso el estado se guarda en `actual` y solo se reemplaza
  *    cuando de verdad cambia algo.
+ *
+ * 3. «No hay datos en el disco» NO es lo mismo que «es la primera vez». Este
+ *    archivo los trataba igual en tres sitios distintos —al leer, al recibir un
+ *    cambio de otra pestaña, y al fallar una escritura— y los tres terminaban
+ *    en la misma línea: `crearSemilla()`. O sea que a alguien que ya tenía sus
+ *    viajes la app se los podía cambiar por Cartagena y Medellín, y guardarlo
+ *    encima en la siguiente edición. Ahora la lectura dice CUÁL de los cuatro
+ *    casos encontró y solo uno de ellos siembra.
  */
 
-export interface Estado {
-  viajes: Viaje[];
-  gastos: Gasto[];
-  viajeActivoId: string | null;
-}
+/** El estado del almacén es exactamente lo que se escribe en disco. */
+export type Estado = Guardado;
 
 const CLAVE = "tripflow:v1";
 
 const VACIO: Estado = { viajes: [], gastos: [], viajeActivoId: null };
 
+/** Lo único que el usuario necesita saber de todo esto, cuando hay algo que decir. */
+export type AvisoDeAlmacen = null | "ilegible" | "sin-guardado";
+
 let actual: Estado = VACIO;
+let aviso: AvisoDeAlmacen = null;
 let iniciado = false;
 const oyentes = new Set<() => void>();
 
-const ES_FECHA = /^\d{4}-\d{2}-\d{2}$/;
-
 /**
- * Un registro guardado por una versión anterior, o con una fecha vacía, llega
- * hasta el cálculo y sale por pantalla convertido en `NaN`. No hay forma de que
- * el usuario entienda ni arregle eso, así que se descarta acá.
+ * Lee, y dice qué encontró. No decide nada: decidir es trabajo de `arrancar`.
+ *
+ * Lo único que hace acá es tocar el navegador. Entender el contenido es de
+ * `interpretar`, que no depende de nada y por eso tiene pruebas.
  */
-function viajeValido(v: unknown): v is Viaje {
-  const x = v as Viaje;
-  return (
-    !!x && typeof x.id === "string" &&
-    ES_FECHA.test(x.inicio) && ES_FECHA.test(x.fin) &&
-    Number.isFinite(x.presupuesto)
-  );
-}
-
-function gastoValido(g: unknown): g is Gasto {
-  const x = g as Gasto;
-  return (
-    !!x && typeof x.id === "string" && typeof x.viajeId === "string" &&
-    ES_FECHA.test(x.fecha) && Number.isFinite(x.monto)
-  );
-}
-
-function leerDelDisco(): Estado {
+function leerDelDisco(): Lectura {
+  let crudo: string | null;
   try {
-    const crudo = localStorage.getItem(CLAVE);
-    if (crudo) {
-      const datos = JSON.parse(crudo) as Estado;
-      if (Array.isArray(datos.viajes) && Array.isArray(datos.gastos)) {
-        const viajes = datos.viajes.filter(viajeValido);
-        const idsVivos = new Set(viajes.map((v) => v.id));
-        return {
-          viajes,
-          // Un gasto cuyo viaje ya no existe es un huérfano: nunca se ve y
-          // desordena los totales si alguien lo suma sin filtrar.
-          gastos: datos.gastos.filter((g) => gastoValido(g) && idsVivos.has(g.viajeId)),
-          viajeActivoId: idsVivos.has(datos.viajeActivoId ?? "")
-            ? datos.viajeActivoId
-            : (viajes[0]?.id ?? null),
-        };
-      }
-    }
+    crudo = localStorage.getItem(CLAVE);
   } catch {
-    // Datos corruptos o almacenamiento bloqueado (modo incógnito estricto).
-    // Se sigue con la semilla: es mejor una app que funciona sin recordar nada
-    // que una pantalla en blanco.
+    // Ni leer se puede. No es «no hay nada»: es «no me dejan mirar».
+    return { tipo: "bloqueado" };
   }
-  const { viajes, gastos } = crearSemilla();
-  return { viajes, gastos, viajeActivoId: viajes[0]?.id ?? null };
+  return interpretar(crudo);
 }
 
-function guardarEnDisco(estado: Estado) {
+/** Devuelve si de verdad quedó escrito. Antes se tragaba el error y nadie se enteraba. */
+function guardarEnDisco(estado: Estado): boolean {
   try {
     localStorage.setItem(CLAVE, JSON.stringify(estado));
+    return true;
   } catch {
-    // Sin espacio o sin permiso. La app sigue funcionando en memoria durante
-    // esta sesión; no vale la pena interrumpir al usuario por esto.
+    return false;
+  }
+}
+
+/**
+ * Qué hacer con lo que se encontró.
+ *
+ * La semilla sale de UN solo caso: que la clave no exista. En los otros tres,
+ * ponerla encima es inventarle viajes a alguien que quizá tenía los suyos.
+ */
+function arrancar(): { estado: Estado; aviso: AvisoDeAlmacen } {
+  const lectura = leerDelDisco();
+
+  switch (lectura.tipo) {
+    case "datos":
+      return { estado: lectura.estado, aviso: null };
+
+    case "primera-vez": {
+      const { viajes, gastos } = crearSemilla();
+      const estado = { viajes, gastos, viajeActivoId: viajes[0]?.id ?? null };
+      // Se guarda AL CREARLA. Sin esto, dos pestañas abiertas antes de la
+      // primera edición se inventan cada una su propia semilla, con ids
+      // distintos, y la primera que escriba le deja a la otra un estado donde
+      // no reconoce ni el viaje que tiene en pantalla.
+      return { estado, aviso: guardarEnDisco(estado) ? null : "sin-guardado" };
+    }
+
+    case "bloqueado": {
+      // Acá no hay nada que perder: si no se puede leer, nunca se pudo escribir.
+      // La semilla deja la app usable. Lo que no se vale es callar que lo que
+      // anote se va a perder al recargar.
+      const { viajes, gastos } = crearSemilla();
+      return {
+        estado: { viajes, gastos, viajeActivoId: viajes[0]?.id ?? null },
+        aviso: "sin-guardado",
+      };
+    }
+
+    case "ilegible":
+      // Acá SÍ había algo. Sembrar sería taparlo con datos de mentira, y la
+      // primera edición los guardaría encima: la pérdida pasa de recuperable a
+      // definitiva. Se empieza en blanco y se dice lo que pasó.
+      return { estado: VACIO, aviso: "ilegible" };
   }
 }
 
@@ -118,23 +136,54 @@ function avisar() {
  */
 function asegurarIniciado() {
   if (iniciado || typeof window === "undefined") return;
-  iniciado = true;
-  actual = leerDelDisco();
 
-  // Con la app abierta en dos pestañas, cada una tenía su copia y la última en
-  // escribir borraba lo que la otra hubiera registrado. localStorage es toda la
-  // persistencia que hay acá, así que esa pérdida sería real.
-  window.addEventListener("storage", (e) => {
-    if (e.key !== CLAVE) return;
-    actual = leerDelDisco();
-    avisar();
-  });
+  const arranque = arrancar();
+  actual = arranque.estado;
+  aviso = arranque.aviso;
+  // La bandera se pone AL FINAL. Estaba antes de la lectura, así que si algo de
+  // ahí adentro llegaba a fallar, el almacén quedaba marcado como iniciado con
+  // el estado vacío, nunca se enganchaba el oyente, y la primera edición
+  // escribía ese vacío encima de los viajes guardados.
+  iniciado = true;
+
+  window.addEventListener("storage", alEscribirOtraPestana);
+}
+
+/**
+ * Otra pestaña tocó el almacenamiento.
+ *
+ * Con la app abierta dos veces, cada pestaña tenía su copia y la última en
+ * escribir borraba lo que la otra hubiera registrado. localStorage es toda la
+ * persistencia que hay acá, así que esa pérdida sería real.
+ */
+function alEscribirOtraPestana(e: StorageEvent) {
+  if (e.key !== CLAVE) return;
+
+  const lectura = leerDelDisco();
+  // Si la otra pestaña BORRÓ la clave, la lectura vuelve «primera-vez». Antes
+  // eso significaba semilla: esta pestaña cambiaba el viaje real por Cartagena y
+  // Medellín sin decir nada, y la siguiente edición lo guardaba encima. Ahora no
+  // se toca nada: lo que está en memoria sigue siendo lo bueno, y la próxima
+  // escritura lo devuelve al disco.
+  if (lectura.tipo !== "datos") return;
+
+  // El viaje que estoy mirando es MÍO, no de la otra pestaña. Adoptar el suyo
+  // desmontaba los formularios —van con `key` por viaje— y se llevaba lo que
+  // estuviera a medio escribir, sin nada en pantalla que explicara por qué.
+  const mio = actual.viajeActivoId;
+  const sigueVivo = lectura.estado.viajes.some((v) => v.id === mio);
+
+  actual = sigueVivo ? { ...lectura.estado, viajeActivoId: mio } : lectura.estado;
+  avisar();
 }
 
 function cambiar(fn: (e: Estado) => Estado) {
   asegurarIniciado();
   actual = fn(actual);
-  guardarEnDisco(actual);
+  // El aviso refleja la ÚLTIMA escritura, no una vieja: si el disco vuelve, se
+  // apaga solo. Antes esto no existía y la pantalla mostraba tan campante un
+  // gasto que nunca llegó a guardarse.
+  aviso = guardarEnDisco(actual) ? null : "sin-guardado";
   avisar();
 }
 
@@ -151,6 +200,20 @@ const leerEnServidor = () => VACIO;
 
 export function useEstado(): Estado {
   return useSyncExternalStore(suscribir, leer, leerEnServidor);
+}
+
+/**
+ * ¿Hay algo que decirle al usuario sobre sus datos?
+ *
+ * Un fallo de guardado que solo vive en una variable no le sirve a nadie: la
+ * pantalla seguiría mostrando el gasto igual. Esto es lo que lo saca a la vista.
+ */
+export function useAvisoDeAlmacen(): AvisoDeAlmacen {
+  return useSyncExternalStore(
+    suscribir,
+    () => aviso,
+    () => null,
+  );
 }
 
 /** Nada a lo que suscribirse: el valor solo cambia una vez, al hidratar. */
