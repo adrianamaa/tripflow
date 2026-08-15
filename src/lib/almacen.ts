@@ -174,6 +174,19 @@ function alEscribirOtraPestana(e: StorageEvent) {
   const sigueVivo = lectura.estado.viajes.some((v) => v.id === mio);
 
   actual = sigueVivo ? { ...lectura.estado, viajeActivoId: mio } : lectura.estado;
+
+  // «ilegible» hablaba de lo que había en disco al arrancar, y acabamos de
+  // adoptar datos buenos: ya no es cierto. Dejarlo puesto sería exactamente la
+  // falla que este archivo existe para evitar, un mensaje diciendo lo contrario
+  // de lo que muestra la pantalla.
+  if (aviso === "ilegible") aviso = null;
+
+  // «sin-guardado» NO se toca acá. Ese habla de si YO puedo escribir, y que otra
+  // pestaña lo haya conseguido no lo demuestra: el cupo y los permisos pueden
+  // ser distintos por pestaña. Lo único que lo desmiente es una escritura mía
+  // que funcione, y eso ya pasa en `cambiar`. Apagarlo antes sería prometer un
+  // guardado que no se ha comprobado.
+
   avisar();
 }
 

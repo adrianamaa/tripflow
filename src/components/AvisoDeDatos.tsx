@@ -2,6 +2,13 @@
 
 import { useAvisoDeAlmacen } from "@/lib/almacen.ts";
 
+const TEXTOS = {
+  "sin-guardado":
+    "Este navegador no me está dejando guardar. Puedes usar la app, pero lo que anotes se pierde al recargar.",
+  ilegible:
+    "Había datos guardados en este navegador y no los pude leer. Empiezo en blanco, porque prefiero eso a mostrarte viajes que no son tuyos.",
+} as const;
+
 /**
  * La banda que aparece cuando el almacenamiento no está haciendo su trabajo.
  *
@@ -18,13 +25,6 @@ import { useAvisoDeAlmacen } from "@/lib/almacen.ts";
  * Va arriba de todo y de ancho completo porque no pertenece a ninguna tarjeta
  * en particular. Habla de la app entera.
  */
-const TEXTOS = {
-  "sin-guardado":
-    "Este navegador no me está dejando guardar. Puedes usar la app, pero lo que anotes se pierde al recargar.",
-  ilegible:
-    "Había datos guardados en este navegador y no los pude leer. Empiezo en blanco, porque prefiero eso a mostrarte viajes que no son tuyos.",
-} as const;
-
 export function AvisoDeDatos() {
   const aviso = useAvisoDeAlmacen();
   if (!aviso) return null;

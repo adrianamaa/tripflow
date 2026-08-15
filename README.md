@@ -23,7 +23,7 @@ No hace falta configurar nada: ni variables de entorno, ni base de datos, ni cue
 dos viajes de ejemplo cargados para que se pueda usar de inmediato.
 
 ```bash
-npm test         # 18 pruebas: motor de presupuesto y formato de moneda
+npm test         # 29 pruebas: presupuesto, moneda y lectura del almacén
 npm run build    # build de producción
 npx eslint src   # linter
 ```
